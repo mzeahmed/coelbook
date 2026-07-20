@@ -9,41 +9,41 @@
 
 # Playbook
 
-> Ne résolvez jamais deux fois le même problème.
+> Never solve the same problem twice.
 
-Playbook est une plateforme de capitalisation des connaissances techniques permettant de documenter, retrouver et réutiliser les solutions aux incidents rencontrés au quotidien.
+Playbook is a technical knowledge capitalization platform that lets you document, find and reuse solutions to the incidents you run into day to day.
 
-Chaque problème résolu devient une connaissance exploitable par vous-même, votre équipe ou un assistant IA.
+Every problem solved becomes knowledge you, your team, or an AI assistant can reuse.
 
 ---
 
-# Pourquoi ?
+# Why?
 
-Chaque développeur passe une partie importante de son temps à résoudre des problèmes déjà rencontrés :
+Every developer spends a significant part of their time solving problems they've already run into before:
 
-- erreur Git
-- configuration Docker
-- problème SSH
-- incident CI/CD
-- erreur Kubernetes
-- configuration Traefik
-- problème PostgreSQL
+- Git error
+- Docker configuration
+- SSH issue
+- CI/CD incident
+- Kubernetes error
+- Traefik configuration
+- PostgreSQL issue
 
-Quelques mois plus tard…
+A few months later…
 
-…on recommence les mêmes recherches.
+…the same research starts all over again.
 
-Playbook transforme chaque résolution en une ressource durable.
+Playbook turns every resolution into a lasting resource.
 
 ---
 
 # Vision
 
-Playbook n'est pas un wiki.
+Playbook is not a wiki.
 
-Playbook est une plateforme de capitalisation d'expérience technique.
+Playbook is a technical experience capitalization platform.
 
-Chaque incident suit un cycle de vie :
+Every incident follows a lifecycle:
 
 ```text
 Incident
@@ -54,90 +54,90 @@ Investigation
 
 ↓
 
-Diagnostic
+Diagnosis
 
 ↓
 
-Résolution
+Resolution
 
 ↓
 
-Capitalisation
+Capitalization
 
 ↓
 
-Réutilisation
+Reuse
 ```
 
-L'objectif est simple :
+The goal is simple:
 
-> **Construire votre mémoire technique.**
+> **Build your technical memory.**
 
 ---
 
-# Fonctionnalités
+# Features
 
-## Gestion des incidents
+## Incident management
 
-Chaque incident contient :
+Every incident contains:
 
-- titre
-- résumé
-- catégorie
+- title
+- summary
+- category
 - tags
-- symptômes
-- diagnostic
+- symptoms
+- diagnosis
 - cause
-- résolution
-- prévention
-- commandes
+- resolution
+- prevention
+- commands
 - logs
-- captures
-- pièces jointes
+- screenshots
+- attachments
 
 ---
 
-## Recherche
+## Search
 
-Recherche rapide par :
+Fast search by:
 
-- texte
-- commande
+- text
+- command
 - tag
-- catégorie
-- symptôme
-- message d'erreur
+- category
+- symptom
+- error message
 
 ---
 
-## Assistant IA
+## AI Assistant
 
-L'assistant IA pourra :
+The AI assistant will be able to:
 
-- analyser un log
-- retrouver une résolution existante
-- proposer une nouvelle résolution
-- générer automatiquement une fiche
-
----
-
-## Historique
-
-Chaque modification est historisée.
+- analyze a log
+- find an existing resolution
+- suggest a new resolution
+- automatically generate a write-up
 
 ---
 
-## API REST
+## History
 
-L'application est entièrement pilotée par une API REST.
-
-Le frontend, la CLI et les futures extensions utiliseront la même API.
+Every change is tracked in history.
 
 ---
 
-# Cas d'utilisation
+## REST API
 
-Playbook peut documenter des incidents liés à :
+The application is entirely driven by a REST API.
+
+The frontend, the CLI and future extensions will all use the same API.
+
+---
+
+# Use cases
+
+Playbook can document incidents related to:
 
 - Git
 - GitHub
@@ -158,7 +158,7 @@ Playbook peut documenter des incidents liés à :
 
 ---
 
-# Stack technique
+# Tech stack
 
 ## Backend
 
@@ -172,49 +172,49 @@ Playbook peut documenter des incidents liés à :
 
 ## Frontend
 
-- JavaScript vanilla
+- Vanilla JavaScript
 - TypeScript
 - Vite
 - Bootstrap 5
 
-## Base de données
+## Database
 
 - PostgreSQL
 
-## Déploiement
+## Deployment
 
 - Docker
 - Docker Compose
 
 ---
 
-# Démarrage de l'environnement de développement
+# Starting the development environment
 
-## Prérequis
+## Prerequisites
 
 - Docker
 - Docker Compose
 
-## Installation
+## Setup
 
-1. Copier le fichier d'environnement :
+1. Copy the environment file:
 
    ```bash
    cp .env.example .env
    ```
 
-2. Démarrer l'environnement :
+2. Start the environment:
 
    ```bash
    make up
    ```
 
-   Cette commande :
-   - ajoute `playbook.local` et `api.playbook.local` à `/etc/hosts` (demande le mot de passe sudo)
-   - copie `.env.example` vers `.env` si ce dernier n'existe pas encore
-   - build et démarre les conteneurs : PostgreSQL, backend (hot-reload via [air](https://github.com/air-verse/air)), frontend (serveur de développement Vite), nginx, Adminer
+   This command:
+   - adds `playbook.local` and `api.playbook.local` to `/etc/hosts` (asks for your sudo password)
+   - copies `.env.example` to `.env` if it doesn't exist yet
+   - builds and starts the containers: PostgreSQL, backend (hot-reload via [air](https://github.com/air-verse/air)), frontend (Vite dev server), nginx, Adminer
 
-## Services disponibles
+## Available services
 
 | Service    | URL                        |
 | ---------- | -------------------------- |
@@ -223,27 +223,27 @@ Playbook peut documenter des incidents liés à :
 | Adminer    | http://localhost:8081      |
 | PostgreSQL | localhost:5432             |
 
-## Arrêt
+## Stopping
 
 ```bash
 make down
 ```
 
-Arrête les conteneurs et retire `playbook.local`/`api.playbook.local` de `/etc/hosts`.
+Stops the containers and removes `playbook.local`/`api.playbook.local` from `/etc/hosts`.
 
-## Autres commandes utiles
+## Other useful commands
 
-| Commande | Description |
+| Command | Description |
 | --- | --- |
-| `make logs` | Suivre les logs des conteneurs |
-| `make ps` | Lister les conteneurs |
-| `make bash` | Ouvrir un shell dans le conteneur backend |
-| `make restart` | Redémarrer l'environnement |
-| `make migrate-up` | Appliquer les migrations |
-| `make migrate-down` | Annuler la dernière migration |
-| `make sqlc` | Régénérer le code Go depuis les requêtes SQL |
+| `make logs` | Follow the containers' logs |
+| `make ps` | List the containers |
+| `make bash` | Open a shell in the backend container |
+| `make restart` | Restart the environment |
+| `make migrate-up` | Apply migrations |
+| `make migrate-down` | Roll back the last migration |
+| `make sqlc` | Regenerate Go code from SQL queries |
 
-La liste complète des commandes est disponible via :
+The full list of commands is available via:
 
 ```bash
 make help
@@ -275,40 +275,40 @@ make help
 
 ## V1
 
-- Gestion des incidents
-- Catégories
+- Incident management
+- Categories
 - Tags
-- Recherche
-- Authentification
+- Search
+- Authentication
 
 ## V2
 
-- Assistant IA
+- AI Assistant
 
-- Recherche sémantique
+- Semantic search
 
-- Génération automatique de fiches
+- Automatic write-up generation
 
 ## V3
 
 - CLI
 
-- Extension navigateur
+- Browser extension
 
 - Import / Export
 
-- Synchronisation
+- Sync
 
 ## V4
 
-- Travail collaboratif
+- Collaborative work
 
-- Gestion des équipes
+- Team management
 
 - Permissions
 
 ---
 
-# Licence
+# License
 
 MIT

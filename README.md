@@ -271,44 +271,16 @@ make help
 
 ---
 
-# Roadmap
+# Documentation
 
-## V1
-
-- Incident management
-- Categories
-- Tags
-- Search
-- Authentication
-
-## V2
-
-- AI Assistant
-
-- Semantic search
-
-- Automatic write-up generation
-
-## V3
-
-- CLI
-
-- Browser extension
-
-- Import / Export
-
-- Sync
-
-## V4
-
-- Collaborative work
-
-- Team management
-
-- Permissions
+| Document | Description |
+| --- | --- |
+| [docs/architecture/domain.md](docs/architecture/domain.md) | Domain model: core concepts, entities, terminology |
+| [docs/architecture/data-model.md](docs/architecture/data-model.md) | Data model: entities, fields, relationships |
+| [docs/releases/versioning.md](docs/releases/versioning.md) | Versioning strategy and release roadmap |
 
 ---
 
 # License
 
-MIT
+MIT — see [LICENSE](LICENSE) for details.

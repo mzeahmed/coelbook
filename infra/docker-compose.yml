@@ -1,0 +1,101 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: playbook_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - playbook
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../infra/docker/backend/Dockerfile
+    container_name: playbook_backend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ../backend:/app
+      - /app/tmp
+      - go_mod_cache:/go/pkg/mod
+      - go_build_cache:/root/.cache/go-build
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_PORT: 8080
+      DATABASE_URL: ${DATABASE_URL}
+      # Host/port are hardcoded to the postgres service (the whole point of
+      # overriding them here); user/password/db come from POSTGRES_* so
+      # they can't drift from what the postgres container is initialized with.
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - playbook
+
+  frontend:
+    build:
+      context: ./docker/frontend
+    container_name: playbook_frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    networks:
+      - playbook
+
+  nginx:
+    build:
+      context: ./docker/nginx
+    container_name: playbook_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - playbook
+
+  adminer:
+    image: adminer:latest
+    container_name: playbook_adminer
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - playbook
+
+networks:
+  playbook:
+
+volumes:
+  postgres_data:
+  go_mod_cache:
+  go_build_cache:

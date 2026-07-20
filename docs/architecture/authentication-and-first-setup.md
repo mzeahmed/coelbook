@@ -1,0 +1,135 @@
+# Authentication & First-Time Setup
+
+## Overview
+
+Playbook is a **self-hosted application**. Unlike a SaaS product, every
+instance belongs to the organization or individual who installed it.
+
+Because of this, Playbook does **not** provide public user registration.
+
+## Core Principles
+
+-   No public sign-up page.
+-   Authentication is mandatory.
+-   The first installed user becomes the administrator.
+-   The setup wizard is available only once.
+-   Once configured, the application behaves like a standard
+    authenticated application.
+
+## Why There Is No Sign Up
+
+The administrator has already decided to install Playbook.
+
+Typical flow:
+
+1.  Install Playbook.
+2.  Start the containers.
+3.  Open the application.
+4.  Create the administrator account.
+
+A public registration page adds unnecessary complexity and increases the
+attack surface.
+
+## Authentication
+
+Authentication remains mandatory because Playbook may be deployed on:
+
+-   VPS
+-   NAS
+-   Raspberry Pi
+-   Home server
+-   Company infrastructure
+
+## First-Time Setup
+
+On startup, Playbook checks whether an administrator account exists.
+
+If not:
+
+    /setup
+
+### Step 1
+
+Create the administrator.
+
+Fields:
+
+-   Name
+-   Email
+-   Password
+-   Confirm Password
+
+### Step 2
+
+Configure the instance.
+
+-   Instance name
+-   Organization (optional)
+-   Timezone
+
+### Step 3
+
+Finish configuration.
+
+The setup route is permanently disabled and the user is redirected to
+the login page.
+
+## Normal Flow
+
+    Application starts
+            │
+            ▼
+    Administrator exists?
+            │
+       ┌────┴────┐
+       │         │
+      No        Yes
+       │         │
+       ▼         ▼
+     /setup    /login
+       │
+    Create administrator
+       │
+    Configure instance
+       │
+    Disable setup
+       │
+    Redirect to login
+
+## Future Authentication Providers
+
+Future enterprise integrations may include:
+
+-   LDAP
+-   OpenID Connect (OIDC)
+-   Keycloak
+-   Authentik
+-   Azure AD
+-   GitHub OAuth
+-   GitLab OAuth
+
+The local administrator account should always remain available for
+recovery.
+
+## Recommendation for v1
+
+    First launch
+          ↓
+    Setup Wizard
+          ↓
+    Create Administrator
+          ↓
+    Login
+          ↓
+    Dashboard
+
+This provides a secure, simple and familiar experience for self-hosted
+software.
+
+## Inspirations
+
+-   Forgejo
+-   Gitea
+-   Authentik
+-   Outline
+-   Keycloak

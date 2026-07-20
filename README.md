@@ -9,8 +9,6 @@
 
 # Playbook
 
-# Playbook
-
 > Ne résolvez jamais deux fois le même problème.
 
 Playbook est une plateforme de capitalisation des connaissances techniques permettant de documenter, retrouver et réutiliser les solutions aux incidents rencontrés au quotidien.

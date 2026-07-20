@@ -42,7 +42,7 @@ run: ## Run the server
 
 build: ## Build the local binary
 	@mkdir -p backend/bin
-	cd backend && go build -o bin/playbook ./cmd/api
+	cd backend && go build -o bin/playbook ./cmd
 	@echo "$(GREEN)✓ Binary generated in backend/bin/playbook$(RESET)"
 
 # ==============================================================================

@@ -1,6 +1,7 @@
 # Playbook
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/mzeahmed/playbook?filename=backend%2Fgo.mod)](backend/go.mod)
+[![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
@@ -172,7 +173,7 @@ Playbook can document incidents related to:
 
 ## Frontend
 
-- Vanilla JavaScript
+- Vue.js
 - TypeScript
 - Vite
 - Bootstrap 5
@@ -254,7 +255,7 @@ make help
 # Architecture
 
 ```text
-                Frontend (Vite + TypeScript)
+                Frontend (Vue.js + TypeScript)
 
                   │
 

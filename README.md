@@ -189,12 +189,16 @@ Playbook can document incidents related to:
 
 ---
 
-# Starting the development environment
-
-## Prerequisites
+# Requirements
 
 - Docker
 - Docker Compose
+- [goose CLI](https://github.com/pressly/goose#install) — required on your machine to run database migrations (`make migrate-up`, `make migrate-down`, `make migrate-create`)
+- [sqlc CLI](https://docs.sqlc.dev/en/latest/overview/install.html) — required to regenerate Go code from SQL queries (`make sqlc`)
+
+---
+
+# Starting the development environment
 
 ## Setup
 

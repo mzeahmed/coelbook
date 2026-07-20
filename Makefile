@@ -77,7 +77,7 @@ update: ## Update dependencies
 migrate-create: ## Create migrations | make migrate-create t="table_name"
 	@if [ $(t) ]; then \
   		echo "$(GREEN)Migrations building ... $(RESET)"; \
-		goose -dir backend/migrations -s create ${t} sql; \
+		goose -dir backend/internal/database/migrations -s create ${t} sql; \
 		echo "$(GREEN)Migrations built $(RESET)"; \
 	else \
 		echo "$(RED)(t) param is required (make migrations t='table_name') $(RESET)"; \

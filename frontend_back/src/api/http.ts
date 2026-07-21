@@ -12,14 +12,14 @@ export interface ApiEnvelope<T> {
 export class ApiError extends Error {
   code: number
 
-  constructor(code: number, message: string) {
+  constructor (code: number, message: string) {
     super(message)
     this.name = 'ApiError'
     this.code = code
   }
 }
 
-export async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
+export async function apiFetch<T> (input: string, init?: RequestInit): Promise<T> {
   const res = await fetch(input, {
     ...init,
     headers: {

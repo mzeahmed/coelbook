@@ -1,0 +1,185 @@
+/*
+ * Playbook design system.
+ *
+ * Ported from docs/playbook-overview.html — the dark theme is the only
+ * supported theme (data-bs-theme="dark" is fixed in index.html), overriding
+ * Bootstrap 5.3's CSS variables so plain Bootstrap classes (.btn-primary,
+ * .form-control, ...) already match the design without extra utility
+ * classes.
+ */
+
+:root,
+[data-bs-theme='dark'] {
+  --pb-bg: #0f172a;
+  --pb-surface: #1e293b;
+  --pb-surface-hover: #263348;
+  --pb-border: #334155;
+  --pb-text: #f8fafc;
+  --pb-text-muted: #94a3b8;
+  --pb-primary: #2563eb;
+  --pb-success: #22c55e;
+  --pb-warning: #f59e0b;
+  --pb-danger: #ef4444;
+
+  --bs-body-bg: var(--pb-bg);
+  --bs-body-color: var(--pb-text);
+  --bs-border-color: var(--pb-border);
+  --bs-primary: var(--pb-primary);
+  --bs-primary-rgb: 37, 99, 235;
+  --bs-secondary-color: var(--pb-text-muted);
+  --bs-tertiary-bg: var(--pb-surface);
+  --bs-success: var(--pb-success);
+  --bs-warning: var(--pb-warning);
+  --bs-danger: var(--pb-danger);
+  --bs-link-color: var(--pb-primary);
+  --bs-link-hover-color: #60a5fa;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pb-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pb-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+.pb-surface {
+  background-color: var(--pb-surface);
+}
+
+.pb-card {
+  background-color: var(--pb-surface);
+  transition: all 0.2s ease;
+}
+
+.form-control,
+.form-select {
+  background-color: var(--pb-surface);
+  border-color: var(--pb-border);
+  color: var(--pb-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--pb-surface);
+  color: var(--pb-text);
+  border-color: var(--pb-primary);
+  box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+.form-control::placeholder {
+  color: var(--pb-text-muted);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--pb-danger);
+}
+
+.form-control.is-invalid:focus,
+.form-select.is-invalid:focus {
+  box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+}
+
+.invalid-feedback {
+  color: var(--pb-danger);
+}
+
+.badge-soft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.badge-danger-soft {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--pb-danger);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Wizard-specific components, built with the same tokens as the rest of
+   the design system. */
+
+.pb-wizard-shell {
+  min-height: 100vh;
+  background-color: var(--pb-bg);
+}
+
+.pb-wizard-card {
+  width: 100%;
+  max-width: 34rem;
+}
+
+.pb-brand-mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--pb-primary);
+  flex-shrink: 0;
+}
+
+.pb-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pb-stepper-dot {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid var(--pb-border);
+  color: var(--pb-text-muted);
+  background-color: transparent;
+  transition: all 0.15s ease;
+}
+
+.pb-stepper-dot.is-active {
+  border-color: var(--pb-primary);
+  color: var(--pb-primary);
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+.pb-stepper-dot.is-done {
+  border-color: var(--pb-primary);
+  background-color: var(--pb-primary);
+  color: #fff;
+}
+
+.pb-stepper-line {
+  flex: 1 1 auto;
+  height: 1px;
+  background-color: var(--pb-border);
+}
+
+.pb-stepper-line.is-done {
+  background-color: var(--pb-primary);
+}

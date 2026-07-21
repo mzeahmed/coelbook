@@ -1,51 +1,51 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createBrowserRouter, redirect } from 'react-router-dom'
 
 import { getSetupStatus } from '@/api/setup'
-
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      redirect: '/login',
-    },
-    {
-      path: '/setup',
-      name: 'setup',
-      component: () => import('@/views/SetupView.vue'),
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/LoginView.vue'),
-    },
-  ],
-})
+import SetupView from '@/views/SetupView'
+import LoginView from '@/views/LoginView'
 
 // The backend is the single source of truth for initialization state, so
 // every navigation re-checks it instead of trusting anything cached
 // client-side: /setup is unreachable once initialized, and every other
 // route is unreachable until it is.
-router.beforeEach(async (to) => {
+async function guard(routeName: 'setup' | 'login') {
   let initialized: boolean
 
   try {
-    ;({ initialized } = await getSetupStatus())
+    const status = await getSetupStatus()
+    initialized = status.initialized
   } catch {
     // The API is unreachable; let navigation proceed rather than trap the
     // user behind a redirect loop they can't recover from.
-    return true
+    return null
   }
 
-  if (!initialized && to.name !== 'setup') {
-    return { name: 'setup' }
+  if (!initialized && routeName !== 'setup') {
+    return redirect('/setup')
   }
 
-  if (initialized && to.name === 'setup') {
-    return { name: 'login' }
+  if (initialized && routeName === 'setup') {
+    return redirect('/login')
   }
 
-  return true
-})
+  return null
+}
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    loader: () => redirect('/login'),
+  },
+  {
+    path: '/setup',
+    loader: () => guard('setup'),
+    Component: SetupView,
+  },
+  {
+    path: '/login',
+    loader: () => guard('login'),
+    Component: LoginView,
+  },
+])
 
 export default router

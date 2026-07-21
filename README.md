@@ -1,14 +1,26 @@
-# Playbook
+<p align="center">
+  <img src="assets/logo.png" alt="Playbook Logo" width="250">
+</p>
+
+<h1 align="center">Playbook</h1>
+
+<p align="center">
+  A self-hosted technical knowledge base for documenting and reusing proven solutions.
+</p>
+
+<p align="center">
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/mzeahmed/playbook?filename=backend%2Fgo.mod)](backend/go.mod)
-[![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
+[![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
 
-# Playbook
+</p>
+
+---
 
 > Never solve the same problem twice.
 
@@ -173,7 +185,7 @@ Playbook can document incidents related to:
 
 ## Frontend
 
-- Vue.js
+- React
 - TypeScript
 - Vite
 - Bootstrap 5
@@ -259,7 +271,7 @@ make help
 # Architecture
 
 ```text
-                Frontend (Vue.js + TypeScript)
+                Frontend (React + TypeScript)
 
                   │
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	repo "github.com/mzeahmed/playbook/internal/database/queries"
+	repo "github.com/mzeahmed/coelbook/internal/database/queries"
 )
 
 // tokenTTL is how long an issued access token remains valid.

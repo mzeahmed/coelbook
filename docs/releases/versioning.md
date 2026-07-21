@@ -2,7 +2,7 @@
 
 ## Overview
 
-Playbook follows **Semantic Versioning (SemVer)**.
+Coelbook follows **Semantic Versioning (SemVer)**.
 
 Version numbers use the following format:
 
@@ -42,7 +42,7 @@ v0.1.0
 
 # Development Phase
 
-Until the first stable release, Playbook remains in the **0.x** series.
+Until the first stable release, Coelbook remains in the **0.x** series.
 
 During this phase:
 
@@ -74,7 +74,7 @@ First usable MVP.
 Expected features:
 
 - Authentication
-- Playbook CRUD
+- Coelbook CRUD
 - Categories
 - Tags
 - Search

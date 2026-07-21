@@ -2,7 +2,7 @@
 
 ## Overview
 
-Playbook is a knowledge management application designed to capitalize on technical experience.
+Coelbook is a knowledge management application designed to capitalize on technical experience.
 
 The application does not merely log incidents. It capitalizes the reusable technical knowledge produced while resolving them.
 

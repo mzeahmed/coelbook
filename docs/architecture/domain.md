@@ -2,7 +2,7 @@
 
 ## Overview
 
-Playbook is a knowledge management application designed for developers and system administrators.
+Coelbook is a knowledge management application designed for developers and system administrators.
 
 Its purpose is to capture technical knowledge acquired while solving real-world problems, making it searchable and reusable.
 
@@ -167,7 +167,7 @@ Archived Incidents remain searchable.
 
 ## Knowledge over Tickets
 
-Playbook capitalizes on knowledge.
+Coelbook capitalizes on knowledge.
 
 It does not attempt to manage tickets or support requests.
 
@@ -245,6 +245,6 @@ Every solved problem should become an Incident.
 
 Every Incident should save someone time.
 
-The objective of Playbook is simple:
+The objective of Coelbook is simple:
 
 > Never solve the same technical problem twice.

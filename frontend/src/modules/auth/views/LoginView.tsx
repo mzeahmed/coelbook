@@ -41,7 +41,7 @@ export default function LoginView() {
           >
             <i className="fa-solid fa-book-bookmark text-white" style={{ fontSize: '0.9rem' }}></i>
           </div>
-          <span className="fw-bold fs-5">Playbook</span>
+          <span className="fw-bold fs-5">Coelbook</span>
         </div>
 
         <div className="pb-card border rounded-4 p-4 p-sm-5">

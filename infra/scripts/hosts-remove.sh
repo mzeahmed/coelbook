@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HOSTS_FILE="/etc/hosts"
-DOMAINS=("playbook.local" "api.playbook.local")
+DOMAINS=("coelbook.local" "api.coelbook.local")
 
 for domain in "${DOMAINS[@]}"; do
     if grep -qE "^127\.0\.0\.1[[:space:]]+${domain}$" "$HOSTS_FILE"; then

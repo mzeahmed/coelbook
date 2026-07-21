@@ -186,7 +186,7 @@ type Wizard struct {
 	ID int64 `json:"id"`
 	// Always true; the UNIQUE constraint on this column is what enforces the table can only ever hold one row.
 	Singleton bool `json:"singleton"`
-	// Display name of this Playbook instance.
+	// Display name of this Coelbook instance.
 	InstanceName string `json:"instance_name"`
 	// IANA timezone used to display dates across the instance.
 	Timezone string `json:"timezone"`

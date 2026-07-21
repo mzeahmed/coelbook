@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Playbook Logo" width="250">
+  <img src="assets/logo.png" alt="Coelbook Logo" width="250">
 </p>
 
-<h1 align="center">Playbook</h1>
+<h1 align="center">Coelbook</h1>
 
 <p align="center">
   A self-hosted technical knowledge base for documenting and reusing proven solutions.
@@ -10,7 +10,7 @@
 
 <p align="center">
 
-[![Go Version](https://img.shields.io/github/go-mod/go-version/mzeahmed/playbook?filename=backend%2Fgo.mod)](backend/go.mod)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/mzeahmed/coelbook?filename=backend%2Fgo.mod)](backend/go.mod)
 [![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vite.dev)
@@ -24,7 +24,7 @@
 
 > Never solve the same problem twice.
 
-Playbook is a technical knowledge capitalization platform that lets you document, find and reuse solutions to the incidents you run into day to day.
+Coelbook is a technical knowledge capitalization platform that lets you document, find and reuse solutions to the incidents you run into day to day.
 
 Every problem solved becomes knowledge you, your team, or an AI assistant can reuse.
 
@@ -46,15 +46,15 @@ A few months later…
 
 …the same research starts all over again.
 
-Playbook turns every resolution into a lasting resource.
+Coelbook turns every resolution into a lasting resource.
 
 ---
 
 # Vision
 
-Playbook is not a wiki.
+Coelbook is not a wiki.
 
-Playbook is a technical experience capitalization platform.
+Coelbook is a technical experience capitalization platform.
 
 Every incident follows a lifecycle:
 
@@ -150,7 +150,7 @@ The frontend, the CLI and future extensions will all use the same API.
 
 # Use cases
 
-Playbook can document incidents related to:
+Coelbook can document incidents related to:
 
 - Git
 - GitHub
@@ -227,7 +227,7 @@ Playbook can document incidents related to:
    ```
 
    This command:
-   - adds `playbook.local` and `api.playbook.local` to `/etc/hosts` (asks for your sudo password)
+   - adds `coelbook.local` and `api.coelbook.local` to `/etc/hosts` (asks for your sudo password)
    - copies `.env.example` to `.env` if it doesn't exist yet
    - builds and starts the containers: PostgreSQL, backend (hot-reload via [air](https://github.com/air-verse/air)), frontend (Vite dev server), nginx, Adminer
 
@@ -235,8 +235,8 @@ Playbook can document incidents related to:
 
 | Service    | URL                        |
 | ---------- | -------------------------- |
-| Frontend   | http://playbook.local      |
-| API        | http://api.playbook.local  |
+| Frontend   | http://coelbook.local      |
+| API        | http://api.coelbook.local  |
 | Adminer    | http://localhost:8081      |
 | PostgreSQL | localhost:5432             |
 
@@ -246,7 +246,7 @@ Playbook can document incidents related to:
 make down
 ```
 
-Stops the containers and removes `playbook.local`/`api.playbook.local` from `/etc/hosts`.
+Stops the containers and removes `coelbook.local`/`api.coelbook.local` from `/etc/hosts`.
 
 ## Other useful commands
 

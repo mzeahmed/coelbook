@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/mzeahmed/playbook/internal/response"
+	"github.com/mzeahmed/coelbook/internal/response"
 )
 
 // Recovery returns a middleware that recovers from panics raised by next,

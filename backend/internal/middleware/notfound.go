@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/mzeahmed/playbook/internal/response"
+	"github.com/mzeahmed/coelbook/internal/response"
 )
 
 // notFoundResponseWriter wraps http.ResponseWriter to detect the plain text

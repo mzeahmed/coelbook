@@ -2,10 +2,10 @@
 
 ## Overview
 
-Playbook is a **self-hosted application**. Unlike a SaaS product, every
+Coelbook is a **self-hosted application**. Unlike a SaaS product, every
 instance belongs to the organization or individual who installed it.
 
-Because of this, Playbook does **not** provide public user registration.
+Because of this, Coelbook does **not** provide public user registration.
 
 ## Core Principles
 
@@ -18,11 +18,11 @@ Because of this, Playbook does **not** provide public user registration.
 
 ## Why There Is No Sign Up
 
-The administrator has already decided to install Playbook.
+The administrator has already decided to install Coelbook.
 
 Typical flow:
 
-1.  Install Playbook.
+1.  Install Coelbook.
 2.  Start the containers.
 3.  Open the application.
 4.  Create the administrator account.
@@ -32,7 +32,7 @@ attack surface.
 
 ## Authentication
 
-Authentication remains mandatory because Playbook may be deployed on:
+Authentication remains mandatory because Coelbook may be deployed on:
 
 -   VPS
 -   NAS
@@ -42,7 +42,7 @@ Authentication remains mandatory because Playbook may be deployed on:
 
 ## First-Time Setup
 
-On startup, Playbook checks whether an administrator account exists.
+On startup, Coelbook checks whether an administrator account exists.
 
 If not:
 

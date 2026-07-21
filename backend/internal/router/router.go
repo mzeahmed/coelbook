@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mzeahmed/playbook/internal/middleware"
-	"github.com/mzeahmed/playbook/internal/modules/auth"
-	"github.com/mzeahmed/playbook/internal/modules/health"
-	"github.com/mzeahmed/playbook/internal/modules/wizard"
+	"github.com/mzeahmed/coelbook/internal/middleware"
+	"github.com/mzeahmed/coelbook/internal/modules/auth"
+	"github.com/mzeahmed/coelbook/internal/modules/health"
+	"github.com/mzeahmed/coelbook/internal/modules/wizard"
 )
 
 // New builds and returns the application's top-level http.Handler, with all

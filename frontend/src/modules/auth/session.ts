@@ -1,7 +1,7 @@
 import type {AuthUser} from './api'
 
-const TOKEN_KEY = 'playbook_token'
-const USER_KEY = 'playbook_user'
+const TOKEN_KEY = 'coelbook_token'
+const USER_KEY = 'coelbook_user'
 
 // saveSession persists the access token and user returned by login.
 // persist=true (the "Remember me" checkbox) survives browser restarts

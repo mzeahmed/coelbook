@@ -6,12 +6,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/mzeahmed/playbook/internal/config"
-	"github.com/mzeahmed/playbook/internal/database"
-	"github.com/mzeahmed/playbook/internal/logger"
-	"github.com/mzeahmed/playbook/internal/middleware"
-	"github.com/mzeahmed/playbook/internal/router"
-	"github.com/mzeahmed/playbook/internal/server"
+	"github.com/mzeahmed/coelbook/internal/config"
+	"github.com/mzeahmed/coelbook/internal/database"
+	"github.com/mzeahmed/coelbook/internal/logger"
+	"github.com/mzeahmed/coelbook/internal/middleware"
+	"github.com/mzeahmed/coelbook/internal/router"
+	"github.com/mzeahmed/coelbook/internal/server"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func runConfig() error {
 	handler := router.New(pool, cfg.Auth.JwtSecret, log)
 	handler = middleware.LoggingWith(log)(middleware.RecoveryWith(log)(handler))
 
-	log.Info("starting playbook server",
+	log.Info("starting coelbook server",
 		"addr", cfg.Server.Addr(),
 	)
 

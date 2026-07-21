@@ -22,7 +22,7 @@ export default function StepInstance({ instance, onChange, errors }: StepInstanc
     <div>
       <h2 className="h5 fw-semibold mb-1">Instance configuration</h2>
       <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>
-        Basic details about this Playbook instance.
+        Basic details about this Coelbook instance.
       </p>
 
       <div className="mb-3">

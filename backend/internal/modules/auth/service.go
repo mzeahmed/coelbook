@@ -8,8 +8,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	repo "github.com/mzeahmed/playbook/internal/database/queries"
-	"github.com/mzeahmed/playbook/internal/password"
+	repo "github.com/mzeahmed/coelbook/internal/database/queries"
+	"github.com/mzeahmed/coelbook/internal/password"
 )
 
 // Service contains the business logic of the auth module.

@@ -20,7 +20,7 @@ export default function StepAdmin({
     <div>
       <h2 className="h5 fw-semibold mb-1">Administrator account</h2>
       <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>
-        This is the account you&apos;ll use to sign in and manage Playbook.
+        This is the account you&apos;ll use to sign in and manage Coelbook.
       </p>
 
       <div className="row g-3 mb-3">

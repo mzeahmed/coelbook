@@ -71,9 +71,9 @@ func Load() (*Config, error) {
 	db := DatabaseConfig{
 		Host:     envString("DB_HOST", "localhost"),
 		Port:     envString("DB_PORT", "5432"),
-		Name:     envString("DB_NAME", "playbook"),
-		User:     envString("DB_USER", "playbook"),
-		Password: envString("DB_PASSWORD", "playbook"),
+		Name:     envString("DB_NAME", "coelbook"),
+		User:     envString("DB_USER", "coelbook"),
+		Password: envString("DB_PASSWORD", "coelbook"),
 	}
 
 	// If DATABASE_URL is provided, use it as-is. Otherwise, build the DSN

@@ -1,5 +1,5 @@
 # ==============================================================================
-# playbook - Development Makefile
+# coelbook - Development Makefile
 # ==============================================================================
 
 ifneq (,$(wildcard ./.env))
@@ -11,7 +11,7 @@ endif
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-APP_CONTAINER := playbook_backend
+APP_CONTAINER := coelbook_backend
 
 GREEN  := \033[0;32m
 YELLOW := \033[1;33m
@@ -28,7 +28,7 @@ RESET  := \033[0m
 
 help: ## Show available commands
 	@echo ""
-	@echo "$(BLUE)playbook Development Commands$(RESET)"
+	@echo "$(BLUE)coelbook Development Commands$(RESET)"
 	@echo ""
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  \033[32m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
@@ -42,8 +42,8 @@ run: ## Run the server
 
 build: ## Build the local binary
 	@mkdir -p backend/bin
-	cd backend && go build -o bin/playbook ./cmd
-	@echo "$(GREEN)✓ Binary generated in backend/bin/playbook$(RESET)"
+	cd backend && go build -o bin/coelbook ./cmd
+	@echo "$(GREEN)✓ Binary generated in backend/bin/coelbook$(RESET)"
 
 # ==============================================================================
 # Quality
@@ -114,8 +114,8 @@ up: hosts-add ## Build and start the containers
 	@echo "$(YELLOW)Starting containers...$(RESET)"
 	$(COMPOSE) up -d --build
 	@echo "$(GREEN)Containers started$(RESET)"
-	@echo "$(BLUE)Backend URL: http://api.playbook.local$(RESET)"
-	@echo "$(BLUE)Frontend URL: http://playbook.local$(RESET)"
+	@echo "$(BLUE)Backend URL: http://api.coelbook.local$(RESET)"
+	@echo "$(BLUE)Frontend URL: http://coelbook.local$(RESET)"
 	@echo "$(BLUE)Postgres: localhost:5432$(RESET)"
 	@echo "$(BLUE)Adminer URL: http://localhost:8081$(RESET)"
 

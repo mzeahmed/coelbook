@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:17
-    container_name: playbook_postgres
+    container_name: coelbook_postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -17,13 +17,13 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - playbook
+      - coelbook
 
   backend:
     build:
       context: ../backend
       dockerfile: ../infra/docker/backend/Dockerfile
-    container_name: playbook_backend
+    container_name: coelbook_backend
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -50,12 +50,12 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - playbook
+      - coelbook
 
   frontend:
     build:
       context: ./docker/frontend
-    container_name: playbook_frontend
+    container_name: coelbook_frontend
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -64,23 +64,23 @@ services:
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
     networks:
-      - playbook
+      - coelbook
 
   nginx:
     build:
       context: ./docker/nginx
-    container_name: playbook_nginx
+    container_name: coelbook_nginx
     restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
       - backend
     networks:
-      - playbook
+      - coelbook
 
   adminer:
     image: adminer:latest
-    container_name: playbook_adminer
+    container_name: coelbook_adminer
     restart: unless-stopped
     environment:
       ADMINER_DEFAULT_SERVER: postgres
@@ -90,10 +90,10 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - playbook
+      - coelbook
 
 networks:
-  playbook:
+  coelbook:
 
 volumes:
   postgres_data:

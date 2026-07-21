@@ -3,7 +3,7 @@ package health
 import (
 	"net/http"
 
-	"github.com/mzeahmed/playbook/internal/response"
+	"github.com/mzeahmed/coelbook/internal/response"
 )
 
 // Handler handles all HTTP requests related to the health module.

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mzeahmed/playbook/internal/reqctx"
-	"github.com/mzeahmed/playbook/internal/response"
+	"github.com/mzeahmed/coelbook/internal/reqctx"
+	"github.com/mzeahmed/coelbook/internal/response"
 )
 
 // TokenValidator is a function provided by the application to validate a

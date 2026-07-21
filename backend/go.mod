@@ -1,4 +1,4 @@
-module github.com/mzeahmed/playbook
+module github.com/mzeahmed/coelbook
 
 go 1.26.5
 

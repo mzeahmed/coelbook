@@ -5,7 +5,7 @@ export default function StepWelcome() {
         <i className="fa-solid fa-book-bookmark text-white" style={{ fontSize: '1.1rem' }}></i>
       </div>
 
-      <h1 className="h4 fw-bold mb-2">Welcome to Playbook</h1>
+      <h1 className="h4 fw-bold mb-2">Welcome to Coelbook</h1>
       <p className="small mb-0" style={{ color: 'var(--pb-text-muted)' }}>
         Let's set up your instance. You'll create the administrator account and
         configure a few instance settings — it only takes a minute.

@@ -6,8 +6,6 @@ package repo
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
@@ -15,7 +13,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteSettings(ctx context.Context) error
 	FindUserByEmail(ctx context.Context, email string) (User, error)
-	FindUserById(ctx context.Context, id pgtype.UUID) (User, error)
+	FindUserById(ctx context.Context, id int64) (User, error)
 	GetSettings(ctx context.Context) (Setting, error)
 	HasUser(ctx context.Context) (bool, error)
 }

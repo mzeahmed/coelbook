@@ -7,8 +7,6 @@ package repo
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -71,7 +69,7 @@ FROM users
 WHERE id = $1
 `
 
-func (q *Queries) FindUserById(ctx context.Context, id pgtype.UUID) (User, error) {
+func (q *Queries) FindUserById(ctx context.Context, id int64) (User, error) {
 	row := q.db.QueryRow(ctx, findUserById, id)
 	var i User
 	err := row.Scan(

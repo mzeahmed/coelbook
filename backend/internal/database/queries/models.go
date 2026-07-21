@@ -57,9 +57,9 @@ func (ns NullIncidentStatus) Value() (driver.Value, error) {
 // Files associated with an incident.
 type Attachment struct {
 	// Primary key.
-	ID pgtype.UUID `json:"id"`
+	ID int64 `json:"id"`
 	// Incident the attachment belongs to.
-	IncidentID pgtype.UUID `json:"incident_id"`
+	IncidentID int64 `json:"incident_id"`
 	// Original file name.
 	Filename string `json:"filename"`
 	// MIME type.
@@ -75,7 +75,7 @@ type Attachment struct {
 // Technical domains used to group incidents.
 type Category struct {
 	// Primary key.
-	ID pgtype.UUID `json:"id"`
+	ID int64 `json:"id"`
 	// Category name.
 	Name string `json:"name"`
 	// URL identifier.
@@ -87,7 +87,7 @@ type Category struct {
 // Central entity documenting a technical problem and its resolution.
 type Incident struct {
 	// Primary key.
-	ID pgtype.UUID `json:"id"`
+	ID int64 `json:"id"`
 	// Short title.
 	Title string `json:"title"`
 	// URL identifier.
@@ -107,9 +107,9 @@ type Incident struct {
 	// Lifecycle state: draft, published or archived.
 	Status IncidentStatus `json:"status"`
 	// Category the incident belongs to.
-	CategoryID pgtype.UUID `json:"category_id"`
+	CategoryID int64 `json:"category_id"`
 	// Author of the incident.
-	CreatedBy pgtype.UUID `json:"created_by"`
+	CreatedBy int64 `json:"created_by"`
 	// Creation date.
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	// Last update date.
@@ -119,17 +119,17 @@ type Incident struct {
 // Many-to-many relationship between incidents and tags.
 type IncidentTag struct {
 	// Referenced incident.
-	IncidentID pgtype.UUID `json:"incident_id"`
+	IncidentID int64 `json:"incident_id"`
 	// Referenced tag.
-	TagID pgtype.UUID `json:"tag_id"`
+	TagID int64 `json:"tag_id"`
 }
 
 // External resources referenced by an incident.
 type Link struct {
 	// Primary key.
-	ID pgtype.UUID `json:"id"`
+	ID int64 `json:"id"`
 	// Incident the link belongs to.
-	IncidentID pgtype.UUID `json:"incident_id"`
+	IncidentID int64 `json:"incident_id"`
 	// Link title.
 	Title string `json:"title"`
 	// Link URL.
@@ -138,8 +138,10 @@ type Link struct {
 
 // Singleton row holding the instance configuration produced by the first-time setup wizard.
 type Setting struct {
-	// Primary key, fixed to a well-known value so the table can only ever hold one row.
-	ID pgtype.UUID `json:"id"`
+	// Primary key.
+	ID int64 `json:"id"`
+	// Always true; the UNIQUE constraint on this column is what enforces the table can only ever hold one row.
+	Singleton bool `json:"singleton"`
 	// Display name of this Playbook instance.
 	InstanceName string `json:"instance_name"`
 	// IANA timezone used to display dates across the instance.
@@ -153,9 +155,9 @@ type Setting struct {
 // Reusable code or command snippets attached to an incident.
 type Snippet struct {
 	// Primary key.
-	ID pgtype.UUID `json:"id"`
+	ID int64 `json:"id"`
 	// Incident the snippet belongs to.
-	IncidentID pgtype.UUID `json:"incident_id"`
+	IncidentID int64 `json:"incident_id"`
 	// Snippet title.
 	Title string `json:"title"`
 	// Language or format of the snippet content.
@@ -169,7 +171,7 @@ type Snippet struct {
 // Flexible keywords used to classify incidents.
 type Tag struct {
 	// Primary key.
-	ID pgtype.UUID `json:"id"`
+	ID int64 `json:"id"`
 	// Tag name.
 	Name string `json:"name"`
 	// URL identifier.
@@ -179,7 +181,7 @@ type Tag struct {
 // Authenticated users of the application.
 type User struct {
 	// Primary key.
-	ID pgtype.UUID `json:"id"`
+	ID int64 `json:"id"`
 	// Unique email, used for authentication.
 	Email string `json:"email"`
 	// Hashed password.

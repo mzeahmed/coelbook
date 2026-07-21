@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -50,7 +51,7 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (Response, error)
 	return Response{
 		Token: token,
 		User: UserResponse{
-			ID:        u.ID.String(),
+			ID:        strconv.FormatInt(u.ID, 10),
 			Email:     u.Email,
 			FirstName: u.FirstName,
 			LastName:  u.LastName,

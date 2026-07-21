@@ -1,8 +1,8 @@
 -- +goose Up
 CREATE TABLE incident_tags
 (
-    incident_id UUID NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
-    tag_id      UUID NOT NULL REFERENCES tags (id) ON DELETE CASCADE,
+    incident_id BIGINT NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
+    tag_id      BIGINT NOT NULL REFERENCES tags (id) ON DELETE CASCADE,
     PRIMARY KEY (incident_id, tag_id)
 );
 

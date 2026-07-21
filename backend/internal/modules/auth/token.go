@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -22,7 +23,7 @@ func generateToken(secret string, u repo.User) (string, error) {
 
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   u.ID.String(),
+			Subject:   strconv.FormatInt(u.ID, 10),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),
 		},

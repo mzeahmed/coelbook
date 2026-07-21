@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE TABLE users
 (
-    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email         TEXT        NOT NULL UNIQUE,
     password_hash TEXT        NOT NULL,
     first_name    TEXT        NOT NULL,

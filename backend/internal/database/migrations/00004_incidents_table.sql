@@ -3,7 +3,7 @@ CREATE TYPE incident_status AS ENUM ('draft', 'published', 'archived');
 
 CREATE TABLE incidents
 (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title       TEXT            NOT NULL,
     slug        TEXT            NOT NULL UNIQUE,
     summary     TEXT,
@@ -13,8 +13,8 @@ CREATE TABLE incidents
     solution    TEXT,
     prevention  TEXT,
     status      incident_status NOT NULL DEFAULT 'draft',
-    category_id UUID            NOT NULL REFERENCES categories (id),
-    created_by  UUID            NOT NULL REFERENCES users (id),
+    category_id BIGINT          NOT NULL REFERENCES categories (id),
+    created_by  BIGINT          NOT NULL REFERENCES users (id),
     created_at  TIMESTAMPTZ     NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ     NOT NULL DEFAULT now()
 );

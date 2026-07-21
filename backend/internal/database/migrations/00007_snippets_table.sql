@@ -1,8 +1,8 @@
 -- +goose Up
 CREATE TABLE snippets
 (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    incident_id UUID    NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    incident_id BIGINT  NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
     title       TEXT    NOT NULL,
     language    TEXT    NOT NULL,
     content     TEXT    NOT NULL,

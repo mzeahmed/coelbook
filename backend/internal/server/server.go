@@ -51,9 +51,11 @@ func Run(cfg Config) error {
 	if srv.ReadTimeout == 0 {
 		srv.ReadTimeout = 15 * time.Second
 	}
+
 	if srv.WriteTimeout == 0 {
 		srv.WriteTimeout = 15 * time.Second
 	}
+
 	shutdownTimeout := cfg.ShutdownTimeout
 	if shutdownTimeout == 0 {
 		shutdownTimeout = 30 * time.Second

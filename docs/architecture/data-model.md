@@ -43,7 +43,7 @@ Represents an authenticated user of the application.
 
 | Field | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
+| id | BIGINT | Primary key |
 | email | String | Unique email |
 | password_hash | String | Hashed password |
 | name | String | Display name |
@@ -60,7 +60,7 @@ An Incident documents a technical problem and its resolution.
 
 | Field | Type | Description |
 |--------|------|-------------|
-| id | UUID | Primary key |
+| id | BIGINT | Primary key |
 | title | String | Short title |
 | slug | String | URL identifier |
 | summary | Text | Short overview |
@@ -70,8 +70,8 @@ An Incident documents a technical problem and its resolution.
 | solution | Text | Resolution steps |
 | prevention | Text | How to avoid recurrence |
 | status | Enum | draft / published / archived |
-| category_id | UUID | Category |
-| created_by | UUID | Author |
+| category_id | BIGINT | Category |
+| created_by | BIGINT | Author |
 | created_at | Timestamp | Creation date |
 | updated_at | Timestamp | Last update |
 
@@ -92,7 +92,7 @@ Examples:
 
 | Field | Type |
 |--------|------|
-| id | UUID |
+| id | BIGINT |
 | name | String |
 | slug | String |
 | description | Text |
@@ -114,7 +114,7 @@ Examples:
 
 | Field | Type |
 |--------|------|
-| id | UUID |
+| id | BIGINT |
 | name | String |
 | slug | String |
 
@@ -126,8 +126,8 @@ Many-to-many relationship.
 
 | Field | Type |
 |--------|------|
-| incident_id | UUID |
-| tag_id | UUID |
+| incident_id | BIGINT |
+| tag_id | BIGINT |
 
 ---
 
@@ -144,8 +144,8 @@ Examples:
 
 | Field | Type |
 |--------|------|
-| id | UUID |
-| incident_id | UUID |
+| id | BIGINT |
+| incident_id | BIGINT |
 | filename | String |
 | mime | String |
 | size | Integer |
@@ -168,8 +168,8 @@ Examples:
 
 | Field | Type |
 |--------|------|
-| id | UUID |
-| incident_id | UUID |
+| id | BIGINT |
+| incident_id | BIGINT |
 | title | String |
 | language | String |
 | content | Text |
@@ -190,8 +190,8 @@ Examples:
 
 | Field | Type |
 |--------|------|
-| id | UUID |
-| incident_id | UUID |
+| id | BIGINT |
+| incident_id | BIGINT |
 | title | String |
 | url | String |
 

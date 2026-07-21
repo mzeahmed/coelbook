@@ -89,9 +89,9 @@ func (s *Service) Setup(ctx context.Context, req SetupRequest) error {
 		Timezone:     req.Instance.Timezone,
 		Locale:       req.Instance.Locale,
 	}); err != nil {
-		// The settings table has a fixed primary key, so a unique violation
-		// here means a concurrent request won the race to initialize the
-		// instance first.
+		// The settings table enforces a single row via a UNIQUE constraint
+		// on its singleton column, so a unique violation here means a
+		// concurrent request won the race to initialize the instance first.
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == uniqueViolation {
 			return ErrAlreadyInitialized

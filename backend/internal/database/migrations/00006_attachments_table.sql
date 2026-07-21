@@ -1,8 +1,8 @@
 -- +goose Up
 CREATE TABLE attachments
 (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    incident_id UUID        NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
+    id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    incident_id BIGINT      NOT NULL REFERENCES incidents (id) ON DELETE CASCADE,
     filename    TEXT        NOT NULL,
     mime        TEXT        NOT NULL,
     size        INTEGER     NOT NULL,

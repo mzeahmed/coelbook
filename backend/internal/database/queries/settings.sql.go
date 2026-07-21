@@ -12,7 +12,7 @@ import (
 const createSettings = `-- name: CreateSettings :one
 INSERT INTO settings (instance_name, timezone, locale)
 VALUES ($1, $2, $3)
-RETURNING id, instance_name, timezone, locale, initialized_at
+RETURNING id, singleton, instance_name, timezone, locale, initialized_at
 `
 
 type CreateSettingsParams struct {
@@ -26,6 +26,7 @@ func (q *Queries) CreateSettings(ctx context.Context, arg CreateSettingsParams) 
 	var i Setting
 	err := row.Scan(
 		&i.ID,
+		&i.Singleton,
 		&i.InstanceName,
 		&i.Timezone,
 		&i.Locale,
@@ -44,7 +45,7 @@ func (q *Queries) DeleteSettings(ctx context.Context) error {
 }
 
 const getSettings = `-- name: GetSettings :one
-SELECT id, instance_name, timezone, locale, initialized_at
+SELECT id, singleton, instance_name, timezone, locale, initialized_at
 FROM settings
 LIMIT 1
 `
@@ -54,6 +55,7 @@ func (q *Queries) GetSettings(ctx context.Context) (Setting, error) {
 	var i Setting
 	err := row.Scan(
 		&i.ID,
+		&i.Singleton,
 		&i.InstanceName,
 		&i.Timezone,
 		&i.Locale,

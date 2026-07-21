@@ -1,7 +1,7 @@
 -- +goose Up
 CREATE TABLE tags
 (
-    id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     slug TEXT NOT NULL UNIQUE
 );

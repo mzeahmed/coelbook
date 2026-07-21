@@ -17,7 +17,7 @@ const authUserKey contextKey = iota
 
 // AuthUser is the identity extracted from a validated access token.
 type AuthUser struct {
-	ID    int
+	ID    string
 	Roles []string
 }
 

@@ -24,13 +24,13 @@ func (r LoginRequest) Validate() error {
 // UserResponse is the public representation of a user, safe to return
 // in HTTP responses.
 type UserResponse struct {
-	ID        int    `json:"id"`
+	ID        string `json:"id"`
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
 
-// Response is returned by both registration and login on success.
+// Response is returned on successful login.
 type Response struct {
 	Token string       `json:"token"`
 	User  UserResponse `json:"user"`

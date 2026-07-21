@@ -11,8 +11,11 @@ import (
 )
 
 type Querier interface {
+	CreateSettings(ctx context.Context, arg CreateSettingsParams) (Setting, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	FindUserByEmail(ctx context.Context, email string) (User, error)
 	FindUserById(ctx context.Context, id pgtype.UUID) (User, error)
+	GetSettings(ctx context.Context) (Setting, error)
 }
 
 var _ Querier = (*Queries)(nil)

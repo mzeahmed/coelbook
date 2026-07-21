@@ -11,8 +11,41 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (email, password_hash, first_name, last_name)
+VALUES ($1, $2, $3, $4)
+RETURNING id, email, password_hash, first_name, last_name, created_at, updated_at
+`
+
+type CreateUserParams struct {
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Email,
+		arg.PasswordHash,
+		arg.FirstName,
+		arg.LastName,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findUserByEmail = `-- name: FindUserByEmail :one
-SELECT id, email, password_hash, name, created_at, updated_at
+SELECT id, email, password_hash, first_name, last_name, created_at, updated_at
 FROM users
 WHERE email = $1
 `
@@ -24,7 +57,8 @@ func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, erro
 		&i.ID,
 		&i.Email,
 		&i.PasswordHash,
-		&i.Name,
+		&i.FirstName,
+		&i.LastName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -32,7 +66,7 @@ func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, erro
 }
 
 const findUserById = `-- name: FindUserById :one
-SELECT id, email, password_hash, name, created_at, updated_at
+SELECT id, email, password_hash, first_name, last_name, created_at, updated_at
 FROM users
 WHERE id = $1
 `
@@ -44,7 +78,8 @@ func (q *Queries) FindUserById(ctx context.Context, id pgtype.UUID) (User, error
 		&i.ID,
 		&i.Email,
 		&i.PasswordHash,
-		&i.Name,
+		&i.FirstName,
+		&i.LastName,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

@@ -136,6 +136,20 @@ type Link struct {
 	Url string `json:"url"`
 }
 
+// Singleton row holding the instance configuration produced by the first-time setup wizard.
+type Setting struct {
+	// Primary key, fixed to a well-known value so the table can only ever hold one row.
+	ID pgtype.UUID `json:"id"`
+	// Display name of this Playbook instance.
+	InstanceName string `json:"instance_name"`
+	// IANA timezone used to display dates across the instance.
+	Timezone string `json:"timezone"`
+	// Default UI locale.
+	Locale string `json:"locale"`
+	// Date the setup wizard completed; the presence of this row means the instance is initialized.
+	InitializedAt pgtype.Timestamptz `json:"initialized_at"`
+}
+
 // Reusable code or command snippets attached to an incident.
 type Snippet struct {
 	// Primary key.
@@ -170,8 +184,10 @@ type User struct {
 	Email string `json:"email"`
 	// Hashed password.
 	PasswordHash string `json:"password_hash"`
-	// Display name.
-	Name string `json:"name"`
+	// User firstname.
+	FirstName string `json:"first_name"`
+	// User lastname.
+	LastName string `json:"last_name"`
 	// Creation date.
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	// Last update date.

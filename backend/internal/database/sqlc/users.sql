@@ -7,3 +7,8 @@ WHERE email = $1;
 SELECT *
 FROM users
 WHERE id = $1;
+
+-- name: CreateUser :one
+INSERT INTO users (email, password_hash, first_name, last_name)
+VALUES ($1, $2, $3, $4)
+RETURNING *;

@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mzeahmed/playbook/internal/middleware"
 	"github.com/mzeahmed/playbook/internal/modules/health"
+	"github.com/mzeahmed/playbook/internal/modules/wizard"
 )
 
 // New builds and returns the application's top-level http.Handler, with all
@@ -25,6 +26,7 @@ func New(pool *pgxpool.Pool, jwtSecret string, log *slog.Logger) http.Handler {
 	//authenticate := auth.Authenticate(jwtSecret)
 
 	health.New().RegisterRoutes(mux)
+	wizard.New(pool).RegisterRoutes(mux)
 
 	return middleware.NotFound(mux)
 }

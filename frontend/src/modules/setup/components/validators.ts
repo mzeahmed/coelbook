@@ -1,4 +1,4 @@
-import type {AdminInput, InstanceInput} from '@/api/setup'
+import type { AdminInput, InstanceInput } from '../api'
 
 export type AdminErrors = Partial<
   Record<'firstName' | 'lastName' | 'email' | 'password' | 'confirmPassword', string>

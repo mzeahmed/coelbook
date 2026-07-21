@@ -1,4 +1,4 @@
-import type { AdminInput } from '@/api/setup'
+import type { AdminInput } from '../api'
 import type { AdminErrors } from './validators'
 
 interface StepAdminProps {

@@ -1,4 +1,4 @@
-import { apiFetch } from './http'
+import {apiFetch} from '@/http/client'
 
 export interface AdminInput {
   first_name: string
@@ -20,16 +20,23 @@ export interface SetupStatus {
 // getSetupStatus reports whether the setup wizard has already been
 // completed. The backend is the single source of truth for this: it must
 // be checked on every load, never assumed from local/session state.
-export function getSetupStatus(): Promise<SetupStatus> {
-  return apiFetch<SetupStatus>('/api/setup/status')
+//
+// This runs on every route navigation, so it uses a short timeout: a slow
+// or unreachable API should fail fast rather than stall navigation for
+// the default 15s.
+export function getSetupStatus (): Promise<SetupStatus> {
+  return apiFetch<SetupStatus>('/api/setup/status', undefined, 5000)
 }
 
 // completeSetup submits the full wizard payload in one call: the backend
 // creates the administrator and stores the instance configuration in a
 // single transaction.
-export function completeSetup(admin: AdminInput, instance: InstanceInput): Promise<null> {
+export function completeSetup (admin: AdminInput, instance: InstanceInput): Promise<null> {
   return apiFetch<null>('/api/setup', {
     method: 'POST',
-    body: JSON.stringify({ admin, instance }),
+    payload: {
+      admin,
+      instance
+    },
   })
 }

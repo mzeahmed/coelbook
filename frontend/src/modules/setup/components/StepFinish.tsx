@@ -1,4 +1,4 @@
-import type { AdminInput, InstanceInput } from '@/api/setup'
+import type { AdminInput, InstanceInput } from '../api'
 
 interface StepFinishProps {
   admin: AdminInput

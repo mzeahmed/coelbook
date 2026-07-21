@@ -1,4 +1,4 @@
-import type { InstanceInput } from '@/api/setup'
+import type { InstanceInput } from '../api'
 import type { InstanceErrors } from './validators'
 
 const timezones: string[] =

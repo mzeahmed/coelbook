@@ -34,6 +34,15 @@ func (q *Queries) CreateSettings(ctx context.Context, arg CreateSettingsParams) 
 	return i, err
 }
 
+const deleteSettings = `-- name: DeleteSettings :exec
+DELETE FROM settings
+`
+
+func (q *Queries) DeleteSettings(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, deleteSettings)
+	return err
+}
+
 const getSettings = `-- name: GetSettings :one
 SELECT id, instance_name, timezone, locale, initialized_at
 FROM settings

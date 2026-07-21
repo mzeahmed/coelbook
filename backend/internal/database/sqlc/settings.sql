@@ -7,3 +7,6 @@ LIMIT 1;
 INSERT INTO settings (instance_name, timezone, locale)
 VALUES ($1, $2, $3)
 RETURNING *;
+
+-- name: DeleteSettings :exec
+DELETE FROM settings;

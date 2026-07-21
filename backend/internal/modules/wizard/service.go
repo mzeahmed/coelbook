@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -32,25 +31,22 @@ func NewService(pool *pgxpool.Pool) *Service {
 	return &Service{pool: pool}
 }
 
-// Status reports whether the setup wizard has already been completed.
+// Status reports whether the setup wizard has already been completed. An
+// administrator account is the source of truth for this: a settings row
+// with no user behind it (e.g. the admin was removed some other way) is
+// treated as not initialized, so Setup can recover it — see Setup.
 func (s *Service) Status(ctx context.Context) (bool, error) {
-
-	if _, err := repo.New(s.pool).GetSettings(ctx); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
+	return repo.New(s.pool).HasUser(ctx)
 }
 
 // Setup creates the administrator account and stores the instance
 // configuration in a single transaction: either both are persisted along
 // with the initialization state, or nothing is.
 //
-// It fails with ErrAlreadyInitialized if the wizard has already run.
+// It fails with ErrAlreadyInitialized if an administrator already exists.
+// If a settings row is present without one (a previously initialized
+// instance whose admin was later removed directly in the database), it is
+// replaced rather than blocking setup forever with no way to recover.
 func (s *Service) Setup(ctx context.Context, req SetupRequest) error {
 
 	tx, err := s.pool.Begin(ctx)
@@ -61,9 +57,16 @@ func (s *Service) Setup(ctx context.Context, req SetupRequest) error {
 
 	q := repo.New(tx)
 
-	if _, err := q.GetSettings(ctx); err == nil {
+	hasUser, err := q.HasUser(ctx)
+	if err != nil {
+		return err
+	}
+
+	if hasUser {
 		return ErrAlreadyInitialized
-	} else if !errors.Is(err, pgx.ErrNoRows) {
+	}
+
+	if err := q.DeleteSettings(ctx); err != nil {
 		return err
 	}
 

@@ -85,3 +85,14 @@ func (q *Queries) FindUserById(ctx context.Context, id pgtype.UUID) (User, error
 	)
 	return i, err
 }
+
+const hasUser = `-- name: HasUser :one
+SELECT EXISTS (SELECT 1 FROM users) AS exists
+`
+
+func (q *Queries) HasUser(ctx context.Context) (bool, error) {
+	row := q.db.QueryRow(ctx, hasUser)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}

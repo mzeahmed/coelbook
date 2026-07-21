@@ -12,3 +12,6 @@ WHERE id = $1;
 INSERT INTO users (email, password_hash, first_name, last_name)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
+
+-- name: HasUser :one
+SELECT EXISTS (SELECT 1 FROM users) AS exists;

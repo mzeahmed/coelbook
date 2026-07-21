@@ -28,7 +28,12 @@ func (h *Handler) Status(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSON(w, http.StatusOK, "", StatusResponse{Initialized: initialized})
+	message := "instance is not initialized"
+	if initialized {
+		message = "instance is initialized"
+	}
+
+	response.JSON(w, http.StatusOK, message, StatusResponse{Initialized: initialized})
 }
 
 // Setup handles POST /api/setup.

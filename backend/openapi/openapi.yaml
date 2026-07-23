@@ -1,5 +1,394 @@
 openapi: 3.0.3
 info:
   title: Coelbook API
+  description: API for the Coelbook incident knowledge-base platform.
   version: 0.1.0
-paths: {}
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Liveness checks
+  - name: Auth
+    description: Authentication (login)
+  - name: Setup
+    description: First-time instance setup wizard
+  - name: Incidents
+    description: Incident knowledge base (requires authentication)
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Envelope:
+      description: Standard JSON response wrapper used by every endpoint.
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code.
+        success:
+          type: boolean
+          description: Whether the request succeeded (true for 2xx).
+        message:
+          type: string
+          description: Human-readable status message.
+        data:
+          description: Payload (varies per endpoint).
+      required: [code, success, message]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required: [email, password]
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+      required: [id, email, first_name, last_name]
+
+    LoginData:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT access token (24 h TTL).
+        user:
+          $ref: "#/components/schemas/UserResponse"
+      required: [token, user]
+
+    AdminRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+      required: [first_name, last_name, email, password]
+
+    InstanceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        timezone:
+          type: string
+          description: IANA timezone (e.g. Europe/Paris).
+        locale:
+          type: string
+          description: Locale code (e.g. fr-FR).
+      required: [name, timezone, locale]
+
+    SetupRequest:
+      type: object
+      properties:
+        admin:
+          $ref: "#/components/schemas/AdminRequest"
+        instance:
+          $ref: "#/components/schemas/InstanceRequest"
+      required: [admin, instance]
+
+    StatusData:
+      type: object
+      properties:
+        initialized:
+          type: boolean
+          description: Whether the setup wizard has already been completed.
+      required: [initialized]
+
+    IncidentCategory:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+
+    IncidentAuthor:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+
+    IncidentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        summary:
+          type: string
+        status:
+          type: string
+        category:
+          $ref: "#/components/schemas/IncidentCategory"
+        author:
+          $ref: "#/components/schemas/IncidentAuthor"
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    IncidentListData:
+      type: object
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncidentSummary"
+        total:
+          type: integer
+          format: int64
+        page:
+          type: integer
+        per_page:
+          type: integer
+      required: [incidents, total, page, per_page]
+
+  responses:
+    BadRequest:
+      description: Invalid request body or parameters.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Envelope"
+          example:
+            code: 400
+            success: false
+            message: invalid request body
+            data: null
+
+    Unauthorized:
+      description: Missing or invalid Bearer token / invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Envelope"
+          example:
+            code: 401
+            success: false
+            message: invalid email or password
+            data: null
+
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Envelope"
+          example:
+            code: 500
+            success: false
+            message: internal server error
+            data: null
+
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      tags: [Health]
+      summary: Liveness check
+      description: Returns 200 OK when the service is running.
+      responses:
+        "200":
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      message:
+                        example: OK
+                      data:
+                        type: object
+                        nullable: true
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [Auth]
+      summary: Authenticate and obtain a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      message:
+                        example: login successful
+                      data:
+                        $ref: "#/components/schemas/LoginData"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /setup/status:
+    get:
+      operationId: setupStatus
+      tags: [Setup]
+      summary: Check whether the instance has been initialized
+      responses:
+        "200":
+          description: Current initialization status.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/StatusData"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /setup:
+    post:
+      operationId: setupInstance
+      tags: [Setup]
+      summary: Create the admin account and configure the instance
+      description: >
+        One-time setup endpoint. Fails with 409 if the instance is already
+        initialized.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetupRequest"
+      responses:
+        "201":
+          description: Setup completed.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      message:
+                        example: setup completed
+                      data:
+                        type: object
+                        nullable: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: Application is already initialized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /incidents:
+    get:
+      operationId: listIncidents
+      tags: [Incidents]
+      summary: List incidents with optional filters and pagination
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category slug.
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: Filter by incident status.
+        - name: tag
+          in: query
+          schema:
+            type: string
+          description: Filter by tag slug.
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Free-text search query.
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (1-based).
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 9
+          description: Number of results per page.
+      responses:
+        "200":
+          description: Paginated list of incidents.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/IncidentListData"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"

@@ -27,7 +27,7 @@ type Summary struct {
 	UpdatedAt string   `json:"updated_at"`
 }
 
-// ListFilter holds the optional filters accepted by GET /api/incidents.
+// ListFilter holds the optional filters accepted by GET /incidents.
 type ListFilter struct {
 	Category string
 	Status   string
@@ -37,7 +37,7 @@ type ListFilter struct {
 	PerPage  int
 }
 
-// ListResponse is the response body of GET /api/incidents.
+// ListResponse is the response body of GET /incidents.
 type ListResponse struct {
 	Incidents []Summary `json:"incidents"`
 	Total     int64     `json:"total"`

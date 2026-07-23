@@ -18,7 +18,7 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// Status handles GET /api/setup/status.
+// Status handles GET /setup/status.
 func (h *Handler) Status(w http.ResponseWriter, r *http.Request) {
 
 	initialized, err := h.service.Status(r.Context())
@@ -36,7 +36,7 @@ func (h *Handler) Status(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, message, StatusResponse{Initialized: initialized})
 }
 
-// Setup handles POST /api/setup.
+// Setup handles POST /setup.
 func (h *Handler) Setup(w http.ResponseWriter, r *http.Request) {
 
 	var req SetupRequest

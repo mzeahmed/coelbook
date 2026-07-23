@@ -27,5 +27,5 @@ func New(pool *pgxpool.Pool, jwtSecret string) *Module {
 
 // RegisterRoutes registers the auth module's routes on the given mux.
 func (m *Module) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("POST /api/auth/login", m.handler.Login)
+	mux.HandleFunc("POST /auth/login", m.handler.Login)
 }

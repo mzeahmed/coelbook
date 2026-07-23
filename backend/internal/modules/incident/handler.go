@@ -17,7 +17,7 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// List handles GET /api/incidents.
+// List handles GET /incidents.
 //
 // Supported query parameters: category, status, tag and q (all optional
 // filters), plus page and per_page for pagination.

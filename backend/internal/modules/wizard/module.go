@@ -24,6 +24,6 @@ func New(pool *pgxpool.Pool) *Module {
 
 // RegisterRoutes registers the wizard module's routes on the given mux.
 func (m *Module) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/setup/status", m.handler.Status)
-	mux.HandleFunc("POST /api/setup", m.handler.Setup)
+	mux.HandleFunc("GET /setup/status", m.handler.Status)
+	mux.HandleFunc("POST /setup", m.handler.Setup)
 }

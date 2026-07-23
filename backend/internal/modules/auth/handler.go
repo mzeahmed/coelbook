@@ -18,7 +18,7 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// Login handles POST /api/auth/login.
+// Login handles POST /auth/login.
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var req LoginRequest

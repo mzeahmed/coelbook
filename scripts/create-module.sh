@@ -82,7 +82,7 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// Example handles GET /api/__MODULE__.
+// Example handles GET /__MODULE__.
 func (h *Handler) Example(w http.ResponseWriter, _ *http.Request) {
 	response.JSON(w, http.StatusOK, "__MODULE__ module is working", ExampleResponse{
 		Message: h.service.Example(),
@@ -122,7 +122,7 @@ func New(pool *pgxpool.Pool) *Module {
 // This is a placeholder route demonstrating the wiring; replace it with
 // the module's real endpoints.
 func (m *Module) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/__MODULE__", m.handler.Example)
+	mux.HandleFunc("GET /__MODULE__", m.handler.Example)
 }
 GOEOF
 

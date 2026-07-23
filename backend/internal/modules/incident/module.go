@@ -25,5 +25,5 @@ func New(pool *pgxpool.Pool) *Module {
 // RegisterRoutes registers the incident module's routes on the given mux.
 // Every route requires a valid access token, applied via authenticate.
 func (m *Module) RegisterRoutes(mux *http.ServeMux, authenticate func(http.Handler) http.Handler) {
-	mux.Handle("GET /api/incidents", authenticate(http.HandlerFunc(m.handler.List)))
+	mux.Handle("GET /incidents", authenticate(http.HandlerFunc(m.handler.List)))
 }

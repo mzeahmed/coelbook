@@ -74,6 +74,9 @@ An Incident documents a technical problem and its resolution.
 | created_by | BIGINT | Author |
 | created_at | Timestamp | Creation date |
 | updated_at | Timestamp | Last update |
+| search_vector | tsvector | Weighted full-text document (GIN-indexed) |
+
+`search_vector` is built by the SQL function `incident_search_vector(id)` with the `coelbook` text search configuration (`simple` dictionary + `unaccent`: accent-insensitive, no stemming). Weights: **A** title; **B** summary, problem, tag names; **C** diagnosis, root cause, solution, snippet titles; **D** prevention. It is not kept up to date by the database: the API refreshes it after every write, so rows edited directly in SQL need `UPDATE incidents SET search_vector = incident_search_vector(id)`.
 
 ---
 

@@ -43,7 +43,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 ## v0.3.0 — Search
 
-- [ ] Full-text search *(partial: `ILIKE` match on title and summary only)*
+- [x] Full-text search
 - [x] Filters (category, status, tag)
 - [ ] Tags *(partial: assigned from the incident form with suggestions, created on the fly; no rename/merge/delete)*
 - [x] Dedicated category and tag endpoints for filter facets

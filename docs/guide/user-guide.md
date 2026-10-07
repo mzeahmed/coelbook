@@ -13,7 +13,7 @@ The application itself is in French; the labels below are quoted as they appear 
 3. Name the **instance** and pick its time zone and language.
 4. Finish setup and sign in.
 
-Setup also creates a default set of categories (Base de données, CI/CD, Docker, Réseau, Sécurité, Système), so the first incident can be written right away. They can be renamed or deleted later.
+Every instance comes with default categories (Base de données, CI/CD, Cloud, Développement, Docker, Réseau, Sécurité, Système), so the first incident can be written right away, and default tags (docker, kubernetes, linux, git, nginx, postgresql, ssh, ssl…) that the incident form suggests. They can be renamed, merged or deleted later; **cleaning up unused tags** also removes the default tags no incident uses yet.
 
 A forgotten password can be reset from the sign-in page (**Mot de passe oublié ?**). In development, the reset email lands in Mailpit (http://localhost:8025).
 

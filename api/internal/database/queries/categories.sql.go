@@ -164,24 +164,6 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ListCategoriesRow, erro
 	return items, nil
 }
 
-const seedCategory = `-- name: SeedCategory :exec
-INSERT INTO categories (name, slug)
-VALUES ($1, $2)
-ON CONFLICT DO NOTHING
-`
-
-type SeedCategoryParams struct {
-	Name string `json:"name"`
-	Slug string `json:"slug"`
-}
-
-// Used by the setup wizard; an instance re-initialized after its admin was
-// removed may already have its categories.
-func (q *Queries) SeedCategory(ctx context.Context, arg SeedCategoryParams) error {
-	_, err := q.db.Exec(ctx, seedCategory, arg.Name, arg.Slug)
-	return err
-}
-
 const updateCategory = `-- name: UpdateCategory :execrows
 UPDATE categories
 SET name        = $1,

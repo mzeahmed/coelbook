@@ -133,7 +133,8 @@ export default function TagsView() {
                 (confirmPurge ? (
                   <div className="d-flex align-items-center gap-2 ms-auto">
                     <span className="small">
-                      Supprimer {unused} tag{unused > 1 ? 's' : ''} inutilisé{unused > 1 ? 's' : ''} ?
+                      Supprimer {unused} tag{unused > 1 ? 's' : ''} inutilisé{unused > 1 ? 's' : ''} ? Les tags par défaut
+                      jamais utilisés en font partie et ne seront plus suggérés.
                     </span>
                     <button type="button" className="btn btn-sm btn-danger fw-medium" onClick={handlePurge} disabled={purging}>
                       Supprimer

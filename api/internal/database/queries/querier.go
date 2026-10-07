@@ -72,9 +72,6 @@ type Querier interface {
 	// incident whose tag was just renamed, merged or deleted.
 	RefreshIncidentSearchVectors(ctx context.Context, ids []int64) error
 	RenameTag(ctx context.Context, arg RenameTagParams) error
-	// Used by the setup wizard; an instance re-initialized after its admin was
-	// removed may already have its categories.
-	SeedCategory(ctx context.Context, arg SeedCategoryParams) error
 	TagSlugExists(ctx context.Context, slug string) (bool, error)
 	TopTags(ctx context.Context, maxTags int32) ([]TopTagsRow, error)
 	// The slug is left unchanged so filters and links keep working.

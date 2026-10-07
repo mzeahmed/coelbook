@@ -47,7 +47,8 @@ export default function FiltersBar({
           type="text"
           placeholder="Rechercher dans les coelbooks…"
           aria-label="Rechercher dans les coelbooks"
-          className="form-control form-control-sm rounded-3 ps-4"
+          className="form-control form-control-sm rounded-3"
+          style={{ paddingLeft: '2rem' }}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -83,23 +84,23 @@ export default function FiltersBar({
         ))}
       </select>
 
+      {/* A select rather than one chip per tag: a real knowledge base has
+          dozens of tags, which would wrap over several rows. */}
       {tagOptions.length > 0 && (
-        <div className="d-flex align-items-center gap-2 flex-wrap">
+        <select
+          className="form-select form-select-sm rounded-3 w-auto"
+          aria-label="Filtrer par tag"
+          style={{ color: 'var(--pb-text-muted)' }}
+          value={tag}
+          onChange={(e) => onTagChange(e.target.value)}
+        >
+          <option value="">Tous les tags</option>
           {tagOptions.map((t) => (
-            <button
-              key={t.slug}
-              type="button"
-              className={`tag-pill d-inline-flex align-items-center gap-1 px-2 py-1 rounded-2 small fw-medium border-0 ${
-                tag === t.slug ? 'filter-active pb-surface' : ''
-              }`}
-              onClick={() => onTagChange(tag === t.slug ? '' : t.slug)}
-              aria-pressed={tag === t.slug}
-            >
-              <i className="fa-solid fa-tag" style={{ fontSize: '0.55rem' }}></i> {t.name}
-              {tag === t.slug && <i className="fa-solid fa-xmark ms-1" style={{ fontSize: '0.55rem', opacity: 0.7 }}></i>}
-            </button>
+            <option key={t.slug} value={t.slug}>
+              {t.name} ({t.incident_count})
+            </option>
           ))}
-        </div>
+        </select>
       )}
 
       {hasActiveFilters && (

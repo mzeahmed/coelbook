@@ -39,13 +39,6 @@ SELECT EXISTS (SELECT 1 FROM categories WHERE slug = sqlc.arg(slug));
 INSERT INTO categories (name, slug, description)
 VALUES (sqlc.arg(name), sqlc.arg(slug), sqlc.arg(description));
 
--- name: SeedCategory :exec
--- Used by the setup wizard; an instance re-initialized after its admin was
--- removed may already have its categories.
-INSERT INTO categories (name, slug)
-VALUES (sqlc.arg(name), sqlc.arg(slug))
-ON CONFLICT DO NOTHING;
-
 -- name: UpdateCategory :execrows
 -- The slug is left unchanged so filters and links keep working.
 UPDATE categories

@@ -19,7 +19,7 @@ export default function ForgotPasswordView() {
       await requestPasswordReset({ email })
       setSubmitted(true)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
     } finally {
       setSubmitting(false)
     }
@@ -36,27 +36,27 @@ export default function ForgotPasswordView() {
         </div>
 
         <div className="pb-card border rounded-4 p-4 p-sm-5">
-          <h1 className="h4 fw-bold mb-1">Reset your password</h1>
+          <h1 className="h4 fw-bold mb-1">Réinitialiser votre mot de passe</h1>
           <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>
-            Enter your email address and we will send you a reset link.
+            Saisissez votre adresse e-mail et nous vous enverrons un lien de réinitialisation.
           </p>
 
           {submitted ? (
             <div className="text-center">
               <div className="alert alert-success small" role="status">
-                If an account exists for this email, a reset link has been sent.
+                Si un compte existe pour cette adresse, un lien de réinitialisation a été envoyé.
               </div>
-              <Link className="btn btn-primary w-100 fw-medium" to="/login">Back to sign in</Link>
+              <Link className="btn btn-primary w-100 fw-medium" to="/login">Retour à la connexion</Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="form-label small fw-medium" htmlFor="reset-email">Email address</label>
+                <label className="form-label small fw-medium" htmlFor="reset-email">Adresse e-mail</label>
                 <input
                   id="reset-email"
                   type="email"
                   className="form-control"
-                  placeholder="you@company.com"
+                  placeholder="vous@entreprise.com"
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -68,10 +68,10 @@ export default function ForgotPasswordView() {
 
               <button type="submit" className="btn btn-primary w-100 fw-medium" disabled={submitting}>
                 {submitting && <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>}
-                Send reset link
+                Envoyer le lien
               </button>
               <div className="text-center mt-3">
-                <Link className="small text-decoration-none" to="/login">Back to sign in</Link>
+                <Link className="small text-decoration-none" to="/login">Retour à la connexion</Link>
               </div>
             </form>
           )}

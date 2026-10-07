@@ -14,15 +14,15 @@ export default function Pagination({ page, perPage, total, onPageChange }: Pagin
   return (
     <div className="d-flex align-items-center justify-content-between mt-5 pt-4 border-top">
       <p className="small mb-0" style={{ color: 'var(--pb-text-muted)' }}>
-        Showing{' '}
+        Affichage de{' '}
         <span className="fw-medium" style={{ color: 'var(--pb-text)' }}>
           {from}–{to}
         </span>{' '}
-        of <span className="fw-medium" style={{ color: 'var(--pb-text)' }}>{total}</span> coelbooks
+        sur <span className="fw-medium" style={{ color: 'var(--pb-text)' }}>{total}</span> coelbooks
       </p>
 
       {totalPages > 1 && (
-        <nav aria-label="Coelbooks pagination">
+        <nav aria-label="Pagination des coelbooks">
           <ul className="pagination pagination-sm mb-0 gap-1">
             <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
               <button
@@ -30,7 +30,7 @@ export default function Pagination({ page, perPage, total, onPageChange }: Pagin
                 className="page-link rounded-3"
                 disabled={page <= 1}
                 onClick={() => onPageChange(page - 1)}
-                aria-label="Previous page"
+                aria-label="Page précédente"
               >
                 <i className="fa-solid fa-chevron-left" style={{ fontSize: '0.6rem' }}></i>
               </button>
@@ -48,7 +48,7 @@ export default function Pagination({ page, perPage, total, onPageChange }: Pagin
                 className="page-link rounded-3"
                 disabled={page >= totalPages}
                 onClick={() => onPageChange(page + 1)}
-                aria-label="Next page"
+                aria-label="Page suivante"
               >
                 <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.6rem' }}></i>
               </button>

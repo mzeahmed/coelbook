@@ -56,10 +56,10 @@ export async function apiFetch<T>(
     })
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new ApiError(0, 'The request timed out. Please try again.')
+      throw new ApiError(0, 'La requête a expiré. Veuillez réessayer.')
     }
 
-    throw new ApiError(0, 'Unable to reach the server. Check your connection and try again.')
+    throw new ApiError(0, 'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.')
   } finally {
     if (timeoutId !== null) clearTimeout(timeoutId)
   }
@@ -69,7 +69,7 @@ export async function apiFetch<T>(
   try {
     body = (await res.json()) as ApiEnvelope<T>
   } catch {
-    throw new ApiError(res.status, 'The server returned an unexpected response.')
+    throw new ApiError(res.status, 'Le serveur a renvoyé une réponse inattendue.')
   }
 
   if (!body.success) {

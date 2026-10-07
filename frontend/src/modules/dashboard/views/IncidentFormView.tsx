@@ -30,11 +30,11 @@ const EMPTY_FORM: IncidentWriteRequest = {
 }
 
 const SECTIONS: { key: 'problem' | 'diagnosis' | 'root_cause' | 'solution' | 'prevention'; label: string; hint: string }[] = [
-  { key: 'problem', label: 'Problem', hint: 'Symptoms and observed behavior.' },
-  { key: 'diagnosis', label: 'Diagnosis', hint: 'How the problem was investigated.' },
-  { key: 'root_cause', label: 'Root cause', hint: 'Why it happened.' },
-  { key: 'solution', label: 'Solution', hint: 'Steps that fixed it.' },
-  { key: 'prevention', label: 'Prevention', hint: 'How to avoid it next time.' },
+  { key: 'problem', label: 'Problème', hint: 'Symptômes et comportement observé.' },
+  { key: 'diagnosis', label: 'Diagnostic', hint: 'Comment le problème a été analysé.' },
+  { key: 'root_cause', label: 'Cause racine', hint: 'Pourquoi c\'est arrivé.' },
+  { key: 'solution', label: 'Solution', hint: 'Les étapes qui l\'ont résolu.' },
+  { key: 'prevention', label: 'Prévention', hint: 'Comment l\'éviter la prochaine fois.' },
 ]
 
 const STATUSES: IncidentStatus[] = ['draft', 'published', 'archived']
@@ -107,7 +107,7 @@ export default function IncidentFormView() {
           return
         }
 
-        setLoadError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+        setLoadError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
       })
 
     return () => {
@@ -137,13 +137,13 @@ export default function IncidentFormView() {
         return
       }
 
-      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
       setSubmitting(false)
     }
   }
 
   const cancelTo = editing ? `/incidents/${slug}` : '/dashboard'
-  const heading = editing ? 'Edit coelbook' : 'New coelbook'
+  const heading = editing ? 'Modifier le coelbook' : 'Nouveau coelbook'
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh' }}>
@@ -165,14 +165,14 @@ export default function IncidentFormView() {
             {notFound && (
               <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
                 <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
-                This coelbook doesn't exist or has been removed.
+                Ce coelbook n&apos;existe pas ou a été supprimé.
               </div>
             )}
 
             {!loaded && !loadError && !notFound && (
               <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
                 <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Loading…
+                Chargement…
               </div>
             )}
 
@@ -181,7 +181,7 @@ export default function IncidentFormView() {
                 <section className="pb-card border rounded-4 p-4 d-flex flex-column gap-3">
                   <div>
                     <label className="form-label small fw-medium" htmlFor="incident-title">
-                      Title
+                      Titre
                     </label>
                     <input
                       id="incident-title"
@@ -196,7 +196,7 @@ export default function IncidentFormView() {
 
                   <div>
                     <label className="form-label small fw-medium" htmlFor="incident-summary">
-                      Summary
+                      Résumé
                     </label>
                     <textarea
                       id="incident-summary"
@@ -210,7 +210,7 @@ export default function IncidentFormView() {
                   <div className="row g-3">
                     <div className="col-md-6">
                       <label className="form-label small fw-medium" htmlFor="incident-category">
-                        Category
+                        Catégorie
                       </label>
                       <select
                         id="incident-category"
@@ -220,7 +220,7 @@ export default function IncidentFormView() {
                         required
                       >
                         <option value="" disabled>
-                          Select a category
+                          Choisir une catégorie
                         </option>
                         {categories.map((c) => (
                           <option key={c.slug} value={c.slug}>
@@ -232,7 +232,7 @@ export default function IncidentFormView() {
 
                     <div className="col-md-6">
                       <label className="form-label small fw-medium" htmlFor="incident-status">
-                        Status
+                        Statut
                       </label>
                       <select
                         id="incident-status"
@@ -260,7 +260,7 @@ export default function IncidentFormView() {
                       onChange={(e) => setTagsInput(e.target.value)}
                       placeholder="docker, postgres, ci"
                     />
-                    <div className="form-text small">Comma-separated. New tags are created automatically.</div>
+                    <div className="form-text small">Séparés par des virgules. Les nouveaux tags sont créés automatiquement.</div>
                   </div>
                 </section>
 
@@ -290,13 +290,13 @@ export default function IncidentFormView() {
 
                 <div className="d-flex justify-content-end gap-2 pb-4">
                   <Link to={cancelTo} className="btn btn-outline-secondary fw-medium">
-                    Cancel
+                    Annuler
                   </Link>
                   <button type="submit" className="btn btn-primary fw-medium" disabled={submitting}>
                     {submitting && (
                       <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     )}
-                    {editing ? 'Save changes' : 'Create coelbook'}
+                    {editing ? 'Enregistrer' : 'Créer le coelbook'}
                   </button>
                 </div>
               </form>

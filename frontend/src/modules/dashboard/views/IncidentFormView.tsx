@@ -17,11 +17,10 @@ import {
   type IncidentTag,
   type IncidentWriteRequest,
 } from '../api'
+import AppLayout from '../components/AppLayout'
 import LinksField from '../components/LinksField'
 import MarkdownField from '../components/MarkdownField'
-import Sidebar from '../components/Sidebar'
 import SnippetsField from '../components/SnippetsField'
-import Topbar from '../components/Topbar'
 import { fieldInputId, messageFor, withKey, withoutKey, type FieldError, type Row } from '../lib/fields'
 import { STATUS_LABEL } from '../lib/format'
 
@@ -205,191 +204,183 @@ export default function IncidentFormView() {
   const heading = editing ? 'Modifier le coelbook' : 'Nouveau coelbook'
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar />
+    <AppLayout current={heading}>
+      <div className="mx-auto px-4 px-lg-5 py-4" style={{ maxWidth: '56rem' }}>
+        <h1 className="h4 fw-bold mb-4">{heading}</h1>
 
-      <main className="flex-grow-1 d-flex flex-column min-w-0" style={{ backgroundColor: 'var(--pb-bg)' }}>
-        <Topbar current={heading} />
+        {loadError && (
+          <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
+            {loadError}
+          </div>
+        )}
 
-        <div className="flex-grow-1 overflow-y-auto">
-          <div className="mx-auto px-4 px-lg-5 py-4" style={{ maxWidth: '56rem' }}>
-            <h1 className="h4 fw-bold mb-4">{heading}</h1>
+        {notFound && (
+          <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
+            <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
+            Ce coelbook n&apos;existe pas ou a été supprimé.
+          </div>
+        )}
 
-            {loadError && (
-              <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
-                {loadError}
+        {!loaded && !loadError && !notFound && (
+          <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Chargement…
+          </div>
+        )}
+
+        {loaded && (
+          <form onSubmit={handleSubmit} noValidate className="d-flex flex-column gap-3">
+            <section className="pb-card border rounded-4 p-4 d-flex flex-column gap-3">
+              <div>
+                <label className="form-label small fw-medium" htmlFor="incident-title">
+                  Titre
+                </label>
+                <input
+                  id="incident-title"
+                  className={`form-control ${messageFor(fieldError, 'title') ? 'is-invalid' : ''}`}
+                  value={form.title}
+                  onChange={(e) => update('title', e.target.value)}
+                  maxLength={200}
+                  autoFocus
+                />
+                <InputError error={fieldError} field="title" />
               </div>
-            )}
 
-            {notFound && (
-              <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
-                <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
-                Ce coelbook n&apos;existe pas ou a été supprimé.
+              <div>
+                <label className="form-label small fw-medium" htmlFor="incident-summary">
+                  Résumé
+                </label>
+                <textarea
+                  id="incident-summary"
+                  className="form-control"
+                  rows={2}
+                  value={form.summary}
+                  onChange={(e) => update('summary', e.target.value)}
+                />
               </div>
-            )}
 
-            {!loaded && !loadError && !notFound && (
-              <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Chargement…
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label small fw-medium" htmlFor="incident-category">
+                    Catégorie
+                  </label>
+                  <select
+                    id="incident-category"
+                    className={`form-select ${messageFor(fieldError, 'category') ? 'is-invalid' : ''}`}
+                    value={form.category}
+                    onChange={(e) => update('category', e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Choisir une catégorie
+                    </option>
+                    {categories.map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <InputError error={fieldError} field="category" />
+                  {categories.length === 0 && (
+                    <div className="form-text small">
+                      Aucune catégorie n&apos;existe encore.{' '}
+                      <Link to="/categories">Créez-en une</Link> pour pouvoir enregistrer ce coelbook.
+                    </div>
+                  )}
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label small fw-medium" htmlFor="incident-status">
+                    Statut
+                  </label>
+                  <select
+                    id="incident-status"
+                    className={`form-select ${messageFor(fieldError, 'status') ? 'is-invalid' : ''}`}
+                    value={form.status}
+                    onChange={(e) => update('status', e.target.value as IncidentStatus)}
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {STATUS_LABEL[s]}
+                      </option>
+                    ))}
+                  </select>
+                  <InputError error={fieldError} field="status" />
+                </div>
               </div>
-            )}
 
-            {loaded && (
-              <form onSubmit={handleSubmit} noValidate className="d-flex flex-column gap-3">
-                <section className="pb-card border rounded-4 p-4 d-flex flex-column gap-3">
-                  <div>
-                    <label className="form-label small fw-medium" htmlFor="incident-title">
-                      Titre
-                    </label>
-                    <input
-                      id="incident-title"
-                      className={`form-control ${messageFor(fieldError, 'title') ? 'is-invalid' : ''}`}
-                      value={form.title}
-                      onChange={(e) => update('title', e.target.value)}
-                      maxLength={200}
-                      autoFocus
-                    />
-                    <InputError error={fieldError} field="title" />
-                  </div>
-
-                  <div>
-                    <label className="form-label small fw-medium" htmlFor="incident-summary">
-                      Résumé
-                    </label>
-                    <textarea
-                      id="incident-summary"
-                      className="form-control"
-                      rows={2}
-                      value={form.summary}
-                      onChange={(e) => update('summary', e.target.value)}
-                    />
-                  </div>
-
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label className="form-label small fw-medium" htmlFor="incident-category">
-                        Catégorie
-                      </label>
-                      <select
-                        id="incident-category"
-                        className={`form-select ${messageFor(fieldError, 'category') ? 'is-invalid' : ''}`}
-                        value={form.category}
-                        onChange={(e) => update('category', e.target.value)}
+              <div>
+                <label className="form-label small fw-medium" htmlFor="incident-tags">
+                  Tags
+                </label>
+                <input
+                  id="incident-tags"
+                  className={`form-control ${messageFor(fieldError, 'tags') ? 'is-invalid' : ''}`}
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="docker, postgres, ci"
+                />
+                <InputError error={fieldError} field="tags" />
+                <div className="form-text small">Séparés par des virgules. Les nouveaux tags sont créés automatiquement.</div>
+                {tagSuggestions.length > 0 && (
+                  <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
+                    <span className="small" style={{ color: 'var(--pb-text-muted)' }}>
+                      Tags existants :
+                    </span>
+                    {tagSuggestions.map((t) => (
+                      <button
+                        key={t.slug}
+                        type="button"
+                        className="tag-pill d-inline-flex align-items-center gap-1 px-2 py-1 rounded-2 small border-0 bg-transparent"
+                        onClick={() => addTag(t.name)}
+                        aria-label={`Ajouter le tag ${t.name}`}
                       >
-                        <option value="" disabled>
-                          Choisir une catégorie
-                        </option>
-                        {categories.map((c) => (
-                          <option key={c.slug} value={c.slug}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                      <InputError error={fieldError} field="category" />
-                      {categories.length === 0 && (
-                        <div className="form-text small">
-                          Aucune catégorie n&apos;existe encore.{' '}
-                          <Link to="/categories">Créez-en une</Link> pour pouvoir enregistrer ce coelbook.
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label small fw-medium" htmlFor="incident-status">
-                        Statut
-                      </label>
-                      <select
-                        id="incident-status"
-                        className={`form-select ${messageFor(fieldError, 'status') ? 'is-invalid' : ''}`}
-                        value={form.status}
-                        onChange={(e) => update('status', e.target.value as IncidentStatus)}
-                      >
-                        {STATUSES.map((s) => (
-                          <option key={s} value={s}>
-                            {STATUS_LABEL[s]}
-                          </option>
-                        ))}
-                      </select>
-                      <InputError error={fieldError} field="status" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label small fw-medium" htmlFor="incident-tags">
-                      Tags
-                    </label>
-                    <input
-                      id="incident-tags"
-                      className={`form-control ${messageFor(fieldError, 'tags') ? 'is-invalid' : ''}`}
-                      value={tagsInput}
-                      onChange={(e) => setTagsInput(e.target.value)}
-                      placeholder="docker, postgres, ci"
-                    />
-                    <InputError error={fieldError} field="tags" />
-                    <div className="form-text small">Séparés par des virgules. Les nouveaux tags sont créés automatiquement.</div>
-                    {tagSuggestions.length > 0 && (
-                      <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
-                        <span className="small" style={{ color: 'var(--pb-text-muted)' }}>
-                          Tags existants :
-                        </span>
-                        {tagSuggestions.map((t) => (
-                          <button
-                            key={t.slug}
-                            type="button"
-                            className="tag-pill d-inline-flex align-items-center gap-1 px-2 py-1 rounded-2 small border-0 bg-transparent"
-                            onClick={() => addTag(t.name)}
-                            aria-label={`Ajouter le tag ${t.name}`}
-                          >
-                            <i className="fa-solid fa-plus" style={{ fontSize: '0.55rem' }}></i> {t.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </section>
-
-                {SECTIONS.map((section) => (
-                  <section key={section.key} className="pb-card border rounded-4 p-4">
-                    <label className="form-label fw-semibold mb-1" htmlFor={`incident-${section.key}`}>
-                      {section.label}
-                    </label>
-                    <div className="small mb-2" style={{ color: 'var(--pb-text-muted)' }}>
-                      {section.hint}
-                    </div>
-                    <MarkdownField
-                      id={`incident-${section.key}`}
-                      value={form[section.key]}
-                      onChange={(value) => update(section.key, value)}
-                    />
-                  </section>
-                ))}
-
-                <SnippetsField rows={snippetRows} onChange={setSnippetRows} error={fieldError} />
-                <LinksField rows={linkRows} onChange={setLinkRows} error={fieldError} />
-
-                {error && (
-                  <div className="badge-danger-soft rounded-3 small py-2 px-3" role="alert">
-                    {error}
+                        <i className="fa-solid fa-plus" style={{ fontSize: '0.55rem' }}></i> {t.name}
+                      </button>
+                    ))}
                   </div>
                 )}
+              </div>
+            </section>
 
-                <div className="d-flex justify-content-end gap-2 pb-4">
-                  <Link to={cancelTo} className="btn btn-outline-secondary fw-medium">
-                    Annuler
-                  </Link>
-                  <button type="submit" className="btn btn-primary fw-medium" disabled={submitting}>
-                    {submitting && (
-                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    )}
-                    {editing ? 'Enregistrer' : 'Créer le coelbook'}
-                  </button>
+            {SECTIONS.map((section) => (
+              <section key={section.key} className="pb-card border rounded-4 p-4">
+                <label className="form-label fw-semibold mb-1" htmlFor={`incident-${section.key}`}>
+                  {section.label}
+                </label>
+                <div className="small mb-2" style={{ color: 'var(--pb-text-muted)' }}>
+                  {section.hint}
                 </div>
-              </form>
+                <MarkdownField
+                  id={`incident-${section.key}`}
+                  value={form[section.key]}
+                  onChange={(value) => update(section.key, value)}
+                />
+              </section>
+            ))}
+
+            <SnippetsField rows={snippetRows} onChange={setSnippetRows} error={fieldError} />
+            <LinksField rows={linkRows} onChange={setLinkRows} error={fieldError} />
+
+            {error && (
+              <div className="badge-danger-soft rounded-3 small py-2 px-3" role="alert">
+                {error}
+              </div>
             )}
-          </div>
-        </div>
-      </main>
-    </div>
+
+            <div className="d-flex justify-content-end gap-2 pb-4">
+              <Link to={cancelTo} className="btn btn-outline-secondary fw-medium">
+                Annuler
+              </Link>
+              <button type="submit" className="btn btn-primary fw-medium" disabled={submitting}>
+                {submitting && (
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                )}
+                {editing ? 'Enregistrer' : 'Créer le coelbook'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </AppLayout>
   )
 }

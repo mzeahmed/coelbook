@@ -63,6 +63,13 @@ body {
   background: #cbd5e1;
 }
 
+/* Bootstrap has no min-width utility. Flex and grid children default to
+   min-width: auto, so without this a long unbreakable line (code, URL)
+   widens its whole column — and text-truncate inside it never kicks in. */
+.min-w-0 {
+  min-width: 0;
+}
+
 .pb-surface {
   background-color: var(--pb-surface);
 }
@@ -668,4 +675,12 @@ body {
   .pb-incident-layout > aside {
     align-self: stretch;
   }
+}
+
+/* Desktop sidebar (AppLayout): the window scrolls, the sidebar stays as a
+   full-height column; its nav scrolls on its own if it gets too long. */
+.pb-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }

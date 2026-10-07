@@ -5,8 +5,7 @@ import { ApiError } from '@/http/client'
 import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { listCategories, listIncidents, listTags, type IncidentCategory, type IncidentSummary, type IncidentTag } from '../api'
-import Sidebar from '../components/Sidebar'
-import Topbar from '../components/Topbar'
+import AppLayout from '../components/AppLayout'
 import FiltersBar from '../components/FiltersBar'
 import IncidentCard from '../components/IncidentCard'
 import Pagination from '../components/Pagination'
@@ -109,74 +108,66 @@ export default function DashboardView() {
   }
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar incidentCount={allIncidentsTotal} />
+    <AppLayout incidentCount={allIncidentsTotal}>
+      <div className="pb-max-w mx-auto px-4 px-lg-5 py-4">
+        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+          <div>
+            <h1 className="h4 fw-bold mb-1">Coelbooks</h1>
+            <p className="small mb-0" style={{ color: 'var(--pb-text-muted)' }}>
+              {total} solution{total > 1 ? 's' : ''} documentée{total > 1 ? 's' : ''} · Parcourez, cherchez, apprenez.
+            </p>
+          </div>
+          <Link to="/incidents/new" className="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2 align-self-start align-self-sm-center">
+            <i className="fa-solid fa-plus" style={{ fontSize: '0.7rem' }}></i> Nouveau coelbook
+          </Link>
+        </div>
 
-      <main className="flex-grow-1 d-flex flex-column min-w-0" style={{ backgroundColor: 'var(--pb-bg)' }}>
-        <Topbar />
+        <FiltersBar
+          search={search}
+          onSearchChange={handleFilterChange(setSearch)}
+          category={category}
+          onCategoryChange={handleFilterChange(setCategory)}
+          categoryOptions={categoryOptions}
+          status={status}
+          onStatusChange={handleFilterChange(setStatus)}
+          tag={tag}
+          onTagChange={handleFilterChange(setTag)}
+          tagOptions={tagOptions}
+          onClear={handleClear}
+        />
 
-        <div className="flex-grow-1 overflow-y-auto">
-          <div className="pb-max-w mx-auto px-4 px-lg-5 py-4">
-            <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
-              <div>
-                <h1 className="h4 fw-bold mb-1">Coelbooks</h1>
-                <p className="small mb-0" style={{ color: 'var(--pb-text-muted)' }}>
-                  {total} solution{total > 1 ? 's' : ''} documentée{total > 1 ? 's' : ''} · Parcourez, cherchez, apprenez.
-                </p>
-              </div>
-              <Link to="/incidents/new" className="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2 align-self-start align-self-sm-center">
-                <i className="fa-solid fa-plus" style={{ fontSize: '0.7rem' }}></i> Nouveau coelbook
-              </Link>
+        {error && (
+          <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
+            {error}
+          </div>
+        )}
+
+        {!error && loading && (
+          <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Chargement des coelbooks…
+          </div>
+        )}
+
+        {!error && !loading && incidents.length === 0 && (
+          <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
+            <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
+            {total === 0 ? 'Aucun coelbook pour l\'instant.' : 'Aucun coelbook ne correspond à ces filtres.'}
+          </div>
+        )}
+
+        {!error && !loading && incidents.length > 0 && (
+          <>
+            <div className="pb-grid row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+              {incidents.map((incident) => (
+                <IncidentCard key={incident.id} incident={incident} />
+              ))}
             </div>
 
-            <FiltersBar
-              search={search}
-              onSearchChange={handleFilterChange(setSearch)}
-              category={category}
-              onCategoryChange={handleFilterChange(setCategory)}
-              categoryOptions={categoryOptions}
-              status={status}
-              onStatusChange={handleFilterChange(setStatus)}
-              tag={tag}
-              onTagChange={handleFilterChange(setTag)}
-              tagOptions={tagOptions}
-              onClear={handleClear}
-            />
-
-            {error && (
-              <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
-                {error}
-              </div>
-            )}
-
-            {!error && loading && (
-              <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Chargement des coelbooks…
-              </div>
-            )}
-
-            {!error && !loading && incidents.length === 0 && (
-              <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
-                <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
-                {total === 0 ? 'Aucun coelbook pour l\'instant.' : 'Aucun coelbook ne correspond à ces filtres.'}
-              </div>
-            )}
-
-            {!error && !loading && incidents.length > 0 && (
-              <>
-                <div className="pb-grid row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
-                  {incidents.map((incident) => (
-                    <IncidentCard key={incident.id} incident={incident} />
-                  ))}
-                </div>
-
-                <Pagination page={page} perPage={PER_PAGE} total={total} onPageChange={setPage} />
-              </>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
+            <Pagination page={page} perPage={PER_PAGE} total={total} onPageChange={setPage} />
+          </>
+        )}
+      </div>
+    </AppLayout>
   )
 }

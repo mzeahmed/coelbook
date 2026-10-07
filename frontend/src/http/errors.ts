@@ -53,6 +53,14 @@ const MESSAGES: Record<string, string> = {
   too_many_links: 'Un coelbook ne peut pas avoir plus de 20 liens.',
   link_url_required: 'L\'URL du lien est obligatoire.',
   invalid_link_url: 'L\'URL doit commencer par http:// ou https://.',
+
+  // Categories
+  category_name_required: 'Le nom de la catégorie est obligatoire.',
+  category_name_too_long: 'Le nom ne doit pas dépasser 100 caractères.',
+  category_description_too_long: 'La description ne doit pas dépasser 500 caractères.',
+  category_name_taken: 'Une catégorie porte déjà ce nom.',
+  category_not_found: 'Cette catégorie n\'existe pas ou a été supprimée.',
+  category_in_use: 'Cette catégorie est utilisée par des coelbooks : déplacez-les avant de la supprimer.',
 }
 
 // errorMessage returns the French message to display for err, whatever

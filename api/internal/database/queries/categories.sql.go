@@ -7,7 +7,104 @@ package repo
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const categoryNameTaken = `-- name: CategoryNameTaken :one
+SELECT EXISTS (
+    SELECT 1
+    FROM categories
+    WHERE lower(name) = lower($1) AND slug <> $2
+)
+`
+
+type CategoryNameTakenParams struct {
+	Name        string `json:"name"`
+	ExcludeSlug string `json:"exclude_slug"`
+}
+
+// Case-insensitive, so "Docker" and "docker" can't coexist. exclude_slug
+// skips the category being renamed (” to check against all of them).
+func (q *Queries) CategoryNameTaken(ctx context.Context, arg CategoryNameTakenParams) (bool, error) {
+	row := q.db.QueryRow(ctx, categoryNameTaken, arg.Name, arg.ExcludeSlug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const categorySlugExists = `-- name: CategorySlugExists :one
+SELECT EXISTS (SELECT 1 FROM categories WHERE slug = $1)
+`
+
+func (q *Queries) CategorySlugExists(ctx context.Context, slug string) (bool, error) {
+	row := q.db.QueryRow(ctx, categorySlugExists, slug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const createCategory = `-- name: CreateCategory :exec
+INSERT INTO categories (name, slug, description)
+VALUES ($1, $2, $3)
+`
+
+type CreateCategoryParams struct {
+	Name        string      `json:"name"`
+	Slug        string      `json:"slug"`
+	Description pgtype.Text `json:"description"`
+}
+
+func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) error {
+	_, err := q.db.Exec(ctx, createCategory, arg.Name, arg.Slug, arg.Description)
+	return err
+}
+
+const deleteCategory = `-- name: DeleteCategory :execrows
+DELETE FROM categories
+WHERE slug = $1
+`
+
+// Fails with a foreign key violation while incidents still use it.
+func (q *Queries) DeleteCategory(ctx context.Context, slug string) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteCategory, slug)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const getCategoryBySlug = `-- name: GetCategoryBySlug :one
+SELECT
+    c.id,
+    c.name,
+    c.slug,
+    c.description,
+    (SELECT count(*) FROM incidents i WHERE i.category_id = c.id) AS incident_count
+FROM categories c
+WHERE c.slug = $1
+`
+
+type GetCategoryBySlugRow struct {
+	ID            int64       `json:"id"`
+	Name          string      `json:"name"`
+	Slug          string      `json:"slug"`
+	Description   pgtype.Text `json:"description"`
+	IncidentCount int64       `json:"incident_count"`
+}
+
+func (q *Queries) GetCategoryBySlug(ctx context.Context, slug string) (GetCategoryBySlugRow, error) {
+	row := q.db.QueryRow(ctx, getCategoryBySlug, slug)
+	var i GetCategoryBySlugRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Slug,
+		&i.Description,
+		&i.IncidentCount,
+	)
+	return i, err
+}
 
 const getCategoryIDBySlug = `-- name: GetCategoryIDBySlug :one
 SELECT id
@@ -23,15 +120,22 @@ func (q *Queries) GetCategoryIDBySlug(ctx context.Context, slug string) (int64, 
 }
 
 const listCategories = `-- name: ListCategories :many
-SELECT id, name, slug
-FROM categories
-ORDER BY name
+SELECT
+    c.id,
+    c.name,
+    c.slug,
+    c.description,
+    (SELECT count(*) FROM incidents i WHERE i.category_id = c.id) AS incident_count
+FROM categories c
+ORDER BY c.name
 `
 
 type ListCategoriesRow struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-	Slug string `json:"slug"`
+	ID            int64       `json:"id"`
+	Name          string      `json:"name"`
+	Slug          string      `json:"slug"`
+	Description   pgtype.Text `json:"description"`
+	IncidentCount int64       `json:"incident_count"`
 }
 
 func (q *Queries) ListCategories(ctx context.Context) ([]ListCategoriesRow, error) {
@@ -43,7 +147,13 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ListCategoriesRow, erro
 	var items []ListCategoriesRow
 	for rows.Next() {
 		var i ListCategoriesRow
-		if err := rows.Scan(&i.ID, &i.Name, &i.Slug); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Slug,
+			&i.Description,
+			&i.IncidentCount,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -52,4 +162,44 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ListCategoriesRow, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const seedCategory = `-- name: SeedCategory :exec
+INSERT INTO categories (name, slug)
+VALUES ($1, $2)
+ON CONFLICT DO NOTHING
+`
+
+type SeedCategoryParams struct {
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+}
+
+// Used by the setup wizard; an instance re-initialized after its admin was
+// removed may already have its categories.
+func (q *Queries) SeedCategory(ctx context.Context, arg SeedCategoryParams) error {
+	_, err := q.db.Exec(ctx, seedCategory, arg.Name, arg.Slug)
+	return err
+}
+
+const updateCategory = `-- name: UpdateCategory :execrows
+UPDATE categories
+SET name        = $1,
+    description = $2
+WHERE slug = $3
+`
+
+type UpdateCategoryParams struct {
+	Name        string      `json:"name"`
+	Description pgtype.Text `json:"description"`
+	Slug        string      `json:"slug"`
+}
+
+// The slug is left unchanged so filters and links keep working.
+func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateCategory, arg.Name, arg.Description, arg.Slug)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

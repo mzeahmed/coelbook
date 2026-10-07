@@ -1,4 +1,5 @@
-package incident
+// Package slug turns human-readable names into URL identifiers.
+package slug
 
 import (
 	"strings"
@@ -7,11 +8,11 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
-// slugify turns s into a lowercase, ASCII, dash-separated URL identifier,
+// Make turns s into a lowercase, ASCII, dash-separated URL identifier,
 // e.g. "Postgres: connexion refusée" → "postgres-connexion-refusee".
 // Accents are stripped; any other non-alphanumeric run becomes a single
 // dash. It returns "" if s has no alphanumeric characters.
-func slugify(s string) string {
+func Make(s string) string {
 
 	var b strings.Builder
 	pendingDash := false

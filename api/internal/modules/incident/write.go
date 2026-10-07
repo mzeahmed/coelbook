@@ -11,9 +11,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	repo "github.com/mzeahmed/coelbook/internal/database/queries"
+	"github.com/mzeahmed/coelbook/internal/slug"
 )
 
-// fallbackSlug is used when the title has no character slugify can keep
+// fallbackSlug is used when the title has no character slug.Make can keep
 // (e.g. a title written only in a non-Latin script).
 const fallbackSlug = "incident"
 
@@ -170,28 +171,28 @@ func categoryID(ctx context.Context, q *repo.Queries, slug string) (int64, error
 // appending -2, -3, … to the base slug until a free one is found.
 func uniqueSlug(ctx context.Context, q *repo.Queries, title string) (string, error) {
 
-	base := slugify(title)
+	base := slug.Make(title)
 	if base == "" {
 		base = fallbackSlug
 	}
 
-	slug := base
+	candidate := base
 	for n := 2; ; n++ {
-		taken, err := q.IncidentSlugExists(ctx, slug)
+		taken, err := q.IncidentSlugExists(ctx, candidate)
 		if err != nil {
 			return "", err
 		}
 
-		if !taken && !reservedSlugs[slug] {
-			return slug, nil
+		if !taken && !reservedSlugs[candidate] {
+			return candidate, nil
 		}
 
-		slug = base + "-" + strconv.Itoa(n)
+		candidate = base + "-" + strconv.Itoa(n)
 	}
 }
 
 // setTags attaches tags to the incident, creating any tag that doesn't
-// exist yet. Names are trimmed; blank names, and names that slugify to
+// exist yet. Names are trimmed; blank names, and names that slug.Make maps to
 // the same slug as an earlier one, are skipped.
 func setTags(ctx context.Context, q *repo.Queries, incidentID int64, names []string) error {
 
@@ -199,14 +200,14 @@ func setTags(ctx context.Context, q *repo.Queries, incidentID int64, names []str
 
 	for _, name := range names {
 		name = strings.TrimSpace(name)
-		slug := slugify(name)
+		tagSlug := slug.Make(name)
 
-		if slug == "" || seen[slug] {
+		if tagSlug == "" || seen[tagSlug] {
 			continue
 		}
-		seen[slug] = true
+		seen[tagSlug] = true
 
-		tagID, err := q.UpsertTag(ctx, repo.UpsertTagParams{Name: name, Slug: slug})
+		tagID, err := q.UpsertTag(ctx, repo.UpsertTagParams{Name: name, Slug: tagSlug})
 		if err != nil {
 			return fmt.Errorf("upsert tag %q: %w", name, err)
 		}

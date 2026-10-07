@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom'
 
 interface TopbarProps {
-  // current, when set, is shown as a last breadcrumb after "Coelbooks",
-  // which then links back to the list.
+  // section is the breadcrumb after "Coelbook" (default: the incident
+  // list). current, when set, is shown as a last breadcrumb after it,
+  // and section then links back to its page.
+  section?: { label: string; to: string }
   current?: string
 }
 
-export default function Topbar({ current }: TopbarProps) {
+const INCIDENTS = { label: 'Coelbooks', to: '/dashboard' }
+
+export default function Topbar({ section = INCIDENTS, current }: TopbarProps) {
   return (
     <header
       className="pb-header d-flex align-items-center justify-content-between px-4 px-lg-5 border-bottom sticky-top flex-shrink-0"
@@ -17,14 +21,14 @@ export default function Topbar({ current }: TopbarProps) {
         <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.55rem', color: 'var(--pb-border)' }}></i>
         {current ? (
           <>
-            <Link to="/dashboard" className="text-decoration-none" style={{ color: 'var(--pb-text-muted)' }}>
-              Coelbooks
+            <Link to={section.to} className="text-decoration-none" style={{ color: 'var(--pb-text-muted)' }}>
+              {section.label}
             </Link>
             <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.55rem', color: 'var(--pb-border)' }}></i>
             <span className="fw-medium text-truncate">{current}</span>
           </>
         ) : (
-          <span className="fw-medium">Coelbooks</span>
+          <span className="fw-medium">{section.label}</span>
         )}
       </div>
     </header>

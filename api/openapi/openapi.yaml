@@ -241,6 +241,21 @@ components:
         updated_at:
           type: string
           format: date-time
+        highlight:
+          $ref: "#/components/schemas/IncidentHighlight"
+
+    IncidentHighlight:
+      type: object
+      description: >
+        Present only in a listing filtered by `q`. Title and summary with
+        each matched term wrapped in U+E000 (start) and U+E001 (end), two
+        private-use characters that never occur in real content.
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+      required: [title, summary]
 
     IncidentListData:
       type: object
@@ -646,7 +661,13 @@ paths:
           in: query
           schema:
             type: string
-          description: Free-text search query.
+          description: >
+            Full-text search over the title, summary, problem, diagnosis,
+            root cause, solution, prevention, tag names and snippet titles
+            (accent-insensitive, no stemming), plus a substring match on the
+            title, summary and snippet content. Supports web search syntax:
+            `"exact phrase"`, `-excluded`, `or`. When set, results are sorted
+            by relevance and carry a `highlight`.
         - name: page
           in: query
           schema:

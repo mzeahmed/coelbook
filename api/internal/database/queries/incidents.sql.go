@@ -23,7 +23,17 @@ WHERE ($1::text = '' OR c.slug = $1::text)
         JOIN tags t2 ON t2.id = it2.tag_id
         WHERE it2.incident_id = i.id AND t2.slug = $3::text
     ))
-    AND ($4::text = '' OR i.title ILIKE '%' || $4::text || '%' OR i.summary ILIKE '%' || $4::text || '%')
+    AND ($4::text = ''
+        OR i.search_vector @@ websearch_to_tsquery('coelbook', $4::text)
+        -- Substring fallbacks: partial words while typing ("postg"), and
+        -- snippet content, which is code and isn't in search_vector.
+        OR i.title ILIKE '%' || $4::text || '%'
+        OR i.summary ILIKE '%' || $4::text || '%'
+        OR EXISTS (
+            SELECT 1
+            FROM snippets s
+            WHERE s.incident_id = i.id AND s.content ILIKE '%' || $4::text || '%'
+        ))
 `
 
 type CountIncidentsParams struct {
@@ -269,53 +279,82 @@ SELECT
          JOIN tags t ON t.id = it.tag_id
          WHERE it.incident_id = i.id),
         '{}'::text[]
-    ) AS tags
+    ) AS tags,
+    (CASE WHEN $1::text = '' THEN ''
+        ELSE ts_headline('coelbook', i.title, websearch_to_tsquery('coelbook', $1::text),
+            'HighlightAll=true, StartSel=' || chr(57344) || ', StopSel=' || chr(57345))
+    END)::text AS title_highlight,
+    (CASE WHEN $1::text = '' THEN ''
+        ELSE ts_headline('coelbook', coalesce(i.summary, ''), websearch_to_tsquery('coelbook', $1::text),
+            'HighlightAll=true, StartSel=' || chr(57344) || ', StopSel=' || chr(57345))
+    END)::text AS summary_highlight
 FROM incidents i
 JOIN categories c ON c.id = i.category_id
 JOIN users u ON u.id = i.created_by
-WHERE ($1::text = '' OR c.slug = $1::text)
-    AND ($2::text = '' OR i.status::text = $2::text)
-    AND ($3::text = '' OR EXISTS (
+WHERE ($2::text = '' OR c.slug = $2::text)
+    AND ($3::text = '' OR i.status::text = $3::text)
+    AND ($4::text = '' OR EXISTS (
         SELECT 1
         FROM incident_tags it2
         JOIN tags t2 ON t2.id = it2.tag_id
-        WHERE it2.incident_id = i.id AND t2.slug = $3::text
+        WHERE it2.incident_id = i.id AND t2.slug = $4::text
     ))
-    AND ($4::text = '' OR i.title ILIKE '%' || $4::text || '%' OR i.summary ILIKE '%' || $4::text || '%')
-ORDER BY i.created_at DESC
+    AND ($1::text = ''
+        OR i.search_vector @@ websearch_to_tsquery('coelbook', $1::text)
+        -- Substring fallbacks: partial words while typing ("postg"), and
+        -- snippet content, which is code and isn't in search_vector.
+        OR i.title ILIKE '%' || $1::text || '%'
+        OR i.summary ILIKE '%' || $1::text || '%'
+        OR EXISTS (
+            SELECT 1
+            FROM snippets s
+            WHERE s.incident_id = i.id AND s.content ILIKE '%' || $1::text || '%'
+        ))
+ORDER BY
+    (CASE WHEN $1::text = '' THEN 0
+        ELSE ts_rank(i.search_vector, websearch_to_tsquery('coelbook', $1::text))
+    END) DESC,
+    i.created_at DESC
 LIMIT $6 OFFSET $5
 `
 
 type ListIncidentsParams struct {
+	Query      string `json:"query"`
 	Category   string `json:"category"`
 	Status     string `json:"status"`
 	Tag        string `json:"tag"`
-	Query      string `json:"query"`
 	PageOffset int32  `json:"page_offset"`
 	PageLimit  int32  `json:"page_limit"`
 }
 
 type ListIncidentsRow struct {
-	ID              int64              `json:"id"`
-	Title           string             `json:"title"`
-	Slug            string             `json:"slug"`
-	Summary         pgtype.Text        `json:"summary"`
-	Status          IncidentStatus     `json:"status"`
-	CreatedAt       pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
-	CategoryName    string             `json:"category_name"`
-	CategorySlug    string             `json:"category_slug"`
-	AuthorFirstName string             `json:"author_first_name"`
-	AuthorLastName  string             `json:"author_last_name"`
-	Tags            interface{}        `json:"tags"`
+	ID               int64              `json:"id"`
+	Title            string             `json:"title"`
+	Slug             string             `json:"slug"`
+	Summary          pgtype.Text        `json:"summary"`
+	Status           IncidentStatus     `json:"status"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+	CategoryName     string             `json:"category_name"`
+	CategorySlug     string             `json:"category_slug"`
+	AuthorFirstName  string             `json:"author_first_name"`
+	AuthorLastName   string             `json:"author_last_name"`
+	Tags             interface{}        `json:"tags"`
+	TitleHighlight   string             `json:"title_highlight"`
+	SummaryHighlight string             `json:"summary_highlight"`
 }
 
+// With a query, results are ordered by full-text relevance, and the title
+// and summary come back with matched terms wrapped in U+E000 / U+E001
+// (private-use characters, so they can't clash with real content and
+// the client renders them as highlights without parsing HTML). Without a
+// query, results are ordered by date and the highlight columns are empty.
 func (q *Queries) ListIncidents(ctx context.Context, arg ListIncidentsParams) ([]ListIncidentsRow, error) {
 	rows, err := q.db.Query(ctx, listIncidents,
+		arg.Query,
 		arg.Category,
 		arg.Status,
 		arg.Tag,
-		arg.Query,
 		arg.PageOffset,
 		arg.PageLimit,
 	)
@@ -339,6 +378,8 @@ func (q *Queries) ListIncidents(ctx context.Context, arg ListIncidentsParams) ([
 			&i.AuthorFirstName,
 			&i.AuthorLastName,
 			&i.Tags,
+			&i.TitleHighlight,
+			&i.SummaryHighlight,
 		); err != nil {
 			return nil, err
 		}
@@ -348,6 +389,19 @@ func (q *Queries) ListIncidents(ctx context.Context, arg ListIncidentsParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const refreshIncidentSearchVector = `-- name: RefreshIncidentSearchVector :exec
+UPDATE incidents
+SET search_vector = incident_search_vector(id)
+WHERE id = $1
+`
+
+// Rebuilds the incident's full-text document; call it after any change to
+// the incident, its tags or its snippets (see incident_search_vector()).
+func (q *Queries) RefreshIncidentSearchVector(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, refreshIncidentSearchVector, id)
+	return err
 }
 
 const updateIncident = `-- name: UpdateIncident :one

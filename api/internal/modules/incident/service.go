@@ -167,7 +167,19 @@ func toSummary(row repo.ListIncidentsRow) Summary {
 		Tags:      toTags(row.Tags),
 		CreatedAt: row.CreatedAt.Time.Format(time.RFC3339),
 		UpdatedAt: row.UpdatedAt.Time.Format(time.RFC3339),
+		Highlight: toHighlight(row.TitleHighlight, row.SummaryHighlight),
 	}
+}
+
+// toHighlight returns nil when the listing wasn't a search (the query
+// then leaves both highlight columns empty).
+func toHighlight(title, summary string) *Highlight {
+
+	if title == "" && summary == "" {
+		return nil
+	}
+
+	return &Highlight{Title: title, Summary: summary}
 }
 
 // toTags normalizes the driver's decoding of the tags array (a computed

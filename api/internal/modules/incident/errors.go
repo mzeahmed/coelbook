@@ -7,4 +7,4 @@ var ErrNotFound = apperr.New("incident_not_found", "incident not found")
 
 // ErrUnknownCategory is returned when a write request references a
 // category slug that doesn't exist.
-var ErrUnknownCategory = apperr.New("unknown_category", "unknown category")
+var ErrUnknownCategory = apperr.NewField("unknown_category", "category", "unknown category")

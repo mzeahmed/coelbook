@@ -75,6 +75,19 @@ components:
             - category_required
             - unknown_category
             - too_many_tags
+            - too_many_snippets
+            - snippet_title_required
+            - snippet_content_required
+            - too_many_links
+            - link_url_required
+            - invalid_link_url
+        field:
+          type: string
+          description: >
+            Path of the request field a validation error is about, present
+            on such errors only. Dots separate nested fields and brackets
+            hold list indexes, e.g. `title` or `snippets[2].content`.
+          example: snippets[2].content
         message:
           type: string
           description: Human-readable (English) status message, for developers and logs.
@@ -297,7 +310,7 @@ components:
       type: object
       description: >
         Full replacement of an incident's editable fields. On update,
-        omitted text fields and tags are cleared. Blank text fields are
+        omitted text fields, tags, snippets and links are cleared. Blank text fields are
         stored as null and returned as empty strings.
       properties:
         title:
@@ -327,7 +340,44 @@ components:
           description: Tag names; unknown tags are created.
           items:
             type: string
+        snippets:
+          type: array
+          maxItems: 20
+          description: Replaces the incident's snippets; list order is display order.
+          items:
+            $ref: "#/components/schemas/IncidentSnippetInput"
+        links:
+          type: array
+          maxItems: 20
+          description: Replaces the incident's links; list order is display order.
+          items:
+            $ref: "#/components/schemas/IncidentLinkInput"
       required: [title, status, category]
+
+    IncidentSnippetInput:
+      type: object
+      properties:
+        title:
+          type: string
+        language:
+          type: string
+          description: Defaults to `text` when blank.
+        content:
+          type: string
+          description: Stored verbatim (not trimmed).
+      required: [title, content]
+
+    IncidentLinkInput:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Defaults to the URL when blank.
+        url:
+          type: string
+          format: uri
+          description: Absolute http or https URL.
+      required: [url]
 
     Category:
       type: object

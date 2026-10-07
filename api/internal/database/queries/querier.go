@@ -13,9 +13,13 @@ type Querier interface {
 	ConsumePasswordResetToken(ctx context.Context, id int64) error
 	CountIncidents(ctx context.Context, arg CountIncidentsParams) (int64, error)
 	CreateIncident(ctx context.Context, arg CreateIncidentParams) (int64, error)
+	CreateLink(ctx context.Context, arg CreateLinkParams) error
 	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (PasswordResetToken, error)
+	CreateSnippet(ctx context.Context, arg CreateSnippetParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWizard(ctx context.Context, arg CreateWizardParams) (Wizard, error)
+	DeleteIncidentLinks(ctx context.Context, incidentID int64) error
+	DeleteIncidentSnippets(ctx context.Context, incidentID int64) error
 	DeleteIncidentTags(ctx context.Context, incidentID int64) error
 	DeleteWizard(ctx context.Context) error
 	FindUserByEmail(ctx context.Context, email string) (User, error)

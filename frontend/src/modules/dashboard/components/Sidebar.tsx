@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { clearSession, getUser } from '@/modules/auth/session'
 
 interface SidebarProps {
-  incidentCount: number
+  // incidentCount is omitted on pages that don't load the incident list;
+  // the count badge is then hidden.
+  incidentCount?: number
 }
 
 // Nav items other than "Coelbooks" don't lead anywhere yet — they're
@@ -59,12 +61,14 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
         >
           <i className="fa-solid fa-file-code text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Coelbooks</span>
-          <span
-            className="font-mono ms-auto rounded-2 border px-2 py-0"
-            style={{ fontSize: '0.625rem', backgroundColor: 'var(--pb-bg)', color: 'var(--pb-text-muted)' }}
-          >
-            {incidentCount}
-          </span>
+          {incidentCount !== undefined && (
+            <span
+              className="font-mono ms-auto rounded-2 border px-2 py-0"
+              style={{ fontSize: '0.625rem', backgroundColor: 'var(--pb-bg)', color: 'var(--pb-text-muted)' }}
+            >
+              {incidentCount}
+            </span>
+          )}
         </Link>
 
         <button

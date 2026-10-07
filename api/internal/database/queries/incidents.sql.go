@@ -45,6 +45,154 @@ func (q *Queries) CountIncidents(ctx context.Context, arg CountIncidentsParams) 
 	return count, err
 }
 
+const getIncidentBySlug = `-- name: GetIncidentBySlug :one
+SELECT
+    i.id,
+    i.title,
+    i.slug,
+    i.summary,
+    i.problem,
+    i.diagnosis,
+    i.root_cause,
+    i.solution,
+    i.prevention,
+    i.status,
+    i.created_at,
+    i.updated_at,
+    c.name AS category_name,
+    c.slug AS category_slug,
+    u.first_name AS author_first_name,
+    u.last_name AS author_last_name,
+    COALESCE(
+        (SELECT array_agg(t.name ORDER BY t.name)
+         FROM incident_tags it
+         JOIN tags t ON t.id = it.tag_id
+         WHERE it.incident_id = i.id),
+        '{}'::text[]
+    ) AS tags
+FROM incidents i
+JOIN categories c ON c.id = i.category_id
+JOIN users u ON u.id = i.created_by
+WHERE i.slug = $1
+`
+
+type GetIncidentBySlugRow struct {
+	ID              int64              `json:"id"`
+	Title           string             `json:"title"`
+	Slug            string             `json:"slug"`
+	Summary         pgtype.Text        `json:"summary"`
+	Problem         pgtype.Text        `json:"problem"`
+	Diagnosis       pgtype.Text        `json:"diagnosis"`
+	RootCause       pgtype.Text        `json:"root_cause"`
+	Solution        pgtype.Text        `json:"solution"`
+	Prevention      pgtype.Text        `json:"prevention"`
+	Status          IncidentStatus     `json:"status"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	CategoryName    string             `json:"category_name"`
+	CategorySlug    string             `json:"category_slug"`
+	AuthorFirstName string             `json:"author_first_name"`
+	AuthorLastName  string             `json:"author_last_name"`
+	Tags            interface{}        `json:"tags"`
+}
+
+func (q *Queries) GetIncidentBySlug(ctx context.Context, slug string) (GetIncidentBySlugRow, error) {
+	row := q.db.QueryRow(ctx, getIncidentBySlug, slug)
+	var i GetIncidentBySlugRow
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Slug,
+		&i.Summary,
+		&i.Problem,
+		&i.Diagnosis,
+		&i.RootCause,
+		&i.Solution,
+		&i.Prevention,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.CategoryName,
+		&i.CategorySlug,
+		&i.AuthorFirstName,
+		&i.AuthorLastName,
+		&i.Tags,
+	)
+	return i, err
+}
+
+const listIncidentLinks = `-- name: ListIncidentLinks :many
+SELECT id, title, url
+FROM links
+WHERE incident_id = $1
+ORDER BY id
+`
+
+type ListIncidentLinksRow struct {
+	ID    int64  `json:"id"`
+	Title string `json:"title"`
+	Url   string `json:"url"`
+}
+
+func (q *Queries) ListIncidentLinks(ctx context.Context, incidentID int64) ([]ListIncidentLinksRow, error) {
+	rows, err := q.db.Query(ctx, listIncidentLinks, incidentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListIncidentLinksRow
+	for rows.Next() {
+		var i ListIncidentLinksRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Url); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listIncidentSnippets = `-- name: ListIncidentSnippets :many
+SELECT id, title, language, content
+FROM snippets
+WHERE incident_id = $1
+ORDER BY "order", id
+`
+
+type ListIncidentSnippetsRow struct {
+	ID       int64  `json:"id"`
+	Title    string `json:"title"`
+	Language string `json:"language"`
+	Content  string `json:"content"`
+}
+
+func (q *Queries) ListIncidentSnippets(ctx context.Context, incidentID int64) ([]ListIncidentSnippetsRow, error) {
+	rows, err := q.db.Query(ctx, listIncidentSnippets, incidentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListIncidentSnippetsRow
+	for rows.Next() {
+		var i ListIncidentSnippetsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Language,
+			&i.Content,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listIncidents = `-- name: ListIncidents :many
 SELECT
     i.id,

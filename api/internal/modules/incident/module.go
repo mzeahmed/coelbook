@@ -26,4 +26,5 @@ func New(pool *pgxpool.Pool) *Module {
 // Every route requires a valid access token, applied via authenticate.
 func (m *Module) RegisterRoutes(mux *http.ServeMux, authenticate func(http.Handler) http.Handler) {
 	mux.Handle("GET /incidents", authenticate(http.HandlerFunc(m.handler.List)))
+	mux.Handle("GET /incidents/{slug}", authenticate(http.HandlerFunc(m.handler.Get)))
 }

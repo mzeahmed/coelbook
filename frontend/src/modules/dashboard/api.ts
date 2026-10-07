@@ -64,3 +64,37 @@ export function listIncidents(filter: ListIncidentsFilter = {}): Promise<ListInc
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
 }
+
+export interface IncidentSnippet {
+  id: string
+  title: string
+  language: string
+  content: string
+}
+
+export interface IncidentLink {
+  id: string
+  title: string
+  url: string
+}
+
+export interface IncidentDetail extends IncidentSummary {
+  problem: string
+  diagnosis: string
+  root_cause: string
+  solution: string
+  prevention: string
+  snippets: IncidentSnippet[]
+  links: IncidentLink[]
+}
+
+// getIncident fetches a single incident by slug. Like listIncidents, a
+// missing or expired token surfaces as an ApiError with code 401; an
+// unknown slug surfaces as code 404.
+export function getIncident(slug: string): Promise<IncidentDetail> {
+  const token = getToken()
+
+  return apiFetch<IncidentDetail>(`/api/incidents/${encodeURIComponent(slug)}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+}

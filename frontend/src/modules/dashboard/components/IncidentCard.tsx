@@ -1,62 +1,21 @@
-import type { IncidentStatus, IncidentSummary } from '../api'
+import { Link } from 'react-router-dom'
 
-const CATEGORY_BADGES = ['badge-blue', 'badge-purple', 'badge-amber', 'badge-red', 'badge-green', 'badge-cyan']
-
-// categoryBadgeClass picks a stable color for a category from its slug, so
-// the same category always gets the same badge color without needing a
-// color field in the data model.
-function categoryBadgeClass(slug: string): string {
-  let hash = 0
-  for (let i = 0; i < slug.length; i++) {
-    hash = (hash * 31 + slug.charCodeAt(i)) >>> 0
-  }
-
-  return CATEGORY_BADGES[hash % CATEGORY_BADGES.length]!
-}
-
-const STATUS_LABEL: Record<IncidentStatus, string> = {
-  published: 'Published',
-  draft: 'Draft',
-  archived: 'Archived',
-}
-
-const STATUS_BADGE: Record<IncidentStatus, string> = {
-  published: 'badge-success-soft',
-  draft: 'badge-warning-soft',
-  archived: 'badge-muted-soft',
-}
-
-function timeAgo(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const minutes = Math.floor(diffMs / 60000)
-
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`
-
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`
-
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`
-
-  const months = Math.floor(days / 30)
-  if (months < 12) return `${months} month${months === 1 ? '' : 's'} ago`
-
-  const years = Math.floor(months / 12)
-  return `${years} year${years === 1 ? '' : 's'} ago`
-}
+import type { IncidentSummary } from '../api'
+import { categoryBadgeClass, STATUS_BADGE, STATUS_LABEL, timeAgo } from '../lib/format'
 
 interface IncidentCardProps {
   incident: IncidentSummary
 }
 
-// Not clickable: there's no incident detail page yet, so this card only
-// ever shows a summary — no cursor:pointer, no hover cue implying it
-// leads somewhere.
+// The whole card links to the incident's detail page.
 export default function IncidentCard({ incident }: IncidentCardProps) {
   return (
     <div className="col">
-      <article className="pb-card card h-100 border rounded-4 p-4">
+      <Link
+        to={`/incidents/${incident.slug}`}
+        className="pb-card pb-card-link card h-100 border rounded-4 p-4 text-decoration-none"
+        style={{ color: 'inherit' }}
+      >
         <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
           <span className={`badge-soft ${categoryBadgeClass(incident.category.slug)}`}>
             {incident.category.name}
@@ -100,7 +59,7 @@ export default function IncidentCard({ incident }: IncidentCardProps) {
             <i className="fa-regular fa-clock" style={{ fontSize: '0.55rem' }}></i> {timeAgo(incident.updated_at)}
           </span>
         </div>
-      </article>
+      </Link>
     </div>
   )
 }

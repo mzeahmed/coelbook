@@ -1,6 +1,7 @@
 package incident
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -36,6 +37,25 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 	res, err := h.service.List(r.Context(), filter)
 	if err != nil {
+		response.Error(w, http.StatusInternalServerError, "internal server error")
+
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "", res)
+}
+
+// Get handles GET /incidents/{slug}.
+func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
+
+	res, err := h.service.Get(r.Context(), r.PathValue("slug"))
+	if err != nil {
+		if errors.Is(err, ErrNotFound) {
+			response.Error(w, http.StatusNotFound, ErrNotFound.Error())
+
+			return
+		}
+
 		response.Error(w, http.StatusInternalServerError, "internal server error")
 
 		return

@@ -44,3 +44,33 @@ type ListResponse struct {
 	Page      int       `json:"page"`
 	PerPage   int       `json:"per_page"`
 }
+
+// Snippet is the public representation of a code or command snippet
+// attached to an incident.
+type Snippet struct {
+	ID       string `json:"id"`
+	Title    string `json:"title"`
+	Language string `json:"language"`
+	Content  string `json:"content"`
+}
+
+// Link is the public representation of an external resource referenced
+// by an incident.
+type Link struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	URL   string `json:"url"`
+}
+
+// Detail is the response body of GET /incidents/{slug}: the full incident
+// with its structured sections, snippets and links.
+type Detail struct {
+	Summary
+	Problem    string    `json:"problem"`
+	Diagnosis  string    `json:"diagnosis"`
+	RootCause  string    `json:"root_cause"`
+	Solution   string    `json:"solution"`
+	Prevention string    `json:"prevention"`
+	Snippets   []Snippet `json:"snippets"`
+	Links      []Link    `json:"links"`
+}

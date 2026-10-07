@@ -204,6 +204,56 @@ components:
           type: integer
       required: [incidents, total, page, per_page]
 
+    IncidentSnippet:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        language:
+          type: string
+        content:
+          type: string
+      required: [id, title, language, content]
+
+    IncidentLink:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+      required: [id, title, url]
+
+    IncidentDetail:
+      allOf:
+        - $ref: "#/components/schemas/IncidentSummary"
+        - type: object
+          properties:
+            problem:
+              type: string
+            diagnosis:
+              type: string
+            root_cause:
+              type: string
+            solution:
+              type: string
+            prevention:
+              type: string
+            snippets:
+              type: array
+              items:
+                $ref: "#/components/schemas/IncidentSnippet"
+            links:
+              type: array
+              items:
+                $ref: "#/components/schemas/IncidentLink"
+          required: [problem, diagnosis, root_cause, solution, prevention, snippets, links]
+
   responses:
     BadRequest:
       description: Invalid request body or parameters.
@@ -227,6 +277,18 @@ components:
             code: 401
             success: false
             message: invalid email or password
+            data: null
+
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Envelope"
+          example:
+            code: 404
+            success: false
+            message: incident not found
             data: null
 
     InternalServerError:
@@ -461,5 +523,38 @@ paths:
                         $ref: "#/components/schemas/IncidentListData"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /incidents/{slug}:
+    get:
+      operationId: getIncident
+      tags: [Incidents]
+      summary: Get an incident with its sections, snippets and links
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Incident slug.
+      responses:
+        "200":
+          description: The incident.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/IncidentDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalServerError"

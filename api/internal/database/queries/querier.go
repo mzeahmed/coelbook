@@ -17,10 +17,13 @@ type Querier interface {
 	DeleteWizard(ctx context.Context) error
 	FindUserByEmail(ctx context.Context, email string) (User, error)
 	FindUserById(ctx context.Context, id int64) (User, error)
+	GetIncidentBySlug(ctx context.Context, slug string) (GetIncidentBySlugRow, error)
 	GetValidPasswordResetTokenForUpdate(ctx context.Context, tokenHash string) (GetValidPasswordResetTokenForUpdateRow, error)
 	GetWizard(ctx context.Context) (Wizard, error)
 	HasUser(ctx context.Context) (bool, error)
 	InvalidatePasswordResetTokens(ctx context.Context, userID int64) error
+	ListIncidentLinks(ctx context.Context, incidentID int64) ([]ListIncidentLinksRow, error)
+	ListIncidentSnippets(ctx context.Context, incidentID int64) ([]ListIncidentSnippetsRow, error)
 	ListIncidents(ctx context.Context, arg ListIncidentsParams) ([]ListIncidentsRow, error)
 	UpdateUserPasswordAndSessionVersion(ctx context.Context, arg UpdateUserPasswordAndSessionVersionParams) error
 }

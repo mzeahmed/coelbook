@@ -46,3 +46,44 @@ WHERE (sqlc.arg(category)::text = '' OR c.slug = sqlc.arg(category)::text)
         WHERE it2.incident_id = i.id AND t2.slug = sqlc.arg(tag)::text
     ))
     AND (sqlc.arg(query)::text = '' OR i.title ILIKE '%' || sqlc.arg(query)::text || '%' OR i.summary ILIKE '%' || sqlc.arg(query)::text || '%');
+-- name: GetIncidentBySlug :one
+SELECT
+    i.id,
+    i.title,
+    i.slug,
+    i.summary,
+    i.problem,
+    i.diagnosis,
+    i.root_cause,
+    i.solution,
+    i.prevention,
+    i.status,
+    i.created_at,
+    i.updated_at,
+    c.name AS category_name,
+    c.slug AS category_slug,
+    u.first_name AS author_first_name,
+    u.last_name AS author_last_name,
+    COALESCE(
+        (SELECT array_agg(t.name ORDER BY t.name)
+         FROM incident_tags it
+         JOIN tags t ON t.id = it.tag_id
+         WHERE it.incident_id = i.id),
+        '{}'::text[]
+    ) AS tags
+FROM incidents i
+JOIN categories c ON c.id = i.category_id
+JOIN users u ON u.id = i.created_by
+WHERE i.slug = sqlc.arg(slug);
+
+-- name: ListIncidentSnippets :many
+SELECT id, title, language, content
+FROM snippets
+WHERE incident_id = sqlc.arg(incident_id)
+ORDER BY "order", id;
+
+-- name: ListIncidentLinks :many
+SELECT id, title, url
+FROM links
+WHERE incident_id = sqlc.arg(incident_id)
+ORDER BY id;

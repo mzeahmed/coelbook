@@ -330,3 +330,20 @@ body {
   border-color: var(--pb-border);
   opacity: 0.4;
 }
+.pb-card-link:hover {
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.pb-section-body {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.pb-code {
+  background-color: var(--pb-bg);
+  border: 1px solid var(--pb-border);
+  font-size: 0.8rem;
+  white-space: pre;
+  overflow-x: auto;
+}

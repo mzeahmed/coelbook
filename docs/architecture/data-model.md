@@ -102,7 +102,7 @@ Examples:
 
 Names are unique case-insensitively; the slug is derived from the name at creation and never changes. A category can only be deleted once no incident uses it (enforced by the `incidents.category_id` foreign key).
 
-The setup wizard creates a default set so a fresh instance can file its first incident right away: Base de données, CI/CD, Docker, Réseau, Sécurité, Système (French, like the UI). They can be renamed or deleted like any other category.
+A default set is created by migration `00012_default_categories_and_tags.sql`, so an instance can file its first incident right away: Base de données, CI/CD, Cloud, Développement, Docker, Réseau, Sécurité, Système (French, like the UI). Being a migration, it runs once on every instance, new or existing, and skips names or slugs that already exist. They can be renamed or deleted like any other category.
 
 ---
 
@@ -125,6 +125,8 @@ Examples:
 | name | String |
 | slug | String |
 
+
+The same migration (`00012`) creates default tags — common technical terms such as docker, kubernetes, linux, git, nginx, postgresql, ssh, ssl — that the incident form suggests before any incident uses them. Tags are identified by their slug, derived from the name; renaming a tag changes its slug.
 ---
 
 # IncidentTag

@@ -10,7 +10,7 @@ It is intended as a guideline rather than a strict commitment. Priorities may ch
 
 - [x] Initial project structure
 - [x] React frontend
-- [x] Go backend
+- [x] Go API
 - [x] PostgreSQL support
 - [x] Installation wizard
 - [x] Authentication

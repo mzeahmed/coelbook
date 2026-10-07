@@ -1,4 +1,4 @@
-// Thin fetch wrapper that unwraps the backend's standard JSON envelope
+// Thin fetch wrapper that unwraps the API's standard JSON envelope
 // ({code, success, message, data}), so callers only ever deal with the
 // typed payload or a thrown ApiError — network failures, timeouts, and
 // non-JSON responses (e.g. an nginx error page) are all normalized into

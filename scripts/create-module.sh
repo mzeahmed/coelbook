@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Scaffolds a new backend module under backend/internal/modules/<name>,
+# Scaffolds a new API module under api/internal/modules/<name>,
 # following the shape used by the existing modules (health, auth, wizard):
 # dto.go, handler.go, module.go and service.go, with module.go exposing a
 # Module struct, a New constructor and a RegisterRoutes method.
@@ -19,7 +19,7 @@ if [[ ! "$name" =~ ^[a-z][a-z0-9]*$ ]]; then
     exit 1
 fi
 
-module_dir="backend/internal/modules/$name"
+module_dir="api/internal/modules/$name"
 
 if [ -e "$module_dir" ]; then
     echo "$module_dir already exists." >&2
@@ -134,7 +134,7 @@ echo "  - service.go"
 echo "  - handler.go"
 echo "  - module.go"
 
-router_file="backend/internal/router/router.go"
+router_file="api/internal/router/router.go"
 import_line="\t\"github.com/mzeahmed/coelbook/internal/modules/$name\""
 register_line="\t$name.New(pool).RegisterRoutes(mux)"
 

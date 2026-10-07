@@ -19,15 +19,15 @@ services:
     networks:
       - coelbook
 
-  backend:
+  api:
     build:
-      context: backend
-      dockerfile: ../.docker/backend/Dockerfile
-    container_name: coelbook_backend
+      context: api
+      dockerfile: ../.docker/api/Dockerfile
+    container_name: coelbook_api
     restart: unless-stopped
     working_dir: /app
     volumes:
-      - ./backend:/app
+      - ./api:/app
       - /app/tmp
       - go_mod_cache:/go/pkg/mod
       - go_build_cache:/root/.cache/go-build
@@ -92,7 +92,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      - api
     networks:
       - coelbook
 

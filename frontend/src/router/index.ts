@@ -8,7 +8,7 @@ import ForgotPasswordView from '@/modules/auth/views/ForgotPasswordView'
 import ResetPasswordView from '@/modules/auth/views/ResetPasswordView'
 import DashboardView from '@/modules/dashboard/views/DashboardView'
 
-// The backend is the single source of truth for initialization state, so
+// The API is the single source of truth for initialization state, so
 // every navigation re-checks it instead of trusting anything cached
 // client-side: /setup is unreachable once initialized, and every other
 // route is unreachable until it is.

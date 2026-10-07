@@ -11,6 +11,39 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+// PasswordResetRequest is the expected JSON body for a reset-email request.
+type PasswordResetRequest struct {
+	Email string `json:"email"`
+}
+
+// Validate checks that a reset-email request contains an address.
+func (r PasswordResetRequest) Validate() error {
+	if strings.TrimSpace(r.Email) == "" {
+		return errors.New("email is required")
+	}
+
+	return nil
+}
+
+// PasswordResetConfirmRequest is the expected JSON body for setting a new
+// password with a one-time reset token.
+type PasswordResetConfirmRequest struct {
+	Token    string `json:"token"`
+	Password string `json:"password"`
+}
+
+// Validate checks that the reset token and replacement password are usable.
+func (r PasswordResetConfirmRequest) Validate() error {
+	if strings.TrimSpace(r.Token) == "" {
+		return errors.New("reset token is required")
+	}
+	if len(r.Password) < 8 {
+		return errors.New("password must be at least 8 characters")
+	}
+
+	return nil
+}
+
 // Validate checks that the login request contains usable data.
 func (r LoginRequest) Validate() error {
 

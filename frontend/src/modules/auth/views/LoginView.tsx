@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
 import { login } from '../api'
@@ -95,21 +95,26 @@ export default function LoginView() {
               </div>
             </div>
 
-            <div className="form-check mb-4">
-              <input
-                id="login-remember"
-                type="checkbox"
-                className="form-check-input"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <label
-                className="form-check-label small"
-                htmlFor="login-remember"
-                style={{ color: 'var(--pb-text-muted)' }}
-              >
-                Remember me
-              </label>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <div className="form-check">
+                <input
+                  id="login-remember"
+                  type="checkbox"
+                  className="form-check-input"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <label
+                  className="form-check-label small"
+                  htmlFor="login-remember"
+                  style={{ color: 'var(--pb-text-muted)' }}
+                >
+                  Remember me
+                </label>
+              </div>
+              <Link className="small text-decoration-none" to="/forgot-password">
+                Forgot password?
+              </Link>
             </div>
 
             {error && (

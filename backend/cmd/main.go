@@ -9,6 +9,7 @@ import (
 	"github.com/mzeahmed/coelbook/internal/config"
 	"github.com/mzeahmed/coelbook/internal/database"
 	"github.com/mzeahmed/coelbook/internal/logger"
+	"github.com/mzeahmed/coelbook/internal/mailer"
 	"github.com/mzeahmed/coelbook/internal/middleware"
 	"github.com/mzeahmed/coelbook/internal/router"
 	"github.com/mzeahmed/coelbook/internal/server"
@@ -38,7 +39,7 @@ func runConfig() error {
 	}
 	defer pool.Close()
 
-	handler := router.New(pool, cfg.Auth.JwtSecret, log)
+	handler := router.New(pool, cfg.Auth.JwtSecret, mailer.NewSMTP(cfg.Mail), log)
 	handler = middleware.LoggingWith(log)(middleware.RecoveryWith(log)(handler))
 
 	log.Info("starting coelbook server",

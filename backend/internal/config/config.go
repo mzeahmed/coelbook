@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
@@ -26,6 +27,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	Auth     AuthConfig
+	Mail     MailConfig
 }
 
 // ServerConfig configures the HTTP server.
@@ -55,6 +57,17 @@ type DatabaseConfig struct {
 // AuthConfig configures JWT-based authentication.
 type AuthConfig struct {
 	JwtSecret string
+}
+
+// MailConfig configures SMTP delivery and public links embedded in emails.
+type MailConfig struct {
+	AppBaseURL string
+	Host       string
+	Port       string
+	Username   string
+	Password   string
+	From       string
+	TLS        bool
 }
 
 // Load builds the Config from environment variables, falling back to
@@ -94,6 +107,15 @@ func Load() (*Config, error) {
 		Auth: AuthConfig{
 			JwtSecret: envString("JWT_SECRET", "change-me"),
 		},
+		Mail: MailConfig{
+			AppBaseURL: envString("APP_BASE_URL", "http://coelbook.local"),
+			Host:       envString("SMTP_HOST", "localhost"),
+			Port:       envString("SMTP_PORT", "1025"),
+			Username:   envString("SMTP_USERNAME", ""),
+			Password:   envString("SMTP_PASSWORD", ""),
+			From:       envString("SMTP_FROM", "noreply@coelbook.local"),
+			TLS:        envBool("SMTP_TLS", false),
+		},
 	}
 
 	if cfg.Env == "production" && cfg.Auth.JwtSecret == "change-me" {
@@ -119,4 +141,20 @@ func envString(key, def string) string {
 	}
 
 	return def
+}
+
+// envBool returns the boolean environment value, falling back to def when it
+// is unset or cannot be parsed.
+func envBool(key string, def bool) bool {
+	v, ok := os.LookupEnv(key)
+	if !ok {
+		return def
+	}
+
+	parsed, err := strconv.ParseBool(v)
+	if err != nil {
+		return def
+	}
+
+	return parsed
 }

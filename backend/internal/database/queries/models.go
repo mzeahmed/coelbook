@@ -136,6 +136,15 @@ type Link struct {
 	Url string `json:"url"`
 }
 
+type PasswordResetToken struct {
+	ID        int64              `json:"id"`
+	UserID    int64              `json:"user_id"`
+	TokenHash string             `json:"token_hash"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	UsedAt    pgtype.Timestamptz `json:"used_at"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
 // Reusable code or command snippets attached to an incident.
 type Snippet struct {
 	// Primary key.
@@ -177,7 +186,8 @@ type User struct {
 	// Creation date.
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	// Last update date.
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	SessionVersion int32              `json:"session_version"`
 }
 
 // Singleton row holding the instance configuration produced by the first-time setup wizard.

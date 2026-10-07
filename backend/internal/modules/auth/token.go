@@ -16,6 +16,7 @@ const tokenTTL = 24 * time.Hour
 // is carried in the standard "sub" claim.
 type Claims struct {
 	jwt.RegisteredClaims
+	SessionVersion int32 `json:"sv"`
 }
 
 // generateToken issues a signed JWT for the given user.
@@ -27,6 +28,7 @@ func generateToken(secret string, u repo.User) (string, error) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),
 		},
+		SessionVersion: u.SessionVersion,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

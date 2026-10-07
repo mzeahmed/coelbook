@@ -142,6 +142,7 @@ up: hosts-add ## Build and start the containers
 	@echo "$(BLUE)Frontend URL: http://coelbook.local$(RESET)"
 	@echo "$(BLUE)Postgres: localhost:5432$(RESET)"
 	@echo "$(BLUE)Adminer URL: http://localhost:8081$(RESET)"
+	@echo "$(BLUE)Mailpit URL: http://localhost:8025$(RESET)"
 
 down: hosts-remove ## Stop the containers
 	@echo "$(YELLOW)Stopping containers...$(RESET)"

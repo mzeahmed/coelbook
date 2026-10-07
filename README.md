@@ -229,7 +229,7 @@ Coelbook can document incidents related to:
    This command:
    - adds `coelbook.local` and `api.coelbook.local` to `/etc/hosts` (asks for your sudo password)
    - copies `.env.example` to `.env` if it doesn't exist yet
-   - builds and starts the containers: PostgreSQL, backend (hot-reload via [air](https://github.com/air-verse/air)), frontend (Vite dev server), nginx, Adminer
+   - builds and starts the containers: PostgreSQL, backend (hot-reload via [air](https://github.com/air-verse/air)), frontend (Vite dev server), nginx, Adminer and Mailpit
 
 ## Available services
 
@@ -238,6 +238,7 @@ Coelbook can document incidents related to:
 | Frontend   | http://coelbook.local      |
 | API        | http://api.coelbook.local  |
 | Adminer    | http://localhost:8081      |
+| Mailpit    | http://localhost:8025      |
 | PostgreSQL | localhost:5432             |
 
 ## Stopping

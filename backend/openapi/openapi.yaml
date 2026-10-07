@@ -78,6 +78,26 @@ components:
           $ref: "#/components/schemas/UserResponse"
       required: [token, user]
 
+    PasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+
+    PasswordResetConfirmRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: One-time token included in the reset email.
+        password:
+          type: string
+          format: password
+          minLength: 8
+      required: [token, password]
+
     AdminRequest:
       type: object
       properties:
@@ -273,6 +293,57 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/password-reset:
+    post:
+      operationId: requestPasswordReset
+      tags: [Auth]
+      summary: Request a password-reset email
+      description: Returns the same response whether or not the email belongs to an account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequest"
+      responses:
+        "202":
+          description: Reset request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/password-reset/confirm:
+    post:
+      operationId: confirmPasswordReset
+      tags: [Auth]
+      summary: Set a new password using a one-time reset token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetConfirmRequest"
+      responses:
+        "200":
+          description: Password reset successful.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "400":
+          description: The reset token is invalid, expired, or the request is malformed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
         "500":
           $ref: "#/components/responses/InternalServerError"
 

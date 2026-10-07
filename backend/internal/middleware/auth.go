@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 // raw token string (e.g. a JWT) and return the authenticated user's
 // identity. The function should return a non-nil error if the token is
 // missing, expired, or otherwise invalid.
-type TokenValidator func(token string) (*reqctx.AuthUser, error)
+type TokenValidator func(ctx context.Context, token string) (*reqctx.AuthUser, error)
 
 // Authenticate returns a middleware that extracts a Bearer token from the
 // Authorization header, validates it using the provided validator, and
@@ -24,7 +25,7 @@ type TokenValidator func(token string) (*reqctx.AuthUser, error)
 //
 // Usage:
 //
-//	authenticate := middleware.Authenticate(func(token string) (*reqctx.AuthUser, error) {
+//	authenticate := middleware.Authenticate(func(ctx context.Context, token string) (*reqctx.AuthUser, error) {
 //	    claims, err := auth.ParseToken(secret, token)
 //	    if err != nil {
 //	        return nil, err
@@ -45,7 +46,7 @@ func Authenticate(validate TokenValidator) func(http.Handler) http.Handler {
 				return
 			}
 
-			user, err := validate(token)
+			user, err := validate(r.Context(), token)
 			if err != nil {
 				response.Error(w, http.StatusUnauthorized, "invalid or expired token")
 

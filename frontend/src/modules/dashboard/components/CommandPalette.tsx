@@ -18,6 +18,8 @@ const ACTIONS: { label: string; to: string; icon: string; keywords: string }[] =
   { label: 'Tableau de bord', to: '/overview', icon: 'fa-layer-group', keywords: 'accueil statistiques overview' },
   { label: 'Coelbooks', to: '/dashboard', icon: 'fa-file-code', keywords: 'liste incidents tous' },
   { label: 'Catégories', to: '/categories', icon: 'fa-folder-tree', keywords: 'gerer categories' },
+  { label: 'Tags', to: '/tags', icon: 'fa-tags', keywords: 'mots-cles renommer fusionner' },
+  { label: 'Paramètres', to: '/settings', icon: 'fa-gear', keywords: 'compte profil mot de passe instance reglages' },
   { label: 'Aide', to: '/help', icon: 'fa-circle-question', keywords: 'aide markdown recherche syntaxe' },
 ]
 

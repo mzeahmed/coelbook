@@ -25,6 +25,26 @@ func (q *Queries) AddIncidentTag(ctx context.Context, arg AddIncidentTagParams) 
 	return err
 }
 
+const copyIncidentTags = `-- name: CopyIncidentTags :exec
+INSERT INTO incident_tags (incident_id, tag_id)
+SELECT src.incident_id, $1::bigint
+FROM incident_tags src
+WHERE src.tag_id = $2
+ON CONFLICT DO NOTHING
+`
+
+type CopyIncidentTagsParams struct {
+	ToTagID   int64 `json:"to_tag_id"`
+	FromTagID int64 `json:"from_tag_id"`
+}
+
+// Gives every incident tagged from_tag_id the tag to_tag_id too (merge);
+// incidents that already have both keep a single link.
+func (q *Queries) CopyIncidentTags(ctx context.Context, arg CopyIncidentTagsParams) error {
+	_, err := q.db.Exec(ctx, copyIncidentTags, arg.ToTagID, arg.FromTagID)
+	return err
+}
+
 const deleteIncidentTags = `-- name: DeleteIncidentTags :exec
 DELETE FROM incident_tags
 WHERE incident_id = $1
@@ -33,6 +53,110 @@ WHERE incident_id = $1
 func (q *Queries) DeleteIncidentTags(ctx context.Context, incidentID int64) error {
 	_, err := q.db.Exec(ctx, deleteIncidentTags, incidentID)
 	return err
+}
+
+const deleteTag = `-- name: DeleteTag :exec
+DELETE FROM tags
+WHERE id = $1
+`
+
+// Its incident_tags rows go with it (ON DELETE CASCADE).
+func (q *Queries) DeleteTag(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteTag, id)
+	return err
+}
+
+const deleteUnusedTags = `-- name: DeleteUnusedTags :execrows
+DELETE FROM tags t
+WHERE NOT EXISTS (SELECT 1 FROM incident_tags it WHERE it.tag_id = t.id)
+`
+
+func (q *Queries) DeleteUnusedTags(ctx context.Context) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteUnusedTags)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const getTagBySlug = `-- name: GetTagBySlug :one
+SELECT id, name, slug
+FROM tags
+WHERE slug = $1
+`
+
+func (q *Queries) GetTagBySlug(ctx context.Context, slug string) (Tag, error) {
+	row := q.db.QueryRow(ctx, getTagBySlug, slug)
+	var i Tag
+	err := row.Scan(&i.ID, &i.Name, &i.Slug)
+	return i, err
+}
+
+const listIncidentIDsForTag = `-- name: ListIncidentIDsForTag :many
+SELECT incident_id
+FROM incident_tags
+WHERE tag_id = $1
+`
+
+func (q *Queries) ListIncidentIDsForTag(ctx context.Context, tagID int64) ([]int64, error) {
+	rows, err := q.db.Query(ctx, listIncidentIDsForTag, tagID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var incident_id int64
+		if err := rows.Scan(&incident_id); err != nil {
+			return nil, err
+		}
+		items = append(items, incident_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listTagsWithCounts = `-- name: ListTagsWithCounts :many
+SELECT t.id, t.name, t.slug, count(it.incident_id) AS incident_count
+FROM tags t
+LEFT JOIN incident_tags it ON it.tag_id = t.id
+GROUP BY t.id, t.name, t.slug
+ORDER BY t.name
+`
+
+type ListTagsWithCountsRow struct {
+	ID            int64  `json:"id"`
+	Name          string `json:"name"`
+	Slug          string `json:"slug"`
+	IncidentCount int64  `json:"incident_count"`
+}
+
+// Every tag with the number of incidents using it, unused ones included.
+func (q *Queries) ListTagsWithCounts(ctx context.Context) ([]ListTagsWithCountsRow, error) {
+	rows, err := q.db.Query(ctx, listTagsWithCounts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListTagsWithCountsRow
+	for rows.Next() {
+		var i ListTagsWithCountsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Slug,
+			&i.IncidentCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listUsedTags = `-- name: ListUsedTags :many
@@ -62,6 +186,35 @@ func (q *Queries) ListUsedTags(ctx context.Context) ([]Tag, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const renameTag = `-- name: RenameTag :exec
+UPDATE tags
+SET name = $1,
+    slug = $2
+WHERE id = $3
+`
+
+type RenameTagParams struct {
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	ID   int64  `json:"id"`
+}
+
+func (q *Queries) RenameTag(ctx context.Context, arg RenameTagParams) error {
+	_, err := q.db.Exec(ctx, renameTag, arg.Name, arg.Slug, arg.ID)
+	return err
+}
+
+const tagSlugExists = `-- name: TagSlugExists :one
+SELECT EXISTS (SELECT 1 FROM tags WHERE slug = $1)
+`
+
+func (q *Queries) TagSlugExists(ctx context.Context, slug string) (bool, error) {
+	row := q.db.QueryRow(ctx, tagSlugExists, slug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const upsertTag = `-- name: UpsertTag :one

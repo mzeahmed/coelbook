@@ -1,4 +1,5 @@
-// Package auth handles login, password resets, and JWT access tokens.
+// Package auth handles login, password resets, JWT access tokens, and the
+// signed-in user's own account.
 //
 // There is no public registration: the only account created outside of an
 // authenticated session is the administrator created by the setup wizard
@@ -28,11 +29,17 @@ func New(pool *pgxpool.Pool, jwtSecret string, sender mailer.Sender) *Module {
 	return &Module{handler: NewHandler(service), service: service}
 }
 
-// RegisterRoutes registers the auth module's routes on the given mux.
-func (m *Module) RegisterRoutes(mux *http.ServeMux) {
+// RegisterRoutes registers the auth module's routes on the given mux. The
+// sign-in and password reset routes are public; the /account routes act
+// on the signed-in user and require a valid access token (authenticate).
+func (m *Module) RegisterRoutes(mux *http.ServeMux, authenticate func(http.Handler) http.Handler) {
 	mux.HandleFunc("POST /auth/login", m.handler.Login)
 	mux.HandleFunc("POST /auth/password-reset", m.handler.RequestPasswordReset)
 	mux.HandleFunc("POST /auth/password-reset/confirm", m.handler.ConfirmPasswordReset)
+
+	mux.Handle("GET /account", authenticate(http.HandlerFunc(m.handler.GetAccount)))
+	mux.Handle("PUT /account", authenticate(http.HandlerFunc(m.handler.UpdateAccount)))
+	mux.Handle("PUT /account/password", authenticate(http.HandlerFunc(m.handler.ChangePassword)))
 }
 
 // ValidateToken verifies an access token against the user's current session.

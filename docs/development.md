@@ -59,11 +59,11 @@ Every response uses the envelope `{code, success, error, field, message, data}`.
 Errors carry a **stable code** in `error` (e.g. `title_required`); `message` is an English, developer-facing description that may change. Validation errors also set `field` to the path of the offending input (`title`, `snippets[2].content`).
 
 - Create errors with `apperr.New(code, message)` or `apperr.NewField(code, field, message)`, and write them with `response.AppError(w, status, err)`. Any other error becomes a generic `internal_error` 500, so internal details never leak.
-- **Every new code must be added in two places**: the `error` enum of the `Envelope` schema in the OpenAPI specification, and the French message map in `frontend/src/http/errors.ts`.
+- **Every new code must be added in two places**: the `error` enum of the `Envelope` schema in **every** OpenAPI file (each file of `api/openapi/paths/` is a standalone document with its own copy of the envelope), and the French message map in `frontend/src/http/errors.ts`.
 
 ## OpenAPI
 
-The specification lives in `api/openapi/`. Update it in the same change as the endpoint.
+The specification lives in `api/openapi/paths/`, one standalone OpenAPI document per area (`incidents.yaml`, `tags.yaml`, `auth.yaml`…), each carrying the shared components it uses. Update it in the same change as the endpoint.
 
 The rationale for every declared npm and Go dependency is listed in
 [dependencies.md](dependencies.md). Consult it before adding, replacing or

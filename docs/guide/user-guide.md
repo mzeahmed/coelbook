@@ -91,4 +91,20 @@ From any page, press **Ctrl+K** (**⌘K** on macOS) or the **Rechercher…** but
 # Categories and tags
 
 - A **category** is the broad technical domain of an incident; every incident has exactly one. Manage them from **Catégories**: create, rename, describe, delete. Names are unique (case-insensitive), and a category still used by incidents can't be deleted.
-- **Tags** are finer, free keywords. They are created from the incident form and listed in the filters while at least one incident uses them.
+- **Tags** are finer, free keywords. They are created from the incident form and listed in the filters while at least one incident uses them. Manage them from **Tags**:
+  - **rename** a tag (its URL in filters changes with it);
+  - **merge** duplicates: rename a tag to the name of an existing one and confirm the merge — its incidents get the other tag;
+  - **delete** a tag, which removes it from every incident;
+  - **clean up** the tags no incident uses any more, in one click.
+
+Search is kept up to date: renaming, merging or deleting a tag reindexes the incidents using it.
+
+---
+
+# Settings
+
+**Paramètres** has three parts:
+
+- **Mon compte**: your first name, last name and email address (the one you sign in with; it must not be used by another account).
+- **Mot de passe**: change your password by giving the current one. All your other sessions are signed out; the current one stays signed in.
+- **Instance**: the name, time zone and language chosen in the setup wizard.

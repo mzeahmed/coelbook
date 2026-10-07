@@ -65,6 +65,24 @@ components:
           - category_name_taken
           - category_not_found
           - category_in_use
+          - tag_not_found
+          - tag_name_required
+          - tag_name_too_long
+          - tag_name_invalid
+          - tag_exists
+          - tag_merge_target_required
+          - tag_merge_into_itself
+          - first_name_required
+          - last_name_required
+          - name_too_long
+          - invalid_email
+          - email_taken
+          - current_password_required
+          - wrong_current_password
+          - instance_name_too_long
+          - invalid_timezone
+          - invalid_locale
+          - not_initialized
         field:
           type: string
           description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.

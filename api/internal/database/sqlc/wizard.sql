@@ -10,3 +10,9 @@ RETURNING *;
 
 -- name: DeleteWizard :exec
 DELETE FROM wizard;
+-- name: UpdateWizard :one
+UPDATE wizard
+SET instance_name = sqlc.arg(instance_name),
+    timezone      = sqlc.arg(timezone),
+    locale        = sqlc.arg(locale)
+RETURNING *;

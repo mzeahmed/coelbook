@@ -63,3 +63,31 @@ func (q *Queries) GetWizard(ctx context.Context) (Wizard, error) {
 	)
 	return i, err
 }
+
+const updateWizard = `-- name: UpdateWizard :one
+UPDATE wizard
+SET instance_name = $1,
+    timezone      = $2,
+    locale        = $3
+RETURNING id, singleton, instance_name, timezone, locale, initialized_at
+`
+
+type UpdateWizardParams struct {
+	InstanceName string `json:"instance_name"`
+	Timezone     string `json:"timezone"`
+	Locale       string `json:"locale"`
+}
+
+func (q *Queries) UpdateWizard(ctx context.Context, arg UpdateWizardParams) (Wizard, error) {
+	row := q.db.QueryRow(ctx, updateWizard, arg.InstanceName, arg.Timezone, arg.Locale)
+	var i Wizard
+	err := row.Scan(
+		&i.ID,
+		&i.Singleton,
+		&i.InstanceName,
+		&i.Timezone,
+		&i.Locale,
+		&i.InitializedAt,
+	)
+	return i, err
+}

@@ -1,4 +1,5 @@
 import { apiFetch } from '@/http/client'
+import { getToken } from './session'
 
 export interface LoginInput {
   email: string
@@ -50,5 +51,35 @@ export function confirmPasswordReset(input: PasswordResetConfirmInput): Promise<
   return apiFetch<null>('/api/auth/password-reset/confirm', {
     method: 'POST',
     payload: input,
+  })
+}
+
+export interface ProfileInput {
+  first_name: string
+  last_name: string
+  email: string
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getToken()
+
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+export function getAccount(): Promise<AuthUser> {
+  return apiFetch<AuthUser>('/api/account', { headers: authHeaders() })
+}
+
+export function updateAccount(payload: ProfileInput): Promise<AuthUser> {
+  return apiFetch<AuthUser>('/api/account', { method: 'PUT', payload, headers: authHeaders() })
+}
+
+// changePassword signs the user out of every session and returns a new
+// token for this one; store it with updateSession.
+export function changePassword(currentPassword: string, newPassword: string): Promise<{ token: string }> {
+  return apiFetch<{ token: string }>('/api/account/password', {
+    method: 'PUT',
+    payload: { current_password: currentPassword, new_password: newPassword },
+    headers: authHeaders(),
   })
 }

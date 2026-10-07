@@ -67,67 +67,9 @@ Tags are **not** created for every commit.
 
 # Planned Roadmap
 
-## v0.1.0
+What each version contains is tracked in a single place, the [roadmap](../architecture/roadmap.md); released versions are described in the [CHANGELOG](../../CHANGELOG.md).
 
-First usable MVP.
-
-Expected features:
-
-- Authentication
-- Coelbook CRUD
-- Categories
-- Tags
-- Search
-- Docker environment
-- Initial documentation
-
----
-
-## v0.2.0
-
-Knowledge improvements.
-
-Expected features:
-
-- Attachments
-- Snippets
-- External links
-- Better search experience
-
----
-
-## v0.3.0
-
-Developer experience.
-
-Expected features:
-
-- Complete OpenAPI specification
-- Pagination
-- Sorting
-- Filtering
-- UI improvements
-
----
-
-## v0.4.0
-
-AI-powered features.
-
-Possible features:
-
-- AI-assisted search
-- Automatic tag suggestions
-- Semantic search
-- Knowledge recommendations
-
----
-
-## v1.0.0
-
-First stable release.
-
-Requirements:
+Version **1.0.0** will be the first release considered stable for production use. It requires:
 
 - Stable API
 - Stable database schema
@@ -136,8 +78,6 @@ Requirements:
 - Reliable authentication
 - Fully functional search
 - Comprehensive test suite
-
-Version 1.0.0 represents the first release considered stable for production use.
 
 ---
 
@@ -169,8 +109,7 @@ Before creating a release:
 - Documentation is updated
 - Tests pass
 - Docker environment works correctly
-- CHANGELOG is updated
-- Version number is bumped
+- CHANGELOG has a dated section for the version, and the roadmap is up to date
 
 ---
 

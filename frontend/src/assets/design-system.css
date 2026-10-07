@@ -591,3 +591,81 @@ body {
   background-color: transparent !important;
   color: inherit !important;
 }
+
+/* Incident table of contents (TableOfContents component) */
+
+.pb-toc-link {
+  display: block;
+  padding: 0.25rem 0.75rem;
+  border-left: 2px solid var(--pb-border);
+  color: var(--pb-text-muted);
+  text-decoration: none;
+  line-height: 1.35;
+}
+
+.pb-toc-link:hover {
+  color: var(--pb-text);
+}
+
+.pb-toc-link.is-active {
+  border-left-color: var(--pb-primary);
+  color: var(--pb-primary);
+  font-weight: 500;
+}
+
+.pb-toc-level-0 {
+  font-weight: 500;
+}
+
+.pb-toc-level-1 {
+  padding-left: 1.5rem;
+}
+
+.pb-toc-level-2 {
+  padding-left: 2.25rem;
+  font-size: 0.75rem;
+}
+
+.pb-toc-aside {
+  position: sticky;
+  top: 5rem; /* below the sticky 3.5rem top bar */
+  max-height: calc(100vh - 6.5rem);
+  overflow-y: auto;
+}
+
+/* Anchored sections and headings land below the sticky top bar, with some
+   air above them. */
+.pb-anchor,
+.pb-markdown :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: 5rem;
+}
+
+.pb-toc-mobile summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.pb-toc-mobile summary::-webkit-details-marker {
+  display: none;
+}
+
+.pb-toc-mobile[open] .pb-toc-chevron {
+  transform: rotate(90deg);
+}
+
+/* Incident page with a table of contents: content + sticky side column
+   from the xl breakpoint, single column below. */
+@media (min-width: 1200px) {
+  .pb-incident-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 14rem;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  /* The side column spans the whole content height, so the sticky table
+     of contents inside it has room to stay in view. */
+  .pb-incident-layout > aside {
+    align-self: stretch;
+  }
+}

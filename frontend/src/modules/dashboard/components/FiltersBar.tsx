@@ -1,9 +1,9 @@
 import type { IncidentCategory } from '../api'
 
 const STATUS_OPTIONS = [
-  { value: 'published', label: 'Published' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'archived', label: 'Archived' },
+  { value: 'published', label: 'Publié' },
+  { value: 'draft', label: 'Brouillon' },
+  { value: 'archived', label: 'Archivé' },
 ]
 
 interface FiltersBarProps {
@@ -44,8 +44,8 @@ export default function FiltersBar({
         ></i>
         <input
           type="text"
-          placeholder="Filter by keyword..."
-          aria-label="Filter by keyword"
+          placeholder="Filtrer par mot-clé…"
+          aria-label="Filtrer par mot-clé"
           className="form-control form-control-sm rounded-3 ps-4"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -54,12 +54,12 @@ export default function FiltersBar({
 
       <select
         className="form-select form-select-sm rounded-3 w-auto"
-        aria-label="Filter by category"
+        aria-label="Filtrer par catégorie"
         style={{ color: 'var(--pb-text-muted)' }}
         value={category}
         onChange={(e) => onCategoryChange(e.target.value)}
       >
-        <option value="">All Categories</option>
+        <option value="">Toutes les catégories</option>
         {categoryOptions.map((c) => (
           <option key={c.slug} value={c.slug}>
             {c.name}
@@ -69,12 +69,12 @@ export default function FiltersBar({
 
       <select
         className="form-select form-select-sm rounded-3 w-auto"
-        aria-label="Filter by status"
+        aria-label="Filtrer par statut"
         style={{ color: 'var(--pb-text-muted)' }}
         value={status}
         onChange={(e) => onStatusChange(e.target.value)}
       >
-        <option value="">All Status</option>
+        <option value="">Tous les statuts</option>
         {STATUS_OPTIONS.map((s) => (
           <option key={s.value} value={s.value}>
             {s.label}
@@ -107,7 +107,7 @@ export default function FiltersBar({
           style={{ color: 'var(--pb-text-muted)' }}
           onClick={onClear}
         >
-          <i className="fa-solid fa-xmark" style={{ fontSize: '0.625rem' }}></i> Clear filters
+          <i className="fa-solid fa-xmark" style={{ fontSize: '0.625rem' }}></i> Effacer les filtres
         </button>
       )}
     </div>

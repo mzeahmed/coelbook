@@ -18,15 +18,15 @@ export default function StepAdmin({
 }: StepAdminProps) {
   return (
     <div>
-      <h2 className="h5 fw-semibold mb-1">Administrator account</h2>
+      <h2 className="h5 fw-semibold mb-1">Compte administrateur</h2>
       <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>
-        This is the account you&apos;ll use to sign in and manage Coelbook.
+        C&apos;est le compte que vous utiliserez pour vous connecter et administrer Coelbook.
       </p>
 
       <div className="row g-3 mb-3">
         <div className="col-sm-6">
           <label className="form-label small fw-medium" htmlFor="admin-first-name">
-            First name
+            Prénom
           </label>
           <input
             id="admin-first-name"
@@ -40,7 +40,7 @@ export default function StepAdmin({
         </div>
         <div className="col-sm-6">
           <label className="form-label small fw-medium" htmlFor="admin-last-name">
-            Last name
+            Nom
           </label>
           <input
             id="admin-last-name"
@@ -56,7 +56,7 @@ export default function StepAdmin({
 
       <div className="mb-3">
         <label className="form-label small fw-medium" htmlFor="admin-email">
-          Email
+          E-mail
         </label>
         <input
           id="admin-email"
@@ -72,7 +72,7 @@ export default function StepAdmin({
       <div className="row g-3">
         <div className="col-sm-6">
           <label className="form-label small fw-medium" htmlFor="admin-password">
-            Password
+            Mot de passe
           </label>
           <input
             id="admin-password"
@@ -86,7 +86,7 @@ export default function StepAdmin({
         </div>
         <div className="col-sm-6">
           <label className="form-label small fw-medium" htmlFor="admin-confirm-password">
-            Confirm password
+            Confirmer le mot de passe
           </label>
           <input
             id="admin-confirm-password"

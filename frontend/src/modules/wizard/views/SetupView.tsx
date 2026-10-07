@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 
-import {ApiError} from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import {completeSetup, type AdminInput, type InstanceInput} from '../api'
 import {type AdminErrors, type InstanceErrors, validateAdmin, validateInstance} from "@/modules/wizard/validators.ts";
 import WizardStepper from "@/modules/wizard/components/WizardStepper.tsx";
@@ -10,7 +10,7 @@ import StepAdmin from "@/modules/wizard/components/StepAdmin.tsx";
 import StepInstance from "@/modules/wizard/components/StepInstance.tsx";
 import StepFinish from "@/modules/wizard/components/StepFinish.tsx";
 
-const steps = ['Welcome', 'Administrator', 'Instance', 'Finish']
+const steps = ['Bienvenue', 'Administrateur', 'Instance', 'Récapitulatif']
 
 export default function SetupView () {
   const [currentStep, setCurrentStep] = useState(1)
@@ -27,7 +27,7 @@ export default function SetupView () {
   const [instance, setInstance] = useState<InstanceInput>({
     name: '',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    locale: 'en',
+    locale: 'fr',
   })
   const [instanceErrors, setInstanceErrors] = useState<InstanceErrors>({})
 
@@ -73,7 +73,7 @@ export default function SetupView () {
       await completeSetup(admin, instance)
       navigate('/login')
     } catch (err) {
-      setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setSubmitError(errorMessage(err))
     } finally {
       setSubmitting(false)
     }
@@ -114,7 +114,7 @@ export default function SetupView () {
               disabled={submitting}
               onClick={back}
             >
-              Back
+              Retour
             </button>
           )}
 
@@ -124,7 +124,7 @@ export default function SetupView () {
               className="btn btn-primary btn-sm ms-auto fw-medium px-3"
               onClick={next}
             >
-              {currentStep === 1 ? 'Get started' : 'Continue'}
+              {currentStep === 1 ? 'Commencer' : 'Continuer'}
             </button>
           ) : (
             <button
@@ -140,7 +140,7 @@ export default function SetupView () {
                   aria-hidden="true"
                 ></span>
               )}
-              Finish setup
+              Terminer l&apos;installation
             </button>
           )}
         </div>

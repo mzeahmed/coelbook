@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	"github.com/mzeahmed/coelbook/internal/response"
 )
 
@@ -57,9 +58,9 @@ func NotFound(next http.Handler) http.Handler {
 
 		switch nw.status {
 		case http.StatusNotFound:
-			response.Error(w, http.StatusNotFound, "route not found")
+			response.Error(w, http.StatusNotFound, apperr.CodeRouteNotFound, "route not found")
 		case http.StatusMethodNotAllowed:
-			response.Error(w, http.StatusMethodNotAllowed, "method not allowed")
+			response.Error(w, http.StatusMethodNotAllowed, apperr.CodeMethodNotAllowed, "method not allowed")
 		}
 	})
 }

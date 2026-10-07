@@ -35,6 +35,9 @@ type Querier interface {
 	ListIncidentLinks(ctx context.Context, incidentID int64) ([]ListIncidentLinksRow, error)
 	ListIncidentSnippets(ctx context.Context, incidentID int64) ([]ListIncidentSnippetsRow, error)
 	ListIncidents(ctx context.Context, arg ListIncidentsParams) ([]ListIncidentsRow, error)
+	// Tags attached to at least one incident; orphans (left behind when an
+	// incident drops its last use of a tag) are omitted.
+	ListUsedTags(ctx context.Context) ([]Tag, error)
 	// The slug is deliberately left unchanged so existing links keep working
 	// when the title is edited.
 	UpdateIncident(ctx context.Context, arg UpdateIncidentParams) (int64, error)

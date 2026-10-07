@@ -35,6 +35,35 @@ func (q *Queries) DeleteIncidentTags(ctx context.Context, incidentID int64) erro
 	return err
 }
 
+const listUsedTags = `-- name: ListUsedTags :many
+SELECT t.id, t.name, t.slug
+FROM tags t
+WHERE EXISTS (SELECT 1 FROM incident_tags it WHERE it.tag_id = t.id)
+ORDER BY t.name
+`
+
+// Tags attached to at least one incident; orphans (left behind when an
+// incident drops its last use of a tag) are omitted.
+func (q *Queries) ListUsedTags(ctx context.Context) ([]Tag, error) {
+	rows, err := q.db.Query(ctx, listUsedTags)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tag
+	for rows.Next() {
+		var i Tag
+		if err := rows.Scan(&i.ID, &i.Name, &i.Slug); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertTag = `-- name: UpsertTag :one
 INSERT INTO tags (name, slug)
 VALUES ($1, $2)

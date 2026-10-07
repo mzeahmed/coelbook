@@ -13,6 +13,7 @@ import (
 	"github.com/mzeahmed/coelbook/internal/modules/category"
 	"github.com/mzeahmed/coelbook/internal/modules/health"
 	"github.com/mzeahmed/coelbook/internal/modules/incident"
+	"github.com/mzeahmed/coelbook/internal/modules/tag"
 	"github.com/mzeahmed/coelbook/internal/modules/wizard"
 )
 
@@ -38,6 +39,7 @@ func New(pool *pgxpool.Pool, jwtSecret string, sender mailer.Sender, log *slog.L
 	authModule.RegisterRoutes(mux)
 	incident.New(pool).RegisterRoutes(mux, authenticate)
 	category.New(pool).RegisterRoutes(mux, authenticate)
+	tag.New(pool).RegisterRoutes(mux, authenticate)
 
 	return middleware.NotFound(mux)
 }

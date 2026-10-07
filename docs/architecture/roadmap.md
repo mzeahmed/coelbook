@@ -34,7 +34,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 - [x] Field-level validation feedback in forms
 - [x] Structured incident sections (problem, diagnosis, root cause, solution, prevention)
 - [x] Incident lifecycle: draft → published → archived
-- [ ] Category management
+- [x] Category management (default categories created at setup)
 - [x] Markdown editor (write / preview, GitHub flavor)
 - [ ] Table of contents
 - [ ] Incident history

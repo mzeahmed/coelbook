@@ -287,6 +287,12 @@ export default function IncidentFormView() {
                         ))}
                       </select>
                       <InputError error={fieldError} field="category" />
+                      {categories.length === 0 && (
+                        <div className="form-text small">
+                          Aucune catégorie n&apos;existe encore.{' '}
+                          <Link to="/categories">Créez-en une</Link> pour pouvoir enregistrer ce coelbook.
+                        </div>
+                      )}
                     </div>
 
                     <div className="col-md-6">

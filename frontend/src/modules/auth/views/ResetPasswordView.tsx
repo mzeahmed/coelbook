@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { confirmPasswordReset } from '../api'
 import { clearSession } from '../session'
 
@@ -17,11 +17,11 @@ export default function ResetPasswordView() {
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError('Le mot de passe doit contenir au moins 8 caractères.')
       return
     }
     if (password !== confirmation) {
-      setError('Passwords do not match.')
+      setError('Les mots de passe ne correspondent pas.')
       return
     }
 
@@ -32,7 +32,7 @@ export default function ResetPasswordView() {
       clearSession()
       setCompleted(true)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setError(errorMessage(err))
     } finally {
       setSubmitting(false)
     }
@@ -49,27 +49,27 @@ export default function ResetPasswordView() {
         </div>
 
         <div className="pb-card border rounded-4 p-4 p-sm-5">
-          <h1 className="h4 fw-bold mb-1">Choose a new password</h1>
-          <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>Your new password must contain at least 8 characters.</p>
+          <h1 className="h4 fw-bold mb-1">Choisissez un nouveau mot de passe</h1>
+          <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>Votre nouveau mot de passe doit contenir au moins 8 caractères.</p>
 
           {!token ? (
             <div className="text-center">
-              <div className="badge-danger-soft rounded-3 small mb-3 py-2 px-3" role="alert">This reset link is invalid or incomplete.</div>
-              <Link className="btn btn-primary w-100 fw-medium" to="/forgot-password">Request a new link</Link>
+              <div className="badge-danger-soft rounded-3 small mb-3 py-2 px-3" role="alert">Ce lien de réinitialisation est invalide ou incomplet.</div>
+              <Link className="btn btn-primary w-100 fw-medium" to="/forgot-password">Demander un nouveau lien</Link>
             </div>
           ) : completed ? (
             <div className="text-center">
-              <div className="alert alert-success small" role="status">Your password has been reset. Please sign in again.</div>
-              <Link className="btn btn-primary w-100 fw-medium" to="/login">Sign in</Link>
+              <div className="alert alert-success small" role="status">Votre mot de passe a été réinitialisé. Veuillez vous reconnecter.</div>
+              <Link className="btn btn-primary w-100 fw-medium" to="/login">Se connecter</Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label small fw-medium" htmlFor="new-password">New password</label>
+                <label className="form-label small fw-medium" htmlFor="new-password">Nouveau mot de passe</label>
                 <input id="new-password" type="password" className="form-control" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
               <div className="mb-4">
-                <label className="form-label small fw-medium" htmlFor="confirm-password">Confirm new password</label>
+                <label className="form-label small fw-medium" htmlFor="confirm-password">Confirmer le nouveau mot de passe</label>
                 <input id="confirm-password" type="password" className="form-control" autoComplete="new-password" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} required />
               </div>
 
@@ -77,7 +77,7 @@ export default function ResetPasswordView() {
 
               <button type="submit" className="btn btn-primary w-100 fw-medium" disabled={submitting}>
                 {submitting && <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>}
-                Reset password
+                Réinitialiser le mot de passe
               </button>
             </form>
           )}

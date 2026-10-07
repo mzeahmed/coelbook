@@ -44,7 +44,7 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           className="px-2 mb-1 mt-2 text-uppercase fw-semibold"
           style={{ fontSize: '0.625rem', letterSpacing: '0.08em', color: 'var(--pb-text-muted)' }}
         >
-          Knowledge
+          Connaissances
         </p>
 
         <button
@@ -52,7 +52,7 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           className="pb-nav-link btn text-start d-flex align-items-center gap-3 px-3 py-2 rounded-3 small border-0"
         >
           <i className="fa-solid fa-layer-group text-center" style={{ width: '1rem' }}></i>
-          <span className="fw-medium">Dashboard</span>
+          <span className="fw-medium">Tableau de bord</span>
         </button>
 
         <Link
@@ -76,7 +76,7 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           className="pb-nav-link btn text-start d-flex align-items-center gap-3 px-3 py-2 rounded-3 small border-0"
         >
           <i className="fa-solid fa-folder-tree text-center" style={{ width: '1rem' }}></i>
-          <span className="fw-medium">Categories</span>
+          <span className="fw-medium">Catégories</span>
         </button>
 
         <button
@@ -91,7 +91,7 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           className="px-2 mb-1 mt-4 text-uppercase fw-semibold"
           style={{ fontSize: '0.625rem', letterSpacing: '0.08em', color: 'var(--pb-text-muted)' }}
         >
-          System
+          Système
         </p>
 
         <button
@@ -99,7 +99,7 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           className="pb-nav-link btn text-start d-flex align-items-center gap-3 px-3 py-2 rounded-3 small border-0"
         >
           <i className="fa-solid fa-gear text-center" style={{ width: '1rem' }}></i>
-          <span className="fw-medium">Settings</span>
+          <span className="fw-medium">Paramètres</span>
         </button>
       </nav>
 
@@ -113,7 +113,7 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           </div>
           <div className="flex-grow-1 min-w-0">
             <p className="mb-0 small fw-semibold text-truncate">
-              {user ? `${user.first_name} ${user.last_name}` : 'Unknown user'}
+              {user ? `${user.first_name} ${user.last_name}` : 'Utilisateur inconnu'}
             </p>
             <p className="mb-0 text-truncate" style={{ fontSize: '0.625rem', color: 'var(--pb-text-muted)' }}>
               {user?.email}
@@ -124,8 +124,8 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
             className="btn btn-sm p-0 border-0"
             style={{ color: 'var(--pb-text-muted)' }}
             onClick={handleSignOut}
-            aria-label="Sign out"
-            title="Sign out"
+            aria-label="Se déconnecter"
+            title="Se déconnecter"
           >
             <i className="fa-solid fa-arrow-right-from-bracket" style={{ fontSize: '0.7rem' }}></i>
           </button>

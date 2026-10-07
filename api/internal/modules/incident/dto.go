@@ -1,10 +1,11 @@
 package incident
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/mzeahmed/coelbook/internal/apperr"
 )
 
 // Category is the public representation of the category an incident
@@ -108,25 +109,25 @@ func (r WriteRequest) Validate() error {
 
 	title := strings.TrimSpace(r.Title)
 	if title == "" {
-		return errors.New("title is required")
+		return apperr.New("title_required", "title is required")
 	}
 
 	if utf8.RuneCountInString(title) > maxTitleLength {
-		return fmt.Errorf("title must be at most %d characters", maxTitleLength)
+		return apperr.New("title_too_long", fmt.Sprintf("title must be at most %d characters", maxTitleLength))
 	}
 
 	switch r.Status {
 	case "draft", "published", "archived":
 	default:
-		return errors.New("status must be one of draft, published or archived")
+		return apperr.New("invalid_status", "status must be one of draft, published or archived")
 	}
 
 	if strings.TrimSpace(r.Category) == "" {
-		return errors.New("category is required")
+		return apperr.New("category_required", "category is required")
 	}
 
 	if len(r.Tags) > maxTags {
-		return fmt.Errorf("at most %d tags are allowed", maxTags)
+		return apperr.New("too_many_tags", fmt.Sprintf("at most %d tags are allowed", maxTags))
 	}
 
 	return nil

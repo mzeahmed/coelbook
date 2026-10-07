@@ -20,20 +20,20 @@ interface StepInstanceProps {
 export default function StepInstance({ instance, onChange, errors }: StepInstanceProps) {
   return (
     <div>
-      <h2 className="h5 fw-semibold mb-1">Instance configuration</h2>
+      <h2 className="h5 fw-semibold mb-1">Configuration de l&apos;instance</h2>
       <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>
-        Basic details about this Coelbook instance.
+        Les informations de base de cette instance Coelbook.
       </p>
 
       <div className="mb-3">
         <label className="form-label small fw-medium" htmlFor="instance-name">
-          Instance name
+          Nom de l&apos;instance
         </label>
         <input
           id="instance-name"
           type="text"
           className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-          placeholder="e.g. Acme Engineering"
+          placeholder="ex. Acme Engineering"
           value={instance.name}
           onChange={(e) => onChange({ name: e.target.value })}
         />
@@ -43,7 +43,7 @@ export default function StepInstance({ instance, onChange, errors }: StepInstanc
       <div className="row g-3">
         <div className="col-sm-7">
           <label className="form-label small fw-medium" htmlFor="instance-timezone">
-            Timezone
+            Fuseau horaire
           </label>
           <select
             id="instance-timezone"
@@ -61,7 +61,7 @@ export default function StepInstance({ instance, onChange, errors }: StepInstanc
         </div>
         <div className="col-sm-5">
           <label className="form-label small fw-medium" htmlFor="instance-locale">
-            Locale
+            Langue
           </label>
           <select
             id="instance-locale"

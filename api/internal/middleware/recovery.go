@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	"github.com/mzeahmed/coelbook/internal/response"
 )
 
@@ -35,7 +36,7 @@ func RecoveryWith(logger *slog.Logger) func(http.Handler) http.Handler {
 						"path", r.URL.Path,
 					)
 
-					response.Error(w, http.StatusInternalServerError, "internal server error")
+					response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 				}
 
 			}()

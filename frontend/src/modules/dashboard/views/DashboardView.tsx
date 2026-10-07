@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { listIncidents, type IncidentCategory, type IncidentSummary } from '../api'
 import Sidebar from '../components/Sidebar'
@@ -66,7 +67,7 @@ export default function DashboardView() {
             return
           }
 
-          setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+          setError(errorMessage(err))
         })
         .finally(() => setLoading(false))
     }, 250)
@@ -102,11 +103,11 @@ export default function DashboardView() {
               <div>
                 <h1 className="h4 fw-bold mb-1">Coelbooks</h1>
                 <p className="small mb-0" style={{ color: 'var(--pb-text-muted)' }}>
-                  {total} documented solution{total === 1 ? '' : 's'} · Browse, search, and learn.
+                  {total} solution{total > 1 ? 's' : ''} documentée{total > 1 ? 's' : ''} · Parcourez, cherchez, apprenez.
                 </p>
               </div>
               <Link to="/incidents/new" className="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2 align-self-start align-self-sm-center">
-                <i className="fa-solid fa-plus" style={{ fontSize: '0.7rem' }}></i> New coelbook
+                <i className="fa-solid fa-plus" style={{ fontSize: '0.7rem' }}></i> Nouveau coelbook
               </Link>
             </div>
 
@@ -133,14 +134,14 @@ export default function DashboardView() {
             {!error && loading && (
               <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
                 <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Loading coelbooks…
+                Chargement des coelbooks…
               </div>
             )}
 
             {!error && !loading && incidents.length === 0 && (
               <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
                 <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
-                {total === 0 ? 'No coelbooks yet.' : 'No coelbooks match these filters.'}
+                {total === 0 ? 'Aucun coelbook pour l\'instant.' : 'Aucun coelbook ne correspond à ces filtres.'}
               </div>
             )}
 

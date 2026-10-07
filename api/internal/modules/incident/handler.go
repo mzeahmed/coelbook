@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	"github.com/mzeahmed/coelbook/internal/reqctx"
 	"github.com/mzeahmed/coelbook/internal/response"
 )
@@ -39,7 +40,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 	res, err := h.service.List(r.Context(), filter)
 	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "internal server error")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 
 		return
 	}
@@ -53,12 +54,12 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	res, err := h.service.Get(r.Context(), r.PathValue("slug"))
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
-			response.Error(w, http.StatusNotFound, ErrNotFound.Error())
+			response.AppError(w, http.StatusNotFound, ErrNotFound)
 
 			return
 		}
 
-		response.Error(w, http.StatusInternalServerError, "internal server error")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 
 		return
 	}
@@ -72,14 +73,14 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := reqctx.AuthUserFromContext(r.Context())
 	if !ok {
-		response.Error(w, http.StatusUnauthorized, "missing bearer token")
+		response.Error(w, http.StatusUnauthorized, apperr.CodeMissingToken, "missing bearer token")
 
 		return
 	}
 
 	userID, err := strconv.ParseInt(user.ID, 10, 64)
 	if err != nil {
-		response.Error(w, http.StatusUnauthorized, "invalid token subject")
+		response.Error(w, http.StatusUnauthorized, apperr.CodeInvalidToken, "invalid token subject")
 
 		return
 	}
@@ -123,13 +124,13 @@ func decodeWriteRequest(w http.ResponseWriter, r *http.Request) (WriteRequest, b
 
 	var req WriteRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Error(w, http.StatusBadRequest, "invalid request body")
+		response.Error(w, http.StatusBadRequest, apperr.CodeInvalidRequestBody, "invalid request body")
 
 		return WriteRequest{}, false
 	}
 
 	if err := req.Validate(); err != nil {
-		response.Error(w, http.StatusBadRequest, err.Error())
+		response.AppError(w, http.StatusBadRequest, err)
 
 		return WriteRequest{}, false
 	}
@@ -143,11 +144,11 @@ func writeServiceError(w http.ResponseWriter, err error) {
 
 	switch {
 	case errors.Is(err, ErrNotFound):
-		response.Error(w, http.StatusNotFound, ErrNotFound.Error())
+		response.AppError(w, http.StatusNotFound, ErrNotFound)
 	case errors.Is(err, ErrUnknownCategory):
-		response.Error(w, http.StatusBadRequest, ErrUnknownCategory.Error())
+		response.AppError(w, http.StatusBadRequest, ErrUnknownCategory)
 	default:
-		response.Error(w, http.StatusInternalServerError, "internal server error")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 	}
 }
 

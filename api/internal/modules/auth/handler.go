@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	"github.com/mzeahmed/coelbook/internal/response"
 )
 
@@ -25,13 +26,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Error(w, http.StatusBadRequest, "invalid request body")
+		response.Error(w, http.StatusBadRequest, apperr.CodeInvalidRequestBody, "invalid request body")
 
 		return
 	}
 
 	if err := req.Validate(); err != nil {
-		response.Error(w, http.StatusBadRequest, err.Error())
+		response.AppError(w, http.StatusBadRequest, err)
 
 		return
 	}
@@ -39,12 +40,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	res, err := h.service.Login(r.Context(), req)
 	if err != nil {
 		if errors.Is(err, ErrInvalidCredentials) {
-			response.Error(w, http.StatusUnauthorized, ErrInvalidCredentials.Error())
+			response.AppError(w, http.StatusUnauthorized, ErrInvalidCredentials)
 
 			return
 		}
 
-		response.Error(w, http.StatusInternalServerError, "internal server error")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 
 		return
 	}
@@ -56,11 +57,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
 	var req PasswordResetRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Error(w, http.StatusBadRequest, "invalid request body")
+		response.Error(w, http.StatusBadRequest, apperr.CodeInvalidRequestBody, "invalid request body")
 		return
 	}
 	if err := req.Validate(); err != nil {
-		response.Error(w, http.StatusBadRequest, err.Error())
+		response.AppError(w, http.StatusBadRequest, err)
 		return
 	}
 	if err := h.service.RequestPasswordReset(r.Context(), req); err != nil {
@@ -76,19 +77,19 @@ func (h *Handler) RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ConfirmPasswordReset(w http.ResponseWriter, r *http.Request) {
 	var req PasswordResetConfirmRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Error(w, http.StatusBadRequest, "invalid request body")
+		response.Error(w, http.StatusBadRequest, apperr.CodeInvalidRequestBody, "invalid request body")
 		return
 	}
 	if err := req.Validate(); err != nil {
-		response.Error(w, http.StatusBadRequest, err.Error())
+		response.AppError(w, http.StatusBadRequest, err)
 		return
 	}
 	if err := h.service.ResetPassword(r.Context(), req); err != nil {
 		if errors.Is(err, ErrInvalidResetToken) {
-			response.Error(w, http.StatusBadRequest, ErrInvalidResetToken.Error())
+			response.AppError(w, http.StatusBadRequest, ErrInvalidResetToken)
 			return
 		}
-		response.Error(w, http.StatusInternalServerError, "unable to reset password")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "unable to reset password")
 		return
 	}
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { getIncident, type IncidentDetail } from '../api'
 import Sidebar from '../components/Sidebar'
@@ -12,11 +13,11 @@ import { categoryBadgeClass, STATUS_BADGE, STATUS_LABEL, timeAgo } from '../lib/
 // what happened, how it was investigated, why, how it was fixed, and how
 // to avoid it next time. Empty sections are skipped.
 const SECTIONS: { key: keyof Pick<IncidentDetail, 'problem' | 'diagnosis' | 'root_cause' | 'solution' | 'prevention'>; label: string; icon: string }[] = [
-  { key: 'problem', label: 'Problem', icon: 'fa-triangle-exclamation' },
-  { key: 'diagnosis', label: 'Diagnosis', icon: 'fa-magnifying-glass' },
-  { key: 'root_cause', label: 'Root cause', icon: 'fa-bullseye' },
+  { key: 'problem', label: 'Problème', icon: 'fa-triangle-exclamation' },
+  { key: 'diagnosis', label: 'Diagnostic', icon: 'fa-magnifying-glass' },
+  { key: 'root_cause', label: 'Cause racine', icon: 'fa-bullseye' },
   { key: 'solution', label: 'Solution', icon: 'fa-circle-check' },
-  { key: 'prevention', label: 'Prevention', icon: 'fa-shield-halved' },
+  { key: 'prevention', label: 'Prévention', icon: 'fa-shield-halved' },
 ]
 
 export default function IncidentView() {
@@ -56,7 +57,7 @@ export default function IncidentView() {
           return
         }
 
-        const error = err instanceof ApiError ? err.message : 'Something went wrong. Please try again.'
+        const error = errorMessage(err)
         setResult({ slug, incident: null, error, notFound: false })
       })
 
@@ -86,7 +87,7 @@ export default function IncidentView() {
               className="small text-decoration-none d-inline-flex align-items-center gap-2 mb-4"
               style={{ color: 'var(--pb-text-muted)' }}
             >
-              <i className="fa-solid fa-arrow-left" style={{ fontSize: '0.7rem' }}></i> Back to coelbooks
+              <i className="fa-solid fa-arrow-left" style={{ fontSize: '0.7rem' }}></i> Retour aux coelbooks
             </Link>
 
             {error && (
@@ -98,14 +99,14 @@ export default function IncidentView() {
             {loading && (
               <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
                 <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Loading coelbook…
+                Chargement du coelbook…
               </div>
             )}
 
             {!loading && notFound && (
               <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
                 <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
-                This coelbook doesn't exist or has been removed.
+                Ce coelbook n&apos;existe pas ou a été supprimé.
               </div>
             )}
 
@@ -127,7 +128,7 @@ export default function IncidentView() {
                       to={`/incidents/${incident.slug}/edit`}
                       className="btn btn-sm btn-outline-secondary fw-medium flex-shrink-0 d-flex align-items-center gap-2"
                     >
-                      <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i> Edit
+                      <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i> Modifier
                     </Link>
                   </div>
 
@@ -143,7 +144,7 @@ export default function IncidentView() {
                     </span>
                     <span className="d-flex align-items-center gap-1">
                       <i className="fa-regular fa-clock" style={{ fontSize: '0.65rem' }}></i>
-                      Updated {timeAgo(incident.updated_at)}
+                      Mis à jour {timeAgo(incident.updated_at)}
                     </span>
                   </div>
 
@@ -160,7 +161,7 @@ export default function IncidentView() {
 
                 {sections.length === 0 && incident.snippets.length === 0 && incident.links.length === 0 && (
                   <div className="pb-card border rounded-4 p-4 small" style={{ color: 'var(--pb-text-muted)' }}>
-                    This coelbook has no content yet.
+                    Ce coelbook n&apos;a pas encore de contenu.
                   </div>
                 )}
 
@@ -203,7 +204,7 @@ export default function IncidentView() {
                     <section className="pb-card border rounded-4 p-4">
                       <h2 className="fs-6 fw-semibold d-flex align-items-center gap-2 mb-3">
                         <i className="fa-solid fa-link" style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
-                        Links
+                        Liens
                       </h2>
                       <ul className="list-unstyled d-flex flex-column gap-2 mb-0 small">
                         {incident.links.map((link) => (

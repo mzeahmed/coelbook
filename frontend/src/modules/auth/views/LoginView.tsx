@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { login } from '../api'
 import { saveSession } from '../session'
 
@@ -25,7 +25,7 @@ export default function LoginView() {
       saveSession(result.token, result.user, rememberMe)
       navigate('/dashboard')
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.')
+      setError(errorMessage(err))
     } finally {
       setSubmitting(false)
     }
@@ -45,21 +45,21 @@ export default function LoginView() {
         </div>
 
         <div className="pb-card border rounded-4 p-4 p-sm-5">
-          <h1 className="h4 fw-bold mb-1">Welcome back</h1>
+          <h1 className="h4 fw-bold mb-1">Bon retour</h1>
           <p className="small mb-4" style={{ color: 'var(--pb-text-muted)' }}>
-            Sign in to your knowledge base
+            Connectez-vous à votre base de connaissances
           </p>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label small fw-medium" htmlFor="login-email">
-                Email address
+                Adresse e-mail
               </label>
               <input
                 id="login-email"
                 type="email"
                 className="form-control"
-                placeholder="you@company.com"
+                placeholder="vous@entreprise.com"
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -69,7 +69,7 @@ export default function LoginView() {
 
             <div className="mb-3">
               <label className="form-label small fw-medium" htmlFor="login-password">
-                Password
+                Mot de passe
               </label>
 
               <div className="position-relative">
@@ -88,7 +88,7 @@ export default function LoginView() {
                   className="btn btn-sm border-0 position-absolute top-50 end-0 translate-middle-y me-1"
                   style={{ color: 'var(--pb-text-muted)' }}
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
                 </button>
@@ -109,11 +109,11 @@ export default function LoginView() {
                   htmlFor="login-remember"
                   style={{ color: 'var(--pb-text-muted)' }}
                 >
-                  Remember me
+                  Se souvenir de moi
                 </label>
               </div>
               <Link className="small text-decoration-none" to="/forgot-password">
-                Forgot password?
+                Mot de passe oublié ?
               </Link>
             </div>
 
@@ -131,7 +131,7 @@ export default function LoginView() {
                   aria-hidden="true"
                 ></span>
               )}
-              Sign in
+              Se connecter
             </button>
           </form>
         </div>

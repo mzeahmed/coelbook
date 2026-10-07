@@ -38,9 +38,46 @@ components:
         success:
           type: boolean
           description: Whether the request succeeded (true for 2xx).
+        error:
+          type: string
+          description: >
+            Stable, machine-readable error code, present on error responses
+            only. Clients should branch on (and translate) this code rather
+            than parse `message`, whose wording may change.
+          enum:
+            # Shared
+            - invalid_request_body
+            - internal_error
+            - missing_token
+            - invalid_token
+            - route_not_found
+            - method_not_allowed
+            # Setup
+            - admin_name_required
+            - admin_email_required
+            - admin_password_too_short
+            - instance_name_required
+            - instance_timezone_required
+            - instance_locale_required
+            - already_initialized
+            # Auth
+            - credentials_required
+            - invalid_credentials
+            - email_required
+            - reset_token_required
+            - password_too_short
+            - invalid_reset_token
+            # Incidents
+            - incident_not_found
+            - title_required
+            - title_too_long
+            - invalid_status
+            - category_required
+            - unknown_category
+            - too_many_tags
         message:
           type: string
-          description: Human-readable status message.
+          description: Human-readable (English) status message, for developers and logs.
         data:
           description: Payload (varies per endpoint).
       required: [code, success, message]
@@ -311,6 +348,7 @@ components:
           example:
             code: 400
             success: false
+            error: invalid_request_body
             message: invalid request body
             data: null
 
@@ -323,6 +361,7 @@ components:
           example:
             code: 401
             success: false
+            error: invalid_credentials
             message: invalid email or password
             data: null
 
@@ -335,6 +374,7 @@ components:
           example:
             code: 404
             success: false
+            error: incident_not_found
             message: incident not found
             data: null
 
@@ -347,6 +387,7 @@ components:
           example:
             code: 500
             success: false
+            error: internal_error
             message: internal server error
             data: null
 

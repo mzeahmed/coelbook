@@ -7,13 +7,14 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	repo "github.com/mzeahmed/coelbook/internal/database/queries"
 	"github.com/mzeahmed/coelbook/internal/password"
 )
 
 // ErrAlreadyInitialized is returned by Setup when the wizard has already
 // been completed.
-var ErrAlreadyInitialized = errors.New("wizard: application is already initialized")
+var ErrAlreadyInitialized = apperr.New("already_initialized", "application is already initialized")
 
 // uniqueViolation is the Postgres error code raised when a unique or
 // primary key constraint is violated.

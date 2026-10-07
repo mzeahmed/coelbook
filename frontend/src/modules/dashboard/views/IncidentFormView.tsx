@@ -8,11 +8,13 @@ import {
   createIncident,
   getIncident,
   listCategories,
+  listTags,
   updateIncident,
   type IncidentCategory,
   type IncidentLinkInput,
   type IncidentSnippetInput,
   type IncidentStatus,
+  type IncidentTag,
   type IncidentWriteRequest,
 } from '../api'
 import LinksField from '../components/LinksField'
@@ -74,6 +76,7 @@ export default function IncidentFormView() {
   const [snippetRows, setSnippetRows] = useState<Row<IncidentSnippetInput>[]>([])
   const [linkRows, setLinkRows] = useState<Row<IncidentLinkInput>[]>([])
   const [categories, setCategories] = useState<IncidentCategory[]>([])
+  const [existingTags, setExistingTags] = useState<IncidentTag[]>([])
 
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState('')
@@ -87,11 +90,12 @@ export default function IncidentFormView() {
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([listCategories(), editing ? getIncident(slug) : Promise.resolve(null)])
-      .then(([cats, incident]) => {
+    Promise.all([listCategories(), listTags(), editing ? getIncident(slug) : Promise.resolve(null)])
+      .then(([cats, tags, incident]) => {
         if (cancelled) return
 
         setCategories(cats)
+        setExistingTags(tags)
 
         if (incident) {
           setForm({
@@ -181,6 +185,19 @@ export default function IncidentFormView() {
         setError(errorMessage(err))
       }
     }
+  }
+
+  // Existing tags not typed in yet, offered as one-click suggestions.
+  // Compared case-insensitively, like the API dedupes them.
+  const typedTags = new Set(parseTags(tagsInput).map((t) => t.toLowerCase()))
+  const tagSuggestions = existingTags.filter((t) => !typedTags.has(t.name.toLowerCase()))
+
+  function addTag(name: string) {
+    setTagsInput((input) => {
+      const current = input.trim().replace(/,$/, '').trim()
+
+      return current ? `${current}, ${name}` : name
+    })
   }
 
   const cancelTo = editing ? `/incidents/${slug}` : '/dashboard'
@@ -304,6 +321,24 @@ export default function IncidentFormView() {
                     />
                     <InputError error={fieldError} field="tags" />
                     <div className="form-text small">Séparés par des virgules. Les nouveaux tags sont créés automatiquement.</div>
+                    {tagSuggestions.length > 0 && (
+                      <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
+                        <span className="small" style={{ color: 'var(--pb-text-muted)' }}>
+                          Tags existants :
+                        </span>
+                        {tagSuggestions.map((t) => (
+                          <button
+                            key={t.slug}
+                            type="button"
+                            className="tag-pill d-inline-flex align-items-center gap-1 px-2 py-1 rounded-2 small border-0 bg-transparent"
+                            onClick={() => addTag(t.name)}
+                            aria-label={`Ajouter le tag ${t.name}`}
+                          >
+                            <i className="fa-solid fa-plus" style={{ fontSize: '0.55rem' }}></i> {t.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </section>
 

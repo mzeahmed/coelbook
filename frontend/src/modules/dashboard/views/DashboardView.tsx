@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ApiError } from '@/http/client'
 import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
-import { listIncidents, type IncidentCategory, type IncidentSummary } from '../api'
+import { listCategories, listIncidents, listTags, type IncidentCategory, type IncidentSummary, type IncidentTag } from '../api'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import FiltersBar from '../components/FiltersBar'
@@ -27,25 +27,22 @@ export default function DashboardView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Facet options for the category/tag filters, derived from a broad,
-  // unfiltered fetch so they don't shrink as the user narrows their
-  // search — there's no dedicated /api/categories or /api/tags endpoint
-  // yet, so this is the best available source for "what exists".
+  // Facet options for the category/tag filters. They come from dedicated
+  // endpoints rather than from the incident list, so they don't shrink as
+  // the user narrows their search.
   const [categoryOptions, setCategoryOptions] = useState<IncidentCategory[]>([])
-  const [tagOptions, setTagOptions] = useState<string[]>([])
+  const [tagOptions, setTagOptions] = useState<IncidentTag[]>([])
 
   useEffect(() => {
-    listIncidents({ perPage: 200 })
-      .then((res) => {
-        const categories = new Map(res.incidents.map((i) => [i.category.slug, i.category]))
-        const tags = new Set(res.incidents.flatMap((i) => i.tags))
-
-        setCategoryOptions([...categories.values()].sort((a, b) => a.name.localeCompare(b.name)))
-        setTagOptions([...tags].sort())
+    Promise.all([listCategories(), listTags()])
+      .then(([categories, tags]) => {
+        setCategoryOptions(categories)
+        setTagOptions(tags)
       })
       .catch(() => {
         // Facet options are a nice-to-have for the filter dropdowns; if
-        // this fails, the filters below just start out empty.
+        // this fails, the filters below just start out empty. A 401 is
+        // handled by the incident list request below.
       })
   }, [])
 

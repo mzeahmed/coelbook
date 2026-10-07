@@ -24,7 +24,7 @@ RESET  := \033[0m
         tidy update \
         clean doctor \
         hosts-add hosts-remove up down restart logs ps bash \
-        module commit \
+        module commit clean-branches \
         migrate-up migrate-down sqlc
 
 help: ## Show available commands
@@ -94,6 +94,39 @@ commit: ## Commit and push changes | make commit m="message" b="branch"
 		echo "$(RED)(m) and (b) params are required (make commit m='message' b='branch') $(RESET)"; \
 		exit 1; \
 	fi
+
+# Branches clean-branches never deletes (matched as whole names). The
+# current branch is always kept too, and HEAD is the remote's symbolic ref.
+PROTECTED_BRANCHES := ^(main|develop|HEAD)$$
+
+LOCAL_BRANCHES  = git branch --format='%(refname:short)' | grep -vE '$(PROTECTED_BRANCHES)' | grep -vxF "$$(git branch --show-current)"
+REMOTE_BRANCHES = git branch -r --format='%(refname:lstrip=3)' | grep -vE '$(PROTECTED_BRANCHES)'
+
+# Remote branches are only deleted when the GitHub account git pushes with
+# owns the repository (see scripts/check-repo-owner.sh); otherwise only
+# local branches are cleaned.
+clean-branches: ## Delete all local and remote branches except main and develop (remote: repo owner only)
+	@git fetch --prune -q
+	@echo "$(YELLOW)Local branches to delete:$(RESET)"
+	@out="$$($(LOCAL_BRANCHES))"; [ -n "$$out" ] && echo "$$out" | sed 's/^/  /' || echo "  (none)"
+	@if ./scripts/check-repo-owner.sh; then \
+		echo "$(YELLOW)Remote branches to delete:$(RESET)"; \
+		out="$$($(REMOTE_BRANCHES))"; [ -n "$$out" ] && echo "$$out" | sed 's/^/  /' || echo "  (none)"; \
+	else \
+		echo "$(RED)Remote branches will be kept: you are not the repository owner.$(RESET)"; \
+	fi
+	@echo ""
+	@printf "$(RED)⚠️  Confirm deletion? [y/N] $(RESET)" && read ans && [ "$${ans}" = "y" ] || { echo "$(YELLOW)Cancelled.$(RESET)"; exit 1; }
+
+	@echo "$(YELLOW)Deleting local branches...$(RESET)"
+	@$(LOCAL_BRANCHES) | xargs -r git branch -D || true
+
+	@if ./scripts/check-repo-owner.sh 2>/dev/null; then \
+		echo "$(YELLOW)Deleting remote branches...$(RESET)"; \
+		$(REMOTE_BRANCHES) | xargs -r -I {} git push origin --delete {} || true; \
+	fi
+
+	@echo "$(GREEN)Branch cleanup done$(RESET)"
 
 # ==============================================================================
 # Database

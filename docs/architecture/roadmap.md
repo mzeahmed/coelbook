@@ -54,8 +54,8 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 ## v0.4.0 — Snippets & Attachments
 
 - [x] Code snippets
-- [ ] Syntax highlighting
-- [ ] Copy code blocks
+- [x] Syntax highlighting
+- [x] Copy code blocks
 - [ ] Image uploads
 - [ ] File attachments *(partial: `attachments` table exists; no upload or storage)*
 - [x] External links

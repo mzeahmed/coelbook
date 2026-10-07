@@ -5,6 +5,7 @@ import { ApiError } from '@/http/client'
 import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { getIncident, type IncidentDetail } from '../api'
+import CodeBlock from '../components/CodeBlock'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import { categoryBadgeClass, STATUS_BADGE, STATUS_LABEL, timeAgo } from '../lib/format'
@@ -184,17 +185,7 @@ export default function IncidentView() {
                       </h2>
                       <div className="d-flex flex-column gap-3">
                         {incident.snippets.map((snippet) => (
-                          <div key={snippet.id}>
-                            <div className="d-flex align-items-center justify-content-between mb-2 small">
-                              <span className="fw-medium">{snippet.title}</span>
-                              <span className="font-mono" style={{ fontSize: '0.7rem', color: 'var(--pb-text-muted)' }}>
-                                {snippet.language}
-                              </span>
-                            </div>
-                            <pre className="pb-code font-mono rounded-3 p-3 mb-0">
-                              <code>{snippet.content}</code>
-                            </pre>
-                          </div>
+                          <CodeBlock key={snippet.id} title={snippet.title} language={snippet.language} code={snippet.content} />
                         ))}
                       </div>
                     </section>

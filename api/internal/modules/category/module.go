@@ -1,5 +1,4 @@
-// Package category exposes read access to the categories incidents are
-// grouped by.
+// Package category manages the categories incidents are grouped by.
 package category
 
 import (
@@ -26,4 +25,7 @@ func New(pool *pgxpool.Pool) *Module {
 // Every route requires a valid access token, applied via authenticate.
 func (m *Module) RegisterRoutes(mux *http.ServeMux, authenticate func(http.Handler) http.Handler) {
 	mux.Handle("GET /categories", authenticate(http.HandlerFunc(m.handler.List)))
+	mux.Handle("POST /categories", authenticate(http.HandlerFunc(m.handler.Create)))
+	mux.Handle("PUT /categories/{slug}", authenticate(http.HandlerFunc(m.handler.Update)))
+	mux.Handle("DELETE /categories/{slug}", authenticate(http.HandlerFunc(m.handler.Delete)))
 }

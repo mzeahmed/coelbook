@@ -10,20 +10,28 @@ import (
 
 type Querier interface {
 	AddIncidentTag(ctx context.Context, arg AddIncidentTagParams) error
+	// Case-insensitive, so "Docker" and "docker" can't coexist. exclude_slug
+	// skips the category being renamed ('' to check against all of them).
+	CategoryNameTaken(ctx context.Context, arg CategoryNameTakenParams) (bool, error)
+	CategorySlugExists(ctx context.Context, slug string) (bool, error)
 	ConsumePasswordResetToken(ctx context.Context, id int64) error
 	CountIncidents(ctx context.Context, arg CountIncidentsParams) (int64, error)
+	CreateCategory(ctx context.Context, arg CreateCategoryParams) error
 	CreateIncident(ctx context.Context, arg CreateIncidentParams) (int64, error)
 	CreateLink(ctx context.Context, arg CreateLinkParams) error
 	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (PasswordResetToken, error)
 	CreateSnippet(ctx context.Context, arg CreateSnippetParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWizard(ctx context.Context, arg CreateWizardParams) (Wizard, error)
+	// Fails with a foreign key violation while incidents still use it.
+	DeleteCategory(ctx context.Context, slug string) (int64, error)
 	DeleteIncidentLinks(ctx context.Context, incidentID int64) error
 	DeleteIncidentSnippets(ctx context.Context, incidentID int64) error
 	DeleteIncidentTags(ctx context.Context, incidentID int64) error
 	DeleteWizard(ctx context.Context) error
 	FindUserByEmail(ctx context.Context, email string) (User, error)
 	FindUserById(ctx context.Context, id int64) (User, error)
+	GetCategoryBySlug(ctx context.Context, slug string) (GetCategoryBySlugRow, error)
 	GetCategoryIDBySlug(ctx context.Context, slug string) (int64, error)
 	GetIncidentBySlug(ctx context.Context, slug string) (GetIncidentBySlugRow, error)
 	GetValidPasswordResetTokenForUpdate(ctx context.Context, tokenHash string) (GetValidPasswordResetTokenForUpdateRow, error)
@@ -46,6 +54,11 @@ type Querier interface {
 	// Rebuilds the incident's full-text document; call it after any change to
 	// the incident, its tags or its snippets (see incident_search_vector()).
 	RefreshIncidentSearchVector(ctx context.Context, id int64) error
+	// Used by the setup wizard; an instance re-initialized after its admin was
+	// removed may already have its categories.
+	SeedCategory(ctx context.Context, arg SeedCategoryParams) error
+	// The slug is left unchanged so filters and links keep working.
+	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (int64, error)
 	// The slug is deliberately left unchanged so existing links keep working
 	// when the title is edited.
 	UpdateIncident(ctx context.Context, arg UpdateIncidentParams) (int64, error)

@@ -211,3 +211,33 @@ export function updateIncident(slug: string, payload: IncidentWriteRequest): Pro
     headers: authHeaders(),
   })
 }
+
+export interface NamedCount {
+  name: string
+  slug: string
+  incident_count: number
+}
+
+export interface Stats {
+  // Counts include incidents of every status.
+  total: number
+  by_status: Record<IncidentStatus, number>
+  // Every category, sorted by name.
+  categories: NamedCount[]
+  // Up to 10 most used tags, most used first.
+  top_tags: NamedCount[]
+  // Up to 5 most recently updated incidents.
+  recent: {
+    title: string
+    slug: string
+    status: IncidentStatus
+    category: IncidentCategory
+    updated_at: string
+  }[]
+  // Incidents created per week, last 12 weeks, oldest first.
+  activity: { week_start: string; total: number }[]
+}
+
+export function getStats(): Promise<Stats> {
+  return apiFetch<Stats>('/api/stats', { headers: authHeaders() })
+}

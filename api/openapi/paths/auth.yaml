@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: Coelbook API
+  description: API for the Coelbook incident knowledge-base platform.
+  version: 0.1.0
+servers:
+- url: http://localhost:8080
+  description: Local development server
+tags:
+- name: Auth
+  description: Authentication (login)
+components:
+  schemas:
+    Envelope:
+      description: Standard JSON response wrapper used by every endpoint.
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code.
+        success:
+          type: boolean
+          description: Whether the request succeeded (true for 2xx).
+        error:
+          type: string
+          description: 'Stable, machine-readable error code, present on error responses only. Clients should branch on (and translate) this code rather than parse `message`, whose wording may change.
+
+            '
+          enum:
+          - invalid_request_body
+          - internal_error
+          - missing_token
+          - invalid_token
+          - route_not_found
+          - method_not_allowed
+          - admin_name_required
+          - admin_email_required
+          - admin_password_too_short
+          - instance_name_required
+          - instance_timezone_required
+          - instance_locale_required
+          - already_initialized
+          - credentials_required
+          - invalid_credentials
+          - email_required
+          - reset_token_required
+          - password_too_short
+          - invalid_reset_token
+          - incident_not_found
+          - title_required
+          - title_too_long
+          - invalid_status
+          - category_required
+          - unknown_category
+          - too_many_tags
+          - too_many_snippets
+          - snippet_title_required
+          - snippet_content_required
+          - too_many_links
+          - link_url_required
+          - invalid_link_url
+          - category_name_required
+          - category_name_too_long
+          - category_description_too_long
+          - category_name_taken
+          - category_not_found
+          - category_in_use
+        field:
+          type: string
+          description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.
+
+            '
+          example: snippets[2].content
+        message:
+          type: string
+          description: Human-readable (English) status message, for developers and logs.
+        data:
+          description: Payload (varies per endpoint).
+      required:
+      - code
+      - success
+      - message
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required:
+      - email
+      - password
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+      required:
+      - id
+      - email
+      - first_name
+      - last_name
+    LoginData:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT access token (24 h TTL).
+        user:
+          $ref: '#/components/schemas/UserResponse'
+      required:
+      - token
+      - user
+    PasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PasswordResetConfirmRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          description: One-time token included in the reset email.
+        password:
+          type: string
+          format: password
+          minLength: 8
+      required:
+      - token
+      - password
+  responses:
+    BadRequest:
+      description: Invalid request body or parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 400
+            success: false
+            error: invalid_request_body
+            message: invalid request body
+            data: null
+    Unauthorized:
+      description: Missing or invalid Bearer token / invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 401
+            success: false
+            error: invalid_credentials
+            message: invalid email or password
+            data: null
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 500
+            success: false
+            error: internal_error
+            message: internal server error
+            data: null
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      tags:
+      - Auth
+      summary: Authenticate and obtain a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    message:
+                      example: login successful
+                    data:
+                      $ref: '#/components/schemas/LoginData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/password-reset:
+    post:
+      operationId: requestPasswordReset
+      tags:
+      - Auth
+      summary: Request a password-reset email
+      description: Returns the same response whether or not the email belongs to an account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '202':
+          description: Reset request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/password-reset/confirm:
+    post:
+      operationId: confirmPasswordReset
+      tags:
+      - Auth
+      summary: Set a new password using a one-time reset token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+      responses:
+        '200':
+          description: Password reset successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '400':
+          description: The reset token is invalid, expired, or the request is malformed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

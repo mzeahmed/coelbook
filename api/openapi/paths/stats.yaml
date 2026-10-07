@@ -1,0 +1,246 @@
+openapi: 3.0.3
+info:
+  title: Coelbook API
+  description: API for the Coelbook incident knowledge-base platform.
+  version: 0.1.0
+servers:
+- url: http://localhost:8080
+  description: Local development server
+tags:
+- name: Stats
+  description: Overview figures (requires authentication)
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Envelope:
+      description: Standard JSON response wrapper used by every endpoint.
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code.
+        success:
+          type: boolean
+          description: Whether the request succeeded (true for 2xx).
+        error:
+          type: string
+          description: 'Stable, machine-readable error code, present on error responses only. Clients should branch on (and translate) this code rather than parse `message`, whose wording may change.
+
+            '
+          enum:
+          - invalid_request_body
+          - internal_error
+          - missing_token
+          - invalid_token
+          - route_not_found
+          - method_not_allowed
+          - admin_name_required
+          - admin_email_required
+          - admin_password_too_short
+          - instance_name_required
+          - instance_timezone_required
+          - instance_locale_required
+          - already_initialized
+          - credentials_required
+          - invalid_credentials
+          - email_required
+          - reset_token_required
+          - password_too_short
+          - invalid_reset_token
+          - incident_not_found
+          - title_required
+          - title_too_long
+          - invalid_status
+          - category_required
+          - unknown_category
+          - too_many_tags
+          - too_many_snippets
+          - snippet_title_required
+          - snippet_content_required
+          - too_many_links
+          - link_url_required
+          - invalid_link_url
+          - category_name_required
+          - category_name_too_long
+          - category_description_too_long
+          - category_name_taken
+          - category_not_found
+          - category_in_use
+        field:
+          type: string
+          description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.
+
+            '
+          example: snippets[2].content
+        message:
+          type: string
+          description: Human-readable (English) status message, for developers and logs.
+        data:
+          description: Payload (varies per endpoint).
+      required:
+      - code
+      - success
+      - message
+    IncidentCategory:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+    NamedCount:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        incident_count:
+          type: integer
+          format: int64
+      required:
+      - name
+      - slug
+      - incident_count
+    Stats:
+      type: object
+      description: 'Overview figures, computed in one consistent snapshot. Counts include incidents of every status.
+
+        '
+      properties:
+        total:
+          type: integer
+          format: int64
+        by_status:
+          type: object
+          description: Always has the draft, published and archived keys.
+          properties:
+            draft:
+              type: integer
+              format: int64
+            published:
+              type: integer
+              format: int64
+            archived:
+              type: integer
+              format: int64
+          required:
+          - draft
+          - published
+          - archived
+        categories:
+          type: array
+          description: Every category, sorted by name.
+          items:
+            $ref: '#/components/schemas/NamedCount'
+        top_tags:
+          type: array
+          description: Up to 10 most used tags, most used first.
+          items:
+            $ref: '#/components/schemas/NamedCount'
+        recent:
+          type: array
+          description: Up to 5 most recently updated incidents.
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              slug:
+                type: string
+              status:
+                type: string
+                enum:
+                - draft
+                - published
+                - archived
+              category:
+                $ref: '#/components/schemas/IncidentCategory'
+              updated_at:
+                type: string
+                format: date-time
+            required:
+            - title
+            - slug
+            - status
+            - category
+            - updated_at
+        activity:
+          type: array
+          description: 'Incidents created per week over the last 12 weeks including the current one, oldest first; empty weeks are included.
+
+            '
+          items:
+            type: object
+            properties:
+              week_start:
+                type: string
+                format: date
+                description: Monday the week starts on.
+              total:
+                type: integer
+                format: int64
+            required:
+            - week_start
+            - total
+      required:
+      - total
+      - by_status
+      - categories
+      - top_tags
+      - recent
+      - activity
+  responses:
+    Unauthorized:
+      description: Missing or invalid Bearer token / invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 401
+            success: false
+            error: invalid_credentials
+            message: invalid email or password
+            data: null
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 500
+            success: false
+            error: internal_error
+            message: internal server error
+            data: null
+paths:
+  /stats:
+    get:
+      operationId: getStats
+      tags:
+      - Stats
+      summary: Overview figures for the dashboard
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: The figures.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/Stats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

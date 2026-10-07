@@ -1,0 +1,220 @@
+openapi: 3.0.3
+info:
+  title: Coelbook API
+  description: API for the Coelbook incident knowledge-base platform.
+  version: 0.1.0
+servers:
+- url: http://localhost:8080
+  description: Local development server
+tags:
+- name: Setup
+  description: First-time instance setup wizard
+components:
+  schemas:
+    Envelope:
+      description: Standard JSON response wrapper used by every endpoint.
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code.
+        success:
+          type: boolean
+          description: Whether the request succeeded (true for 2xx).
+        error:
+          type: string
+          description: 'Stable, machine-readable error code, present on error responses only. Clients should branch on (and translate) this code rather than parse `message`, whose wording may change.
+
+            '
+          enum:
+          - invalid_request_body
+          - internal_error
+          - missing_token
+          - invalid_token
+          - route_not_found
+          - method_not_allowed
+          - admin_name_required
+          - admin_email_required
+          - admin_password_too_short
+          - instance_name_required
+          - instance_timezone_required
+          - instance_locale_required
+          - already_initialized
+          - credentials_required
+          - invalid_credentials
+          - email_required
+          - reset_token_required
+          - password_too_short
+          - invalid_reset_token
+          - incident_not_found
+          - title_required
+          - title_too_long
+          - invalid_status
+          - category_required
+          - unknown_category
+          - too_many_tags
+          - too_many_snippets
+          - snippet_title_required
+          - snippet_content_required
+          - too_many_links
+          - link_url_required
+          - invalid_link_url
+          - category_name_required
+          - category_name_too_long
+          - category_description_too_long
+          - category_name_taken
+          - category_not_found
+          - category_in_use
+        field:
+          type: string
+          description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.
+
+            '
+          example: snippets[2].content
+        message:
+          type: string
+          description: Human-readable (English) status message, for developers and logs.
+        data:
+          description: Payload (varies per endpoint).
+      required:
+      - code
+      - success
+      - message
+    AdminRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+      required:
+      - first_name
+      - last_name
+      - email
+      - password
+    InstanceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        timezone:
+          type: string
+          description: IANA timezone (e.g. Europe/Paris).
+        locale:
+          type: string
+          description: Locale code (e.g. fr-FR).
+      required:
+      - name
+      - timezone
+      - locale
+    SetupRequest:
+      type: object
+      properties:
+        admin:
+          $ref: '#/components/schemas/AdminRequest'
+        instance:
+          $ref: '#/components/schemas/InstanceRequest'
+      required:
+      - admin
+      - instance
+    StatusData:
+      type: object
+      properties:
+        initialized:
+          type: boolean
+          description: Whether the setup wizard has already been completed.
+      required:
+      - initialized
+  responses:
+    BadRequest:
+      description: Invalid request body or parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 400
+            success: false
+            error: invalid_request_body
+            message: invalid request body
+            data: null
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 500
+            success: false
+            error: internal_error
+            message: internal server error
+            data: null
+paths:
+  /setup/status:
+    get:
+      operationId: setupStatus
+      tags:
+      - Setup
+      summary: Check whether the instance has been initialized
+      responses:
+        '200':
+          description: Current initialization status.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/StatusData'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /setup:
+    post:
+      operationId: setupInstance
+      tags:
+      - Setup
+      summary: Create the admin account and configure the instance
+      description: 'One-time setup endpoint. Fails with 409 if the instance is already initialized.
+
+        '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetupRequest'
+      responses:
+        '201':
+          description: Setup completed.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    message:
+                      example: setup completed
+                    data:
+                      type: object
+                      nullable: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Application is already initialized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

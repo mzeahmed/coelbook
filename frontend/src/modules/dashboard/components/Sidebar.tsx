@@ -8,7 +8,7 @@ interface SidebarProps {
   incidentCount?: number
 }
 
-// Nav items other than "Coelbooks" and "Catégories" don't lead anywhere yet — they're
+// Nav items other than "Tableau de bord", "Coelbooks" and "Catégories" don't lead anywhere yet — they're
 // rendered as inert buttons (not links) so the sidebar communicates the
 // product's intended shape without pretending to navigate somewhere.
 export default function Sidebar({ incidentCount }: SidebarProps) {
@@ -16,7 +16,11 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
   const { pathname } = useLocation()
 
   // Incident pages belong to the "Coelbooks" entry.
-  const section = pathname.startsWith('/categories') ? 'categories' : 'incidents'
+  const section = pathname.startsWith('/categories')
+    ? 'categories'
+    : pathname.startsWith('/overview')
+      ? 'overview'
+      : 'incidents'
   const navClass = (active: boolean) =>
     `pb-nav-link ${active ? 'active' : ''} d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none small`
 
@@ -53,13 +57,14 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           Connaissances
         </p>
 
-        <button
-          type="button"
-          className="pb-nav-link btn text-start d-flex align-items-center gap-3 px-3 py-2 rounded-3 small border-0"
+        <Link
+          to="/overview"
+          className={navClass(section === 'overview')}
+          aria-current={section === 'overview' ? 'page' : undefined}
         >
           <i className="fa-solid fa-layer-group text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Tableau de bord</span>
-        </button>
+        </Link>
 
         <Link
           to="/dashboard"

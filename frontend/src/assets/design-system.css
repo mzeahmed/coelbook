@@ -347,3 +347,105 @@ body {
   white-space: pre;
   overflow-x: auto;
 }
+
+/* Snippet code blocks (CodeBlock component) */
+
+.pb-code-block {
+  border: 1px solid var(--pb-border);
+  background-color: var(--pb-bg);
+}
+
+.pb-code-header {
+  border-bottom: 1px solid var(--pb-border);
+  background-color: var(--pb-surface);
+}
+
+.pb-code-block .pb-code {
+  border: 0;
+  border-radius: 0;
+}
+
+.pb-copy-btn {
+  color: var(--pb-text-muted);
+  border: 1px solid var(--pb-border);
+  background-color: var(--pb-surface);
+}
+
+.pb-copy-btn:hover {
+  color: var(--pb-primary);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.pb-copy-btn.is-copied {
+  color: var(--pb-success);
+  border-color: var(--pb-success);
+}
+
+/* Syntax highlighting tokens (highlight.js class names), light theme
+   matched to the slate palette. */
+
+.hljs-comment,
+.hljs-quote {
+  color: #64748b;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-doctag {
+  color: #7c3aed;
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-meta .hljs-string {
+  color: #15803d;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: #c2410c;
+}
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #1d4ed8;
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-property {
+  color: #0e7490;
+}
+
+.hljs-built_in,
+.hljs-type,
+.hljs-title.class_ {
+  color: #b45309;
+}
+
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+  color: #be185d;
+}
+
+.hljs-deletion {
+  color: #b91c1c;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 600;
+}

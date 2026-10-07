@@ -35,7 +35,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 - [x] Structured incident sections (problem, diagnosis, root cause, solution, prevention)
 - [x] Incident lifecycle: draft → published → archived
 - [ ] Category management
-- [ ] Markdown editor
+- [x] Markdown editor (write / preview, GitHub flavor)
 - [ ] Table of contents
 - [ ] Incident history
 

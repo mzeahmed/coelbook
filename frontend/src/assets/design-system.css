@@ -580,3 +580,14 @@ body {
   pointer-events: none;
   z-index: 5;
 }
+
+/* Sidebar entries for sections that don't exist yet */
+.pb-nav-disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pb-nav-disabled:hover {
+  background-color: transparent !important;
+  color: inherit !important;
+}

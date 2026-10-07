@@ -23,6 +23,7 @@ import MarkdownField from '../components/MarkdownField'
 import SnippetsField from '../components/SnippetsField'
 import { fieldInputId, messageFor, withKey, withoutKey, type FieldError, type Row } from '../lib/fields'
 import { STATUS_LABEL } from '../lib/format'
+import { slugify } from '../lib/slug'
 
 // The scalar fields of the form; tags, snippets and links have their own
 // state since they're edited as free text or as lists of rows.
@@ -49,6 +50,9 @@ const SECTIONS: { key: 'problem' | 'diagnosis' | 'root_cause' | 'solution' | 'pr
 ]
 
 const STATUSES: IncidentStatus[] = ['draft', 'published', 'archived']
+
+// Tag chips shown under the tags input, at most.
+const MAX_TAG_SUGGESTIONS = 12
 
 // parseTags splits the comma-separated tags input; the API trims names and
 // drops blanks and duplicates, so this only needs to split.
@@ -90,7 +94,9 @@ export default function IncidentFormView() {
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([listCategories(), listTags(), editing ? getIncident(slug) : Promise.resolve(null)])
+    // Unused tags too: the default ones are meant to be suggested before
+    // any incident uses them.
+    Promise.all([listCategories(), listTags(true), editing ? getIncident(slug) : Promise.resolve(null)])
       .then(([cats, tags, incident]) => {
         if (cancelled) return
 
@@ -187,16 +193,26 @@ export default function IncidentFormView() {
     }
   }
 
-  // Existing tags not typed in yet, offered as one-click suggestions.
-  // Compared case-insensitively, like the API dedupes them.
-  const typedTags = new Set(parseTags(tagsInput).map((t) => t.toLowerCase()))
-  const tagSuggestions = existingTags.filter((t) => !typedTags.has(t.name.toLowerCase()))
+  // Existing tags not typed in yet, offered as one-click suggestions: the
+  // ones matching the tag being typed (after the last comma), or else the
+  // most used ones. Compared like the API dedupes tags (by slug).
+  const parts = tagsInput.split(',')
+  const fragment = parts[parts.length - 1]!.trim()
+  const typedSlugs = new Set(parseTags(tagsInput).map(slugify))
+  const tagSuggestions = existingTags
+    .filter((t) => !typedSlugs.has(t.slug) && (!fragment || t.slug.includes(slugify(fragment))))
+    .sort((a, b) => b.incident_count - a.incident_count || a.name.localeCompare(b.name, 'fr'))
+    .slice(0, MAX_TAG_SUGGESTIONS)
 
+  // addTag completes the tag being typed, or appends one after the others.
+  // It leaves ", " behind so the next tag can be typed right away (and the
+  // suggestions come back); parseTags ignores the empty trailing entry.
   function addTag(name: string) {
     setTagsInput((input) => {
-      const current = input.trim().replace(/,$/, '').trim()
+      const done = input.split(',').slice(0, fragment ? -1 : undefined)
+      const kept = done.map((t) => t.trim()).filter(Boolean)
 
-      return current ? `${current}, ${name}` : name
+      return `${[...kept, name].join(', ')}, `
     })
   }
 
@@ -324,7 +340,7 @@ export default function IncidentFormView() {
                 {tagSuggestions.length > 0 && (
                   <div className="d-flex flex-wrap align-items-center gap-2 mt-2">
                     <span className="small" style={{ color: 'var(--pb-text-muted)' }}>
-                      Tags existants :
+                      {fragment ? 'Tags correspondants :' : 'Tags suggérés :'}
                     </span>
                     {tagSuggestions.map((t) => (
                       <button

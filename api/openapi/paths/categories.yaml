@@ -8,7 +8,7 @@ servers:
   description: Local development server
 tags:
 - name: Categories
-  description: Incident categories (requires authentication). Setup creates a default set.
+  description: Incident categories (requires authentication). A default set is created by migration.
 components:
   securitySchemes:
     BearerAuth:

@@ -232,7 +232,7 @@ la [documentation des dépendances](docs/dependencies.md).
 
    Run it again after pulling changes that add migrations.
 
-4. Open http://coelbook.local and follow the setup wizard: it creates the administrator account and a default set of categories. The [user guide](docs/guide/user-guide.md) takes it from there.
+4. Open http://coelbook.local and follow the setup wizard to create the administrator account. Default categories and tags are already there (created by the migrations). The [user guide](docs/guide/user-guide.md) takes it from there.
 
 ## Available services
 

@@ -99,6 +99,12 @@ export default function HelpView() {
                 ))}
               </tbody>
             </table>
+            <p>
+              <strong>Recherche rapide :</strong> depuis n&apos;importe quelle page, <kbd>Ctrl</kbd> + <kbd>K</kbd>{' '}
+              (<kbd>⌘</kbd> + <kbd>K</kbd> sur Mac) ou le bouton <em>Rechercher…</em> en haut à droite ouvrent une
+              fenêtre pour trouver un coelbook ou une page au clavier : <kbd>↑</kbd> <kbd>↓</kbd> pour choisir,{' '}
+              <kbd>Entrée</kbd> pour ouvrir.
+            </p>
             <p className="mb-0">
               Les filtres (catégorie, statut, tag) se combinent avec la recherche, et l&apos;adresse de la page les
               garde : vous pouvez partager une recherche filtrée en copiant son lien.

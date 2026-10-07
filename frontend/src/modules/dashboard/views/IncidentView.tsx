@@ -5,11 +5,10 @@ import { ApiError } from '@/http/client'
 import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { getIncident, type IncidentDetail } from '../api'
+import AppLayout from '../components/AppLayout'
 import CodeBlock from '../components/CodeBlock'
 import Markdown from '../components/Markdown'
-import Sidebar from '../components/Sidebar'
 import TableOfContents, { type TocEntry } from '../components/TableOfContents'
-import Topbar from '../components/Topbar'
 import { categoryBadgeClass, STATUS_BADGE, STATUS_LABEL, timeAgo } from '../lib/format'
 import { markdownHeadings } from '../lib/headings'
 import { slugify } from '../lib/slug'
@@ -165,177 +164,167 @@ export default function IncidentView() {
   }, [toc, showToc])
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar />
+    <AppLayout current={incident?.title}>
+      <div className="mx-auto px-4 px-lg-5 py-4" style={{ maxWidth: showToc ? '74rem' : '56rem' }}>
+        <div className={showToc ? 'pb-incident-layout' : ''}>
+          <div className="min-w-0">
+            <Link
+              to="/dashboard"
+              className="small text-decoration-none d-inline-flex align-items-center gap-2 mb-4"
+              style={{ color: 'var(--pb-text-muted)' }}
+            >
+              <i className="fa-solid fa-arrow-left" style={{ fontSize: '0.7rem' }}></i> Retour aux coelbooks
+            </Link>
 
-      <main className="flex-grow-1 d-flex flex-column min-w-0" style={{ backgroundColor: 'var(--pb-bg)' }}>
-        <Topbar current={incident?.title} />
-
-        {/* No overflow here: the window scrolls, and an overflow container
-            would stop the table of contents from sticking. */}
-        <div className="flex-grow-1">
-          <div className="mx-auto px-4 px-lg-5 py-4" style={{ maxWidth: showToc ? '74rem' : '56rem' }}>
-            <div className={showToc ? 'pb-incident-layout' : ''}>
-              <div className="min-w-0">
-                <Link
-                  to="/dashboard"
-                  className="small text-decoration-none d-inline-flex align-items-center gap-2 mb-4"
-                  style={{ color: 'var(--pb-text-muted)' }}
-                >
-                  <i className="fa-solid fa-arrow-left" style={{ fontSize: '0.7rem' }}></i> Retour aux coelbooks
-                </Link>
-
-                {error && (
-                  <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
-                    {error}
-                  </div>
-                )}
-
-                {loading && (
-                  <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Chargement du coelbook…
-                  </div>
-                )}
-
-                {!loading && notFound && (
-                  <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
-                    <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
-                    Ce coelbook n&apos;existe pas ou a été supprimé.
-                  </div>
-                )}
-
-                {!loading && incident && (
-                  <article>
-                    <header className="mb-4">
-                      <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
-                        <span className={`badge-soft ${categoryBadgeClass(incident.category.slug)}`}>
-                          {incident.category.name}
-                        </span>
-                        <span className={`badge-soft ${STATUS_BADGE[incident.status]}`}>
-                          <span className="badge-dot"></span> {STATUS_LABEL[incident.status]}
-                        </span>
-                      </div>
-
-                      <div className="d-flex align-items-start justify-content-between gap-3 mb-2">
-                        <h1 className="h3 fw-bold mb-0">{incident.title}</h1>
-                        <Link
-                          to={`/incidents/${incident.slug}/edit`}
-                          className="btn btn-sm btn-outline-secondary fw-medium flex-shrink-0 d-flex align-items-center gap-2"
-                        >
-                          <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i> Modifier
-                        </Link>
-                      </div>
-
-                      {incident.summary && (
-                        <p className="mb-3" style={{ color: 'var(--pb-text-muted)', lineHeight: 1.6 }}>
-                          {incident.summary}
-                        </p>
-                      )}
-
-                      <div className="d-flex align-items-center gap-3 flex-wrap small" style={{ color: 'var(--pb-text-muted)' }}>
-                        <span className="fw-medium">
-                          {incident.author.first_name} {incident.author.last_name}
-                        </span>
-                        <span className="d-flex align-items-center gap-1">
-                          <i className="fa-regular fa-clock" style={{ fontSize: '0.65rem' }}></i>
-                          Mis à jour {timeAgo(incident.updated_at)}
-                        </span>
-                      </div>
-
-                      {incident.tags.length > 0 && (
-                        <div className="d-flex flex-wrap gap-2 mt-3">
-                          {incident.tags.map((tag) => (
-                            <span key={tag} className="tag-pill px-2 py-1 rounded-2" style={{ fontSize: '0.7rem' }}>
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </header>
-
-                    {showToc && (
-                      <details className="pb-toc-mobile pb-card border rounded-4 p-3 mb-3 d-xl-none">
-                        <summary className="small fw-semibold d-flex align-items-center gap-2">
-                          <i className="fa-solid fa-chevron-right pb-toc-chevron" style={{ fontSize: '0.6rem' }}></i>
-                          Sommaire
-                        </summary>
-                        <nav className="mt-2" aria-label="Sommaire">
-                          <TableOfContents entries={toc} activeId={activeId} />
-                        </nav>
-                      </details>
-                    )}
-
-                    {sections.length === 0 && incident.snippets.length === 0 && incident.links.length === 0 && (
-                      <div className="pb-card border rounded-4 p-4 small" style={{ color: 'var(--pb-text-muted)' }}>
-                        Ce coelbook n&apos;a pas encore de contenu.
-                      </div>
-                    )}
-
-                    <div className="d-flex flex-column gap-3">
-                      {sections.map((section) => (
-                        <section key={section.key} id={sectionId(section.label)} className="pb-card pb-anchor border rounded-4 p-4">
-                          <h2 className="fs-6 fw-semibold d-flex align-items-center gap-2 mb-3">
-                            <i className={`fa-solid ${section.icon}`} style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
-                            {section.label}
-                          </h2>
-                          <div className="small">
-                            <Markdown headingIdPrefix={sectionId(section.label)}>{incident[section.key]}</Markdown>
-                          </div>
-                        </section>
-                      ))}
-
-                      {incident.snippets.length > 0 && (
-                        <section id={SNIPPETS_ID} className="pb-card pb-anchor border rounded-4 p-4">
-                          <h2 className="fs-6 fw-semibold d-flex align-items-center gap-2 mb-3">
-                            <i className="fa-solid fa-code" style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
-                            Snippets
-                          </h2>
-                          <div className="d-flex flex-column gap-3">
-                            {incident.snippets.map((snippet) => (
-                              <CodeBlock key={snippet.id} title={snippet.title} language={snippet.language} code={snippet.content} />
-                            ))}
-                          </div>
-                        </section>
-                      )}
-
-                      {incident.links.length > 0 && (
-                        <section id={LINKS_ID} className="pb-card pb-anchor border rounded-4 p-4">
-                          <h2 className="fs-6 fw-semibold d-flex align-items-center gap-2 mb-3">
-                            <i className="fa-solid fa-link" style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
-                            Liens
-                          </h2>
-                          <ul className="list-unstyled d-flex flex-column gap-2 mb-0 small">
-                            {incident.links.map((link) => (
-                              <li key={link.id}>
-                                <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
-                                  {link.title}
-                                  <i className="fa-solid fa-arrow-up-right-from-square ms-2" style={{ fontSize: '0.6rem' }}></i>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </section>
-                      )}
-                    </div>
-                  </article>
-                )}
+            {error && (
+              <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
+                {error}
               </div>
+            )}
 
-              {showToc && (
-                <aside className="d-none d-xl-block">
-                  <nav className="pb-toc-aside" aria-label="Sommaire">
-                    <div className="text-uppercase fw-semibold mb-2 px-2" style={{ fontSize: '0.625rem', letterSpacing: '0.08em', color: 'var(--pb-text-muted)' }}>
-                      Sommaire
+            {loading && (
+              <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Chargement du coelbook…
+              </div>
+            )}
+
+            {!loading && notFound && (
+              <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
+                <i className="fa-solid fa-book-bookmark mb-3 d-block" style={{ fontSize: '1.5rem' }}></i>
+                Ce coelbook n&apos;existe pas ou a été supprimé.
+              </div>
+            )}
+
+            {!loading && incident && (
+              <article>
+                <header className="mb-4">
+                  <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                    <span className={`badge-soft ${categoryBadgeClass(incident.category.slug)}`}>
+                      {incident.category.name}
+                    </span>
+                    <span className={`badge-soft ${STATUS_BADGE[incident.status]}`}>
+                      <span className="badge-dot"></span> {STATUS_LABEL[incident.status]}
+                    </span>
+                  </div>
+
+                  <div className="d-flex align-items-start justify-content-between gap-3 mb-2">
+                    <h1 className="h3 fw-bold mb-0">{incident.title}</h1>
+                    <Link
+                      to={`/incidents/${incident.slug}/edit`}
+                      className="btn btn-sm btn-outline-secondary fw-medium flex-shrink-0 d-flex align-items-center gap-2"
+                    >
+                      <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i> Modifier
+                    </Link>
+                  </div>
+
+                  {incident.summary && (
+                    <p className="mb-3" style={{ color: 'var(--pb-text-muted)', lineHeight: 1.6 }}>
+                      {incident.summary}
+                    </p>
+                  )}
+
+                  <div className="d-flex align-items-center gap-3 flex-wrap small" style={{ color: 'var(--pb-text-muted)' }}>
+                    <span className="fw-medium">
+                      {incident.author.first_name} {incident.author.last_name}
+                    </span>
+                    <span className="d-flex align-items-center gap-1">
+                      <i className="fa-regular fa-clock" style={{ fontSize: '0.65rem' }}></i>
+                      Mis à jour {timeAgo(incident.updated_at)}
+                    </span>
+                  </div>
+
+                  {incident.tags.length > 0 && (
+                    <div className="d-flex flex-wrap gap-2 mt-3">
+                      {incident.tags.map((tag) => (
+                        <span key={tag} className="tag-pill px-2 py-1 rounded-2" style={{ fontSize: '0.7rem' }}>
+                          {tag}
+                        </span>
+                      ))}
                     </div>
-                    <TableOfContents entries={toc} activeId={activeId} />
-                  </nav>
-                </aside>
-              )}
-            </div>
+                  )}
+                </header>
+
+                {showToc && (
+                  <details className="pb-toc-mobile pb-card border rounded-4 p-3 mb-3 d-xl-none">
+                    <summary className="small fw-semibold d-flex align-items-center gap-2">
+                      <i className="fa-solid fa-chevron-right pb-toc-chevron" style={{ fontSize: '0.6rem' }}></i>
+                      Sommaire
+                    </summary>
+                    <nav className="mt-2" aria-label="Sommaire">
+                      <TableOfContents entries={toc} activeId={activeId} />
+                    </nav>
+                  </details>
+                )}
+
+                {sections.length === 0 && incident.snippets.length === 0 && incident.links.length === 0 && (
+                  <div className="pb-card border rounded-4 p-4 small" style={{ color: 'var(--pb-text-muted)' }}>
+                    Ce coelbook n&apos;a pas encore de contenu.
+                  </div>
+                )}
+
+                <div className="d-flex flex-column gap-3">
+                  {sections.map((section) => (
+                    <section key={section.key} id={sectionId(section.label)} className="pb-card pb-anchor border rounded-4 p-4">
+                      <h2 className="fs-6 fw-semibold d-flex align-items-center gap-2 mb-3">
+                        <i className={`fa-solid ${section.icon}`} style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
+                        {section.label}
+                      </h2>
+                      <div className="small">
+                        <Markdown headingIdPrefix={sectionId(section.label)}>{incident[section.key]}</Markdown>
+                      </div>
+                    </section>
+                  ))}
+
+                  {incident.snippets.length > 0 && (
+                    <section id={SNIPPETS_ID} className="pb-card pb-anchor border rounded-4 p-4">
+                      <h2 className="fs-6 fw-semibold d-flex align-items-center gap-2 mb-3">
+                        <i className="fa-solid fa-code" style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
+                        Snippets
+                      </h2>
+                      <div className="d-flex flex-column gap-3">
+                        {incident.snippets.map((snippet) => (
+                          <CodeBlock key={snippet.id} title={snippet.title} language={snippet.language} code={snippet.content} />
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {incident.links.length > 0 && (
+                    <section id={LINKS_ID} className="pb-card pb-anchor border rounded-4 p-4">
+                      <h2 className="fs-6 fw-semibold d-flex align-items-center gap-2 mb-3">
+                        <i className="fa-solid fa-link" style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
+                        Liens
+                      </h2>
+                      <ul className="list-unstyled d-flex flex-column gap-2 mb-0 small">
+                        {incident.links.map((link) => (
+                          <li key={link.id}>
+                            <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
+                              {link.title}
+                              <i className="fa-solid fa-arrow-up-right-from-square ms-2" style={{ fontSize: '0.6rem' }}></i>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+                </div>
+              </article>
+            )}
           </div>
+
+          {showToc && (
+            <aside className="d-none d-xl-block">
+              <nav className="pb-toc-aside" aria-label="Sommaire">
+                <div className="text-uppercase fw-semibold mb-2 px-2" style={{ fontSize: '0.625rem', letterSpacing: '0.08em', color: 'var(--pb-text-muted)' }}>
+                  Sommaire
+                </div>
+                <TableOfContents entries={toc} activeId={activeId} />
+              </nav>
+            </aside>
+          )}
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   )
 }

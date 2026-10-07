@@ -12,8 +12,7 @@ import {
   type Category,
   type CategoryWriteRequest,
 } from '../api'
-import Sidebar from '../components/Sidebar'
-import Topbar from '../components/Topbar'
+import AppLayout from '../components/AppLayout'
 
 const SECTION = { label: 'Catégories', to: '/categories' }
 
@@ -91,62 +90,54 @@ export default function CategoriesView() {
   }
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar />
+    <AppLayout section={SECTION}>
+      <div className="mx-auto px-4 px-lg-5 py-4" style={{ maxWidth: '56rem' }}>
+        <div className="mb-4">
+          <h1 className="h4 fw-bold mb-1">Catégories</h1>
+          <p className="small mb-0" style={{ color: 'var(--pb-text-muted)' }}>
+            Les grands domaines techniques qui regroupent vos coelbooks.
+          </p>
+        </div>
 
-      <main className="flex-grow-1 d-flex flex-column min-w-0" style={{ backgroundColor: 'var(--pb-bg)' }}>
-        <Topbar section={SECTION} />
+        {loadError && (
+          <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
+            {loadError}
+          </div>
+        )}
 
-        <div className="flex-grow-1 overflow-y-auto">
-          <div className="mx-auto px-4 px-lg-5 py-4" style={{ maxWidth: '56rem' }}>
-            <div className="mb-4">
-              <h1 className="h4 fw-bold mb-1">Catégories</h1>
-              <p className="small mb-0" style={{ color: 'var(--pb-text-muted)' }}>
-                Les grands domaines techniques qui regroupent vos coelbooks.
-              </p>
-            </div>
+        {!loadError && categories === null && (
+          <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Chargement des catégories…
+          </div>
+        )}
 
-            {loadError && (
-              <div className="badge-danger-soft rounded-3 small mb-4 py-2 px-3" role="alert">
-                {loadError}
+        {categories !== null && (
+          <div className="d-flex flex-column gap-3">
+            <CreateCategoryForm onCreated={(c) => upsert(c)} onAuthError={handleAuth} />
+
+            {categories.length === 0 ? (
+              <div className="pb-card border rounded-4 p-4 small text-center" style={{ color: 'var(--pb-text-muted)' }}>
+                Aucune catégorie pour l&apos;instant. Créez-en une pour pouvoir rédiger votre premier coelbook.
               </div>
-            )}
-
-            {!loadError && categories === null && (
-              <div className="text-center py-5" style={{ color: 'var(--pb-text-muted)' }}>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Chargement des catégories…
-              </div>
-            )}
-
-            {categories !== null && (
-              <div className="d-flex flex-column gap-3">
-                <CreateCategoryForm onCreated={(c) => upsert(c)} onAuthError={handleAuth} />
-
-                {categories.length === 0 ? (
-                  <div className="pb-card border rounded-4 p-4 small text-center" style={{ color: 'var(--pb-text-muted)' }}>
-                    Aucune catégorie pour l&apos;instant. Créez-en une pour pouvoir rédiger votre premier coelbook.
-                  </div>
-                ) : (
-                  <ul className="pb-card border rounded-4 list-unstyled mb-0">
-                    {categories.map((category, i) => (
-                      <CategoryRow
-                        key={category.slug}
-                        category={category}
-                        isLast={i === categories.length - 1}
-                        onUpdated={(c) => upsert(c, category.slug)}
-                        onDeleted={() => remove(category.slug)}
-                        onAuthError={handleAuth}
-                      />
-                    ))}
-                  </ul>
-                )}
-              </div>
+            ) : (
+              <ul className="pb-card border rounded-4 list-unstyled mb-0">
+                {categories.map((category, i) => (
+                  <CategoryRow
+                    key={category.slug}
+                    category={category}
+                    isLast={i === categories.length - 1}
+                    onUpdated={(c) => upsert(c, category.slug)}
+                    onDeleted={() => remove(category.slug)}
+                    onAuthError={handleAuth}
+                  />
+                ))}
+              </ul>
             )}
           </div>
-        </div>
-      </main>
-    </div>
+        )}
+      </div>
+    </AppLayout>
   )
 }
 

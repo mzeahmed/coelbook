@@ -24,7 +24,7 @@ RESET  := \033[0m
         tidy update \
         clean doctor \
         hosts-add hosts-remove up down restart logs ps bash \
-        module \
+        module commit \
         migrate-up migrate-down sqlc
 
 help: ## Show available commands
@@ -81,6 +81,18 @@ module: ## Scaffold a new backend module | make module m="module_name"
 		./scripts/create-module.sh ${m}; \
 	else \
 		echo "$(RED)(m) param is required (make module m='module_name') $(RESET)"; \
+	fi
+
+# ==============================================================================
+# Git
+# ==============================================================================
+
+commit: ## Commit and push changes | make commit m="message" b="branch"
+	@if [ -n "$(m)" ] && [ -n "$(b)" ]; then \
+		./scripts/commit.sh "$(m)" "$(b)"; \
+	else \
+		echo "$(RED)(m) and (b) params are required (make commit m='message' b='branch') $(RESET)"; \
+		exit 1; \
 	fi
 
 # ==============================================================================

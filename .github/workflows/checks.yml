@@ -1,11 +1,13 @@
 # Continuous integration: verifies every push and pull request builds,
 # is formatted, passes go vet, and passes the test suite.
-name: CI
+name: Checks
 
-# Run on every push and every pull request, regardless of branch.
+# Run on pushes to any branch but main, and on every pull request. main
+# only receives code through pull requests, which were already checked
+# here before merging, so re-running on the merge push would be redundant.
 on:
   push:
-    branches:
+    branches-ignore:
       - main
 
   pull_request:
@@ -15,8 +17,8 @@ permissions:
   contents: read
 
 jobs:
-  ci:
-    name: CI
+  api:
+    name: API checks
     runs-on: ubuntu-latest
     defaults:
       run:

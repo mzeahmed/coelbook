@@ -300,7 +300,7 @@ make help
 | [docs/development.md](docs/development.md) | Development guide: layout, conventions, error codes, workflow |
 | [docs/architecture/domain.md](docs/architecture/domain.md) | Domain model: core concepts, entities, terminology |
 | [docs/architecture/data-model.md](docs/architecture/data-model.md) | Data model: entities, fields, relationships |
-| [docs/architecture/roadmap.md](docs/architecture/roadmap.md) | Roadmap: what is done and what is planned |
+| [docs/architecture/roadmap.md](docs/architecture/roadmap.md) | Roadmap by theme: what is done, what is next |
 | [docs/releases/versioning.md](docs/releases/versioning.md) | Versioning strategy and release process |
 | [CHANGELOG.md](CHANGELOG.md) | Changes in each release |
 

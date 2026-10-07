@@ -1,4 +1,9 @@
 -- name: ListIncidents :many
+-- With a query, results are ordered by full-text relevance, and the title
+-- and summary come back with matched terms wrapped in U+E000 / U+E001
+-- (private-use characters, so they can't clash with real content and
+-- the client renders them as highlights without parsing HTML). Without a
+-- query, results are ordered by date and the highlight columns are empty.
 SELECT
     i.id,
     i.title,
@@ -17,7 +22,15 @@ SELECT
          JOIN tags t ON t.id = it.tag_id
          WHERE it.incident_id = i.id),
         '{}'::text[]
-    ) AS tags
+    ) AS tags,
+    (CASE WHEN sqlc.arg(query)::text = '' THEN ''
+        ELSE ts_headline('coelbook', i.title, websearch_to_tsquery('coelbook', sqlc.arg(query)::text),
+            'HighlightAll=true, StartSel=' || chr(57344) || ', StopSel=' || chr(57345))
+    END)::text AS title_highlight,
+    (CASE WHEN sqlc.arg(query)::text = '' THEN ''
+        ELSE ts_headline('coelbook', coalesce(i.summary, ''), websearch_to_tsquery('coelbook', sqlc.arg(query)::text),
+            'HighlightAll=true, StartSel=' || chr(57344) || ', StopSel=' || chr(57345))
+    END)::text AS summary_highlight
 FROM incidents i
 JOIN categories c ON c.id = i.category_id
 JOIN users u ON u.id = i.created_by
@@ -29,8 +42,22 @@ WHERE (sqlc.arg(category)::text = '' OR c.slug = sqlc.arg(category)::text)
         JOIN tags t2 ON t2.id = it2.tag_id
         WHERE it2.incident_id = i.id AND t2.slug = sqlc.arg(tag)::text
     ))
-    AND (sqlc.arg(query)::text = '' OR i.title ILIKE '%' || sqlc.arg(query)::text || '%' OR i.summary ILIKE '%' || sqlc.arg(query)::text || '%')
-ORDER BY i.created_at DESC
+    AND (sqlc.arg(query)::text = ''
+        OR i.search_vector @@ websearch_to_tsquery('coelbook', sqlc.arg(query)::text)
+        -- Substring fallbacks: partial words while typing ("postg"), and
+        -- snippet content, which is code and isn't in search_vector.
+        OR i.title ILIKE '%' || sqlc.arg(query)::text || '%'
+        OR i.summary ILIKE '%' || sqlc.arg(query)::text || '%'
+        OR EXISTS (
+            SELECT 1
+            FROM snippets s
+            WHERE s.incident_id = i.id AND s.content ILIKE '%' || sqlc.arg(query)::text || '%'
+        ))
+ORDER BY
+    (CASE WHEN sqlc.arg(query)::text = '' THEN 0
+        ELSE ts_rank(i.search_vector, websearch_to_tsquery('coelbook', sqlc.arg(query)::text))
+    END) DESC,
+    i.created_at DESC
 LIMIT sqlc.arg(page_limit) OFFSET sqlc.arg(page_offset);
 
 -- name: CountIncidents :one
@@ -45,7 +72,18 @@ WHERE (sqlc.arg(category)::text = '' OR c.slug = sqlc.arg(category)::text)
         JOIN tags t2 ON t2.id = it2.tag_id
         WHERE it2.incident_id = i.id AND t2.slug = sqlc.arg(tag)::text
     ))
-    AND (sqlc.arg(query)::text = '' OR i.title ILIKE '%' || sqlc.arg(query)::text || '%' OR i.summary ILIKE '%' || sqlc.arg(query)::text || '%');
+    AND (sqlc.arg(query)::text = ''
+        OR i.search_vector @@ websearch_to_tsquery('coelbook', sqlc.arg(query)::text)
+        -- Substring fallbacks: partial words while typing ("postg"), and
+        -- snippet content, which is code and isn't in search_vector.
+        OR i.title ILIKE '%' || sqlc.arg(query)::text || '%'
+        OR i.summary ILIKE '%' || sqlc.arg(query)::text || '%'
+        OR EXISTS (
+            SELECT 1
+            FROM snippets s
+            WHERE s.incident_id = i.id AND s.content ILIKE '%' || sqlc.arg(query)::text || '%'
+        ));
+
 -- name: GetIncidentBySlug :one
 SELECT
     i.id,
@@ -119,3 +157,10 @@ SET title       = sqlc.arg(title),
     updated_at  = now()
 WHERE slug = sqlc.arg(slug)
 RETURNING id;
+
+-- name: RefreshIncidentSearchVector :exec
+-- Rebuilds the incident's full-text document; call it after any change to
+-- the incident, its tags or its snippets (see incident_search_vector()).
+UPDATE incidents
+SET search_vector = incident_search_vector(id)
+WHERE id = sqlc.arg(id);

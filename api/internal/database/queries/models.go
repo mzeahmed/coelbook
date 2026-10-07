@@ -114,6 +114,8 @@ type Incident struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	// Last update date.
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	// Weighted full-text document of the incident, its tags and snippet titles. Refreshed with incident_search_vector() whenever the incident is written.
+	SearchVector interface{} `json:"search_vector"`
 }
 
 // Many-to-many relationship between incidents and tags.

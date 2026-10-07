@@ -34,10 +34,18 @@ type Querier interface {
 	ListCategories(ctx context.Context) ([]ListCategoriesRow, error)
 	ListIncidentLinks(ctx context.Context, incidentID int64) ([]ListIncidentLinksRow, error)
 	ListIncidentSnippets(ctx context.Context, incidentID int64) ([]ListIncidentSnippetsRow, error)
+	// With a query, results are ordered by full-text relevance, and the title
+	// and summary come back with matched terms wrapped in U+E000 / U+E001
+	// (private-use characters, so they can't clash with real content and
+	// the client renders them as highlights without parsing HTML). Without a
+	// query, results are ordered by date and the highlight columns are empty.
 	ListIncidents(ctx context.Context, arg ListIncidentsParams) ([]ListIncidentsRow, error)
 	// Tags attached to at least one incident; orphans (left behind when an
 	// incident drops its last use of a tag) are omitted.
 	ListUsedTags(ctx context.Context) ([]Tag, error)
+	// Rebuilds the incident's full-text document; call it after any change to
+	// the incident, its tags or its snippets (see incident_search_vector()).
+	RefreshIncidentSearchVector(ctx context.Context, id int64) error
 	// The slug is deliberately left unchanged so existing links keep working
 	// when the title is edited.
 	UpdateIncident(ctx context.Context, arg UpdateIncidentParams) (int64, error)

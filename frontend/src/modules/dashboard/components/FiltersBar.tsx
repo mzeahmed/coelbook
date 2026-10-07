@@ -45,8 +45,8 @@ export default function FiltersBar({
         ></i>
         <input
           type="text"
-          placeholder="Filtrer par mot-clé…"
-          aria-label="Filtrer par mot-clé"
+          placeholder="Rechercher dans les coelbooks…"
+          aria-label="Rechercher dans les coelbooks"
           className="form-control form-control-sm rounded-3 ps-4"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}

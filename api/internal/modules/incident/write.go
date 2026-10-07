@@ -72,6 +72,11 @@ func (s *Service) Create(ctx context.Context, userID int64, req WriteRequest) (D
 		return Detail{}, err
 	}
 
+	// Last, so the full-text document sees the new tags and snippets.
+	if err := q.RefreshIncidentSearchVector(ctx, id); err != nil {
+		return Detail{}, err
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return Detail{}, err
 	}
@@ -130,6 +135,11 @@ func (s *Service) Update(ctx context.Context, slug string, req WriteRequest) (De
 	}
 
 	if err := setLinks(ctx, q, id, req.Links); err != nil {
+		return Detail{}, err
+	}
+
+	// Last, so the full-text document sees the new tags and snippets.
+	if err := q.RefreshIncidentSearchVector(ctx, id); err != nil {
 		return Detail{}, err
 	}
 

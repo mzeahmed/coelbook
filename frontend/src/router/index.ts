@@ -42,10 +42,12 @@ async function guard(routeName: 'setup' | 'login' | 'forgot-password' | 'reset-p
   return null
 }
 
-// The incident page and form pull in Markdown rendering and syntax
-// highlighting; they're loaded on first visit so the login screen and
-// dashboard don't download them.
+// The incident page and form (and the help page, which shows Markdown
+// examples) pull in Markdown rendering and syntax highlighting; they're
+// loaded on first visit so the login screen and dashboard don't download
+// them.
 const IncidentView = () => import('@/modules/dashboard/views/IncidentView').then((m) => ({ Component: m.default }))
+const HelpView = () => import('@/modules/dashboard/views/HelpView').then((m) => ({ Component: m.default }))
 const IncidentFormView = () =>
   import('@/modules/dashboard/views/IncidentFormView').then((m) => ({ Component: m.default }))
 
@@ -83,6 +85,11 @@ const router = createBrowserRouter([
     path: '/overview',
     loader: () => (getToken() ? null : redirect('/login')),
     Component: OverviewView,
+  },
+  {
+    path: '/help',
+    loader: () => (getToken() ? null : redirect('/login')),
+    lazy: HelpView,
   },
   {
     path: '/categories',

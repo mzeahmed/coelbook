@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import type { IncidentSummary } from '../api'
 import { categoryBadgeClass, STATUS_BADGE, STATUS_LABEL, timeAgo } from '../lib/format'
+import Highlighted from './Highlighted'
 
 interface IncidentCardProps {
   incident: IncidentSummary
@@ -26,11 +27,11 @@ export default function IncidentCard({ incident }: IncidentCardProps) {
         </div>
 
         <h3 className="fs-6 fw-semibold mb-0" style={{ lineHeight: 1.35 }}>
-          {incident.title}
+          <Highlighted text={incident.highlight?.title ?? incident.title} />
         </h3>
 
         <p className="small mt-3 mb-3" style={{ color: 'var(--pb-text-muted)', lineHeight: 1.5 }}>
-          {incident.summary}
+          <Highlighted text={incident.highlight?.summary ?? incident.summary} />
         </p>
 
         {incident.tags.length > 0 && (

@@ -34,7 +34,23 @@ type Summary struct {
 	Tags      []string `json:"tags"`
 	CreatedAt string   `json:"created_at"`
 	UpdatedAt string   `json:"updated_at"`
+	// Highlight is only set in a listing filtered by a search query.
+	Highlight *Highlight `json:"highlight,omitempty"`
 }
+
+// Highlight holds the title and summary of a search result with each
+// matched term wrapped in HighlightStart / HighlightEnd.
+type Highlight struct {
+	Title   string `json:"title"`
+	Summary string `json:"summary"`
+}
+
+// Markers around matched terms in Highlight. They are Unicode private-use
+// characters, so they never occur in real content and need no escaping.
+const (
+	HighlightStart = "\uE000"
+	HighlightEnd   = "\uE001"
+)
 
 // ListFilter holds the optional filters accepted by GET /incidents.
 type ListFilter struct {

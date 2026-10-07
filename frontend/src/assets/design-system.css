@@ -449,3 +449,11 @@ body {
 .hljs-strong {
   font-weight: 600;
 }
+
+/* Matched search terms in incident cards (Highlighted component) */
+.pb-mark {
+  background-color: rgba(245, 158, 11, 0.25);
+  color: inherit;
+  border-radius: 0.2rem;
+  padding: 0 0.1rem;
+}

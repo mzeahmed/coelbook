@@ -24,7 +24,19 @@ export interface IncidentSummary {
   tags: string[]
   created_at: string
   updated_at: string
+  // Only set in a listing filtered by a search query; see Highlighted.
+  highlight?: IncidentHighlight
 }
+
+// Title and summary of a search result with each matched term wrapped in
+// HIGHLIGHT_START / HIGHLIGHT_END.
+export interface IncidentHighlight {
+  title: string
+  summary: string
+}
+
+export const HIGHLIGHT_START = '\uE000'
+export const HIGHLIGHT_END = '\uE001'
 
 export interface ListIncidentsResult {
   incidents: IncidentSummary[]

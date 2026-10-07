@@ -23,7 +23,7 @@ export default function LoginView() {
     try {
       const result = await login({ email, password })
       saveSession(result.token, result.user, rememberMe)
-      navigate('/dashboard')
+      navigate('/overview')
     } catch (err) {
       setError(errorMessage(err))
     } finally {

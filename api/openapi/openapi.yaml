@@ -21,6 +21,8 @@ tags:
     description: Incident categories (requires authentication). Setup creates a default set.
   - name: Tags
     description: Incident tags (requires authentication)
+  - name: Stats
+    description: Overview figures (requires authentication)
 
 components:
   securitySchemes:
@@ -429,6 +431,88 @@ components:
           type: string
           maxLength: 500
       required: [name]
+
+    NamedCount:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        incident_count:
+          type: integer
+          format: int64
+      required: [name, slug, incident_count]
+
+    Stats:
+      type: object
+      description: >
+        Overview figures, computed in one consistent snapshot. Counts
+        include incidents of every status.
+      properties:
+        total:
+          type: integer
+          format: int64
+        by_status:
+          type: object
+          description: Always has the draft, published and archived keys.
+          properties:
+            draft:
+              type: integer
+              format: int64
+            published:
+              type: integer
+              format: int64
+            archived:
+              type: integer
+              format: int64
+          required: [draft, published, archived]
+        categories:
+          type: array
+          description: Every category, sorted by name.
+          items:
+            $ref: "#/components/schemas/NamedCount"
+        top_tags:
+          type: array
+          description: Up to 10 most used tags, most used first.
+          items:
+            $ref: "#/components/schemas/NamedCount"
+        recent:
+          type: array
+          description: Up to 5 most recently updated incidents.
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              slug:
+                type: string
+              status:
+                type: string
+                enum: [draft, published, archived]
+              category:
+                $ref: "#/components/schemas/IncidentCategory"
+              updated_at:
+                type: string
+                format: date-time
+            required: [title, slug, status, category, updated_at]
+        activity:
+          type: array
+          description: >
+            Incidents created per week over the last 12 weeks including the
+            current one, oldest first; empty weeks are included.
+          items:
+            type: object
+            properties:
+              week_start:
+                type: string
+                format: date
+                description: Monday the week starts on.
+              total:
+                type: integer
+                format: int64
+            required: [week_start, total]
+      required: [total, by_status, categories, top_tags, recent, activity]
 
     Tag:
       type: object
@@ -984,6 +1068,30 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/Tag"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [Stats]
+      summary: Overview figures for the dashboard
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: The figures.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Stats"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "500":

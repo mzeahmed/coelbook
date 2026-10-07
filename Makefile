@@ -39,7 +39,7 @@ help: ## Show available commands
 # ==============================================================================
 
 run: ## Run the API server
-	cd api && go run ./cmd/api
+	cd api && go run ./cmd
 
 build: ## Build the local binary
 	@mkdir -p api/bin

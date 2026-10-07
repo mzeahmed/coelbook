@@ -8,6 +8,7 @@ import ForgotPasswordView from '@/modules/auth/views/ForgotPasswordView'
 import ResetPasswordView from '@/modules/auth/views/ResetPasswordView'
 import DashboardView from '@/modules/dashboard/views/DashboardView'
 import CategoriesView from '@/modules/dashboard/views/CategoriesView'
+import OverviewView from '@/modules/dashboard/views/OverviewView'
 
 // The API is the single source of truth for initialization state, so
 // every navigation re-checks it instead of trusting anything cached
@@ -35,7 +36,7 @@ async function guard(routeName: 'setup' | 'login' | 'forgot-password' | 'reset-p
 
   // Already signed in: /login has nothing left to do.
   if (routeName === 'login' && getToken()) {
-    return redirect('/dashboard')
+    return redirect('/overview')
   }
 
   return null
@@ -51,7 +52,7 @@ const IncidentFormView = () =>
 const router = createBrowserRouter([
   {
     path: '/',
-    loader: () => redirect('/login'),
+    loader: () => redirect(getToken() ? '/overview' : '/login'),
   },
   {
     path: '/setup',
@@ -77,6 +78,11 @@ const router = createBrowserRouter([
     path: '/dashboard',
     loader: () => (getToken() ? null : redirect('/login')),
     Component: DashboardView,
+  },
+  {
+    path: '/overview',
+    loader: () => (getToken() ? null : redirect('/login')),
+    Component: OverviewView,
   },
   {
     path: '/categories',

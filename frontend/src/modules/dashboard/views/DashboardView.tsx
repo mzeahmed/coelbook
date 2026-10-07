@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
 import { errorMessage } from '@/http/errors'
@@ -16,11 +16,28 @@ const PER_PAGE = 9
 export default function DashboardView() {
   const navigate = useNavigate()
 
-  const [search, setSearch] = useState('')
-  const [category, setCategory] = useState('')
-  const [status, setStatus] = useState('')
-  const [tag, setTag] = useState('')
-  const [page, setPage] = useState(1)
+  // Filters live in the URL (?q=&category=&status=&tag=&page=) so a
+  // filtered list can be linked to — the overview's category and tag links
+  // land here — shared, and survives a reload. They're read once on mount
+  // and written back on every change.
+  const [params, setParams] = useSearchParams()
+  const [search, setSearch] = useState(() => params.get('q') ?? '')
+  const [category, setCategory] = useState(() => params.get('category') ?? '')
+  const [status, setStatus] = useState(() => params.get('status') ?? '')
+  const [tag, setTag] = useState(() => params.get('tag') ?? '')
+  const [page, setPage] = useState(() => Math.max(1, Number(params.get('page')) || 1))
+
+  useEffect(() => {
+    const next = new URLSearchParams()
+    if (search) next.set('q', search)
+    if (category) next.set('category', category)
+    if (status) next.set('status', status)
+    if (tag) next.set('tag', tag)
+    if (page > 1) next.set('page', String(page))
+
+    // replace: typing in the search box shouldn't fill the history.
+    setParams(next, { replace: true })
+  }, [search, category, status, tag, page, setParams])
 
   const [incidents, setIncidents] = useState<IncidentSummary[]>([])
   const [total, setTotal] = useState(0)

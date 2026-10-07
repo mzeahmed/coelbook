@@ -18,7 +18,8 @@ const COPY_ICON: Record<CopyState, string> = {
 }
 
 interface CodeBlockProps {
-  title: string
+  // Omitted for code blocks inside Markdown, which have no title.
+  title?: string
   language: string
   code: string
 }

@@ -14,3 +14,11 @@ WHERE incident_id = sqlc.arg(incident_id);
 INSERT INTO incident_tags (incident_id, tag_id)
 VALUES (sqlc.arg(incident_id), sqlc.arg(tag_id))
 ON CONFLICT DO NOTHING;
+
+-- name: ListUsedTags :many
+-- Tags attached to at least one incident; orphans (left behind when an
+-- incident drops its last use of a tag) are omitted.
+SELECT t.id, t.name, t.slug
+FROM tags t
+WHERE EXISTS (SELECT 1 FROM incident_tags it WHERE it.tag_id = t.id)
+ORDER BY t.name;

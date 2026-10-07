@@ -65,6 +65,10 @@ Errors carry a **stable code** in `error` (e.g. `title_required`); `message` is 
 
 The specification lives in `api/openapi/`. Update it in the same change as the endpoint.
 
+The rationale for every declared npm and Go dependency is listed in
+[dependencies.md](dependencies.md). Consult it before adding, replacing or
+upgrading a dependency.
+
 ---
 
 # Frontend

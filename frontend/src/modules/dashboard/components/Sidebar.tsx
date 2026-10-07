@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import { clearSession, getUser } from '@/modules/auth/session'
 
@@ -8,11 +8,17 @@ interface SidebarProps {
   incidentCount?: number
 }
 
-// Nav items other than "Coelbooks" don't lead anywhere yet — they're
+// Nav items other than "Coelbooks" and "Catégories" don't lead anywhere yet — they're
 // rendered as inert buttons (not links) so the sidebar communicates the
 // product's intended shape without pretending to navigate somewhere.
 export default function Sidebar({ incidentCount }: SidebarProps) {
   const user = getUser()
+  const { pathname } = useLocation()
+
+  // Incident pages belong to the "Coelbooks" entry.
+  const section = pathname.startsWith('/categories') ? 'categories' : 'incidents'
+  const navClass = (active: boolean) =>
+    `pb-nav-link ${active ? 'active' : ''} d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none small`
 
   function handleSignOut() {
     clearSession()
@@ -57,7 +63,8 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
 
         <Link
           to="/dashboard"
-          className="pb-nav-link active d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none small"
+          className={navClass(section === 'incidents')}
+          aria-current={section === 'incidents' ? 'page' : undefined}
         >
           <i className="fa-solid fa-file-code text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Coelbooks</span>
@@ -71,13 +78,14 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           )}
         </Link>
 
-        <button
-          type="button"
-          className="pb-nav-link btn text-start d-flex align-items-center gap-3 px-3 py-2 rounded-3 small border-0"
+        <Link
+          to="/categories"
+          className={navClass(section === 'categories')}
+          aria-current={section === 'categories' ? 'page' : undefined}
         >
           <i className="fa-solid fa-folder-tree text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Catégories</span>
-        </button>
+        </Link>
 
         <button
           type="button"

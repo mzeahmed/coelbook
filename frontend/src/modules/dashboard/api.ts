@@ -148,8 +148,40 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export function listCategories(): Promise<IncidentCategory[]> {
-  return apiFetch<IncidentCategory[]>('/api/categories', { headers: authHeaders() })
+// Category is a category as listed by GET /categories (an incident only
+// carries its name and slug, see IncidentCategory).
+export interface Category extends IncidentCategory {
+  description: string
+  incident_count: number
+}
+
+export interface CategoryWriteRequest {
+  name: string
+  description: string
+}
+
+export function listCategories(): Promise<Category[]> {
+  return apiFetch<Category[]>('/api/categories', { headers: authHeaders() })
+}
+
+export function createCategory(payload: CategoryWriteRequest): Promise<Category> {
+  return apiFetch<Category>('/api/categories', { method: 'POST', payload, headers: authHeaders() })
+}
+
+// updateCategory renames the category identified by slug and replaces its
+// description; the slug itself never changes.
+export function updateCategory(slug: string, payload: CategoryWriteRequest): Promise<Category> {
+  return apiFetch<Category>(`/api/categories/${encodeURIComponent(slug)}`, {
+    method: 'PUT',
+    payload,
+    headers: authHeaders(),
+  })
+}
+
+// deleteCategory fails with the category_in_use error code while
+// incidents still belong to the category.
+export function deleteCategory(slug: string): Promise<null> {
+  return apiFetch<null>(`/api/categories/${encodeURIComponent(slug)}`, { method: 'DELETE', headers: authHeaders() })
 }
 
 export interface IncidentTag {

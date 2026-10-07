@@ -1,8 +1,9 @@
-import type { ReactElement, ReactNode } from 'react'
+import { useMemo, type ReactElement, type ReactNode } from 'react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 
+import { remarkHeadingIds } from '../lib/headings'
 import CodeBlock from './CodeBlock'
 
 // Link schemes allowed in Markdown. Anything else (javascript:, data:…) is
@@ -75,14 +76,26 @@ const components: Components = {
   ),
 }
 
+interface MarkdownProps {
+  children: string
+  // headingIdPrefix, when set, gives every heading an id (see
+  // lib/headings.ts) so a table of contents can link to it.
+  headingIdPrefix?: string
+}
+
 // Markdown renders user-written Markdown (GitHub flavor, single newlines
 // kept as line breaks). Raw HTML in the source is ignored, never rendered,
 // so the output can't inject markup or scripts.
-export default function Markdown({ children }: { children: string }) {
+export default function Markdown({ children, headingIdPrefix }: MarkdownProps) {
+  const remarkPlugins = useMemo(
+    () => (headingIdPrefix ? [remarkGfm, remarkBreaks, remarkHeadingIds(headingIdPrefix)] : [remarkGfm, remarkBreaks]),
+    [headingIdPrefix],
+  )
+
   return (
     <div className="pb-markdown">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkBreaks]}
+        remarkPlugins={remarkPlugins}
         skipHtml
         urlTransform={safeUrl}
         components={components}

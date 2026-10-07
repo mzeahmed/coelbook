@@ -16,11 +16,10 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
-1. Shared page layout: the sidebar stays in view on long pages — *Foundation*
-2. Quick search (command palette) — *Search & discovery*
-3. Production deployment: Docker image and compose file — *Production & releases*
-4. Tag management — *Organization*
-5. Incident history — *Authoring*
+1. Quick search (command palette) — *Search & discovery*
+2. Production deployment: Docker image and compose file — *Production & releases*
+3. Tag management — *Organization*
+4. Incident history — *Authoring*
 
 To decide: whether incidents can be **deleted**, or whether archiving remains the only way to retire one until roles exist (see *Authoring*).
 
@@ -37,7 +36,7 @@ To decide: whether incidents can be **deleted**, or whether archiving remains th
 - [x] Field-level validation feedback in forms
 - [x] Dashboard (key figures, recent activity, categories and tags)
 - [x] Documentation (README, user guide, development guide, in-app help)
-- [ ] Shared page layout *(each page repeats the sidebar + top bar shell; on long pages the window scrolls and the sidebar scrolls away)*
+- [x] Shared page layout (sidebar always in view, slide-in menu on mobile)
 
 ---
 

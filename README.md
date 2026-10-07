@@ -10,7 +10,7 @@
 
 <p align="center">
 
-[![Go Version](https://img.shields.io/github/go-mod/go-version/mzeahmed/coelbook?filename=backend%2Fgo.mod)](backend/go.mod)
+[![Go Version](https://img.shields.io/badge/Go-1.26.5-00ADD8?logo=go&logoColor=white)](backend/go.mod)
 [![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vite.dev)

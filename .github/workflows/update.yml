@@ -1,0 +1,47 @@
+# Back-merge: once a pull request is merged into main, merge main into
+# develop so develop always contains what was released (including the
+# squash commits main gets from merged pull requests).
+name: Update develop
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+# Pushing the merge commit to develop needs write access.
+permissions:
+  contents: write
+
+# Serialize runs so two pull requests merged in quick succession don't
+# race to push to develop.
+concurrency:
+  group: update-develop
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Merge main into develop
+    # "closed" also fires for pull requests closed without merging.
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          # Full history, so git can find the merge base with main.
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main
+        # On conflict the merge stops and the job fails without pushing;
+        # resolve it by hand with the same merge locally.
+        run: git merge --no-edit origin/main
+
+      - name: Push develop
+        run: git push origin develop

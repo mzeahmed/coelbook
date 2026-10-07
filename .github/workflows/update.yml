@@ -34,9 +34,13 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git identity
+        # The merge commit is authored as the repository owner, not as
+        # github-actions[bot]: feature branches start from develop, and a
+        # squash merge credits every author of the branch as a co-author, so
+        # a bot-authored commit here would list the bot as a contributor.
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Ahmed Mze"
+          git config user.email "45328592+mzeahmed@users.noreply.github.com"
 
       - name: Merge main
         # On conflict the merge stops and the job fails without pushing;

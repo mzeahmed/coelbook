@@ -303,12 +303,6 @@ body {
   color: var(--pb-primary);
 }
 
-.tag-pill.filter-active {
-  background-color: rgba(37, 99, 235, 0.1);
-  color: var(--pb-primary);
-  border-color: rgba(37, 99, 235, 0.3);
-}
-
 .pb-grid.list-view > .col {
   flex: 0 0 100%;
   max-width: 100%;

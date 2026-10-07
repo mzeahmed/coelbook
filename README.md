@@ -28,6 +28,10 @@ Coelbook is a technical knowledge capitalization platform that lets you document
 
 Every problem solved becomes knowledge you, your team, or an AI assistant can reuse.
 
+<p align="center">
+  <img src="assets/screenshots/dashboard.jpg" alt="Coelbook dashboard: key figures, recently updated incidents, weekly activity, incidents per category and most used tags" width="900">
+</p>
+
 ---
 
 # Why?
@@ -85,6 +89,42 @@ Reuse
 The goal is simple:
 
 > **Build your technical memory.**
+
+---
+
+# Screenshots
+
+The interface is in French. Screenshots are taken on demo data.
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="assets/screenshots/incident.jpg" alt="An incident page with its sections, a highlighted command and the table of contents">
+      <p align="center"><b>Incident page</b> — structured sections, highlighted code with a copy button, and a table of contents.</p>
+    </td>
+    <td width="50%">
+      <img src="assets/screenshots/command-palette.jpg" alt="The quick-search palette listing incidents that match postgresql">
+      <p align="center"><b>Quick search (Ctrl/⌘K)</b> — full-text search from any page, matches highlighted.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="assets/screenshots/list.jpg" alt="The incident list with search and category, status and tag filters">
+      <p align="center"><b>Incident list</b> — search and filters by category, status and tag.</p>
+    </td>
+    <td width="50%">
+      <img src="assets/screenshots/editor.jpg" alt="The incident editor with a section in Markdown and another in preview">
+      <p align="center"><b>Editor</b> — sections written in Markdown, with a live preview.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="assets/screenshots/tags.jpg" alt="The tag management page with incident counts">
+      <p align="center"><b>Tags</b> — rename, merge duplicates, clean up unused tags.</p>
+    </td>
+    <td width="50%"></td>
+  </tr>
+</table>
 
 ---
 

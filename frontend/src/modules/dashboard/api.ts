@@ -188,11 +188,59 @@ export interface IncidentTag {
   name: string
   // Value to pass as the tag filter of listIncidents.
   slug: string
+  incident_count: number
 }
 
-// listTags returns the tags used by at least one incident, sorted by name.
-export function listTags(): Promise<IncidentTag[]> {
-  return apiFetch<IncidentTag[]>('/api/tags', { headers: authHeaders() })
+// listTags returns tags sorted by name with their incident count: only the
+// used ones (what the filters need) unless includeUnused is set.
+export function listTags(includeUnused = false): Promise<IncidentTag[]> {
+  return apiFetch<IncidentTag[]>(`/api/tags${includeUnused ? '?include_unused=true' : ''}`, { headers: authHeaders() })
+}
+
+// renameTag renames a tag; its slug follows the new name. Fails with the
+// tag_exists error code when another tag already has that name: merge into
+// it instead (its slug is slugify(name)).
+export function renameTag(slug: string, name: string): Promise<IncidentTag> {
+  return apiFetch<IncidentTag>(`/api/tags/${encodeURIComponent(slug)}`, {
+    method: 'PUT',
+    payload: { name },
+    headers: authHeaders(),
+  })
+}
+
+// mergeTag moves every incident tagged slug onto the tag into, then
+// deletes slug. Returns the target tag with its new count.
+export function mergeTag(slug: string, into: string): Promise<IncidentTag> {
+  return apiFetch<IncidentTag>(`/api/tags/${encodeURIComponent(slug)}/merge`, {
+    method: 'POST',
+    payload: { into },
+    headers: authHeaders(),
+  })
+}
+
+// deleteTag removes a tag from every incident and deletes it.
+export function deleteTag(slug: string): Promise<null> {
+  return apiFetch<null>(`/api/tags/${encodeURIComponent(slug)}`, { method: 'DELETE', headers: authHeaders() })
+}
+
+// purgeUnusedTags deletes every tag no incident uses.
+export function purgeUnusedTags(): Promise<{ deleted: number }> {
+  return apiFetch<{ deleted: number }>('/api/tags?unused=true', { method: 'DELETE', headers: authHeaders() })
+}
+
+export interface InstanceSettings {
+  instance_name: string
+  // IANA time zone, e.g. "Europe/Paris".
+  timezone: string
+  locale: string
+}
+
+export function getSettings(): Promise<InstanceSettings> {
+  return apiFetch<InstanceSettings>('/api/settings', { headers: authHeaders() })
+}
+
+export function updateSettings(payload: InstanceSettings): Promise<InstanceSettings> {
+  return apiFetch<InstanceSettings>('/api/settings', { method: 'PUT', payload, headers: authHeaders() })
 }
 
 // createIncident stores a new incident authored by the signed-in user. The

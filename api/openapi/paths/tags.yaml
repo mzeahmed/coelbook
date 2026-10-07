@@ -8,7 +8,7 @@ servers:
   description: Local development server
 tags:
 - name: Tags
-  description: Incident tags (requires authentication)
+  description: Incident tags (requires authentication). Renaming, merging or deleting a tag reindexes the incidents using it.
 components:
   securitySchemes:
     BearerAuth:
@@ -70,6 +70,24 @@ components:
           - category_name_taken
           - category_not_found
           - category_in_use
+          - tag_not_found
+          - tag_name_required
+          - tag_name_too_long
+          - tag_name_invalid
+          - tag_exists
+          - tag_merge_target_required
+          - tag_merge_into_itself
+          - first_name_required
+          - last_name_required
+          - name_too_long
+          - invalid_email
+          - email_taken
+          - current_password_required
+          - wrong_current_password
+          - instance_name_too_long
+          - invalid_timezone
+          - invalid_locale
+          - not_initialized
         field:
           type: string
           description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.
@@ -93,9 +111,31 @@ components:
         slug:
           type: string
           description: Value to pass as the `tag` filter of GET /incidents.
+        incident_count:
+          type: integer
+          format: int64
+          description: Number of incidents using the tag.
       required:
       - name
       - slug
+      - incident_count
+    TagRenameRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          description: New name; the slug is derived from it and changes too.
+      required:
+      - name
+    TagMergeRequest:
+      type: object
+      properties:
+        into:
+          type: string
+          description: Slug of the tag to merge into.
+      required:
+      - into
   responses:
     Unauthorized:
       description: Missing or invalid Bearer token / invalid credentials.
@@ -121,18 +161,42 @@ components:
             error: internal_error
             message: internal server error
             data: null
+    BadRequest:
+      description: Invalid request body or parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 400
+            success: false
+            error: invalid_request_body
+            message: invalid request body
+            data: null
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 404
+            success: false
+            error: incident_not_found
+            message: incident not found
+            data: null
 paths:
   /tags:
     get:
       operationId: listTags
       tags:
       - Tags
-      summary: List tags used by at least one incident, sorted by name
+      summary: List tags with their incident count, sorted by name
       security:
       - BearerAuth: []
       responses:
         '200':
-          description: Tags in use.
+          description: Tags.
           content:
             application/json:
               schema:
@@ -148,3 +212,146 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
+      parameters:
+      - name: include_unused
+        in: query
+        schema:
+          type: boolean
+          default: false
+        description: Also return tags no incident uses (by default only used tags are returned, as the filters need).
+    delete:
+      operationId: purgeUnusedTags
+      tags:
+      - Tags
+      summary: Delete every tag no incident uses
+      description: '`unused=true` is required, so a bare `DELETE /tags` is never taken for "delete every tag".'
+      security: &id001
+      - BearerAuth: []
+      parameters:
+      - name: unused
+        in: query
+        required: true
+        schema:
+          type: boolean
+          enum:
+          - true
+      responses:
+        '200':
+          description: Number of deleted tags.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        deleted:
+                          type: integer
+                          format: int64
+                      required:
+                      - deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /tags/{slug}:
+    parameters:
+    - &id005
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Tag slug.
+    put:
+      operationId: renameTag
+      tags:
+      - Tags
+      summary: Rename a tag
+      description: 'Changes the name and the slug derived from it, and reindexes the incidents using the tag for search. If another tag already has that slug, the request fails with `tag_exists`: merge into it instead.'
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagRenameRequest'
+      responses:
+        '200':
+          description: The renamed tag.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/Tag'
+        '400': &id006
+          $ref: '#/components/responses/BadRequest'
+        '401': &id002
+          $ref: '#/components/responses/Unauthorized'
+        '404': &id003
+          $ref: '#/components/responses/NotFound'
+        '500': &id004
+          $ref: '#/components/responses/InternalServerError'
+        '409':
+          description: '`tag_exists`: another tag has this name.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+    delete:
+      operationId: deleteTag
+      tags:
+      - Tags
+      summary: Remove a tag from every incident and delete it
+      security: *id001
+      responses:
+        '200':
+          description: Tag deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '401': *id002
+        '404': *id003
+        '500': *id004
+  /tags/{slug}/merge:
+    parameters:
+    - *id005
+    post:
+      operationId: mergeTag
+      tags:
+      - Tags
+      summary: Merge a tag into another one
+      description: Every incident tagged with the tag in the URL gets the target tag instead; the merged tag is deleted.
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagMergeRequest'
+      responses:
+        '200':
+          description: The target tag, with its new incident count.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/Tag'
+        '400': *id006
+        '401': *id002
+        '404': *id003
+        '500': *id004

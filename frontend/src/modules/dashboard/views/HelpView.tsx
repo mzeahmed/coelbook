@@ -145,7 +145,17 @@ export default function HelpView() {
             </p>
             <p className="mb-0">
               Les <strong>tags</strong> sont des mots-clés plus fins et libres (postgres, timeout, ssl…) : tapez-les
-              séparés par des virgules, ils sont créés automatiquement, et les tags existants vous sont proposés.
+              séparés par des virgules, ils sont créés automatiquement, et les tags existants vous sont proposés. La page{' '}
+              <Link to="/tags">Tags</Link> permet de les renommer, de fusionner deux doublons (renommez l&apos;un avec le
+              nom de l&apos;autre) ou de supprimer ceux qui ne servent plus.
+            </p>
+          </Card>
+
+          <Card id="parametres" title="Paramètres">
+            <p className="mb-0">
+              La page <Link to="/settings">Paramètres</Link> permet de modifier votre nom et votre adresse e-mail, de
+              changer votre mot de passe (vos autres sessions sont alors déconnectées) et d&apos;ajuster le nom, le fuseau
+              horaire et la langue de l&apos;instance.
             </p>
           </Card>
         </div>

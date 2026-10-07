@@ -47,3 +47,20 @@ SET password_hash   = $2,
     session_version = session_version + 1,
     updated_at      = now()
 WHERE id = $1;
+
+-- name: EmailTakenByOtherUser :one
+-- Case-insensitive, like the address a user would type to sign in.
+SELECT EXISTS (
+    SELECT 1
+    FROM users
+    WHERE lower(email) = lower(sqlc.arg(email)) AND id <> sqlc.arg(user_id)
+);
+
+-- name: UpdateUserProfile :one
+UPDATE users
+SET first_name = sqlc.arg(first_name),
+    last_name  = sqlc.arg(last_name),
+    email      = sqlc.arg(email),
+    updated_at = now()
+WHERE id = sqlc.arg(id)
+RETURNING *;

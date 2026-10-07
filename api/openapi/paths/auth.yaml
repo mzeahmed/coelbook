@@ -9,6 +9,8 @@ servers:
 tags:
 - name: Auth
   description: Authentication (login)
+- name: Account
+  description: The signed-in user's own account (requires authentication)
 components:
   schemas:
     Envelope:
@@ -65,6 +67,24 @@ components:
           - category_name_taken
           - category_not_found
           - category_in_use
+          - tag_not_found
+          - tag_name_required
+          - tag_name_too_long
+          - tag_name_invalid
+          - tag_exists
+          - tag_merge_target_required
+          - tag_merge_into_itself
+          - first_name_required
+          - last_name_required
+          - name_too_long
+          - invalid_email
+          - email_taken
+          - current_password_required
+          - wrong_current_password
+          - instance_name_too_long
+          - invalid_timezone
+          - invalid_locale
+          - not_initialized
         field:
           type: string
           description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.
@@ -141,6 +161,42 @@ components:
       required:
       - token
       - password
+    ProfileRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          description: Unique, compared case-insensitively.
+      required:
+      - first_name
+      - last_name
+      - email
+    PasswordChangeRequest:
+      type: object
+      properties:
+        current_password:
+          type: string
+        new_password:
+          type: string
+          minLength: 8
+      required:
+      - current_password
+      - new_password
+    TokenData:
+      type: object
+      properties:
+        token:
+          type: string
+          description: New access token for the caller.
+      required:
+      - token
   responses:
     BadRequest:
       description: Invalid request body or parameters.
@@ -178,6 +234,11 @@ components:
             error: internal_error
             message: internal server error
             data: null
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
   /auth/login:
     post:
@@ -260,5 +321,96 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Envelope'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /account:
+    get:
+      operationId: getAccount
+      tags:
+      - Account
+      summary: Get the signed-in user's profile
+      security: &id001
+      - BearerAuth: []
+      responses:
+        '200':
+          description: The profile.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data: &id002
+                      $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: updateAccount
+      tags:
+      - Account
+      summary: Update the signed-in user's name and email
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+      responses:
+        '200':
+          description: The updated profile.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data: *id002
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: '`email_taken`: another account uses this email.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Envelope'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /account/password:
+    put:
+      operationId: changePassword
+      tags:
+      - Account
+      summary: Change the signed-in user's password
+      description: Requires the current password. Every existing token is invalidated (the user is signed out everywhere); the response carries a new token so the caller stays signed in.
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+      responses:
+        '200':
+          description: Password changed.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/TokenData'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'

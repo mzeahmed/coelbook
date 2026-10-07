@@ -1,5 +1,4 @@
-// Package tag exposes read access to the tags incidents are labelled
-// with.
+// Package tag manages the tags incidents are labelled with.
 package tag
 
 import (
@@ -26,4 +25,10 @@ func New(pool *pgxpool.Pool) *Module {
 // Every route requires a valid access token, applied via authenticate.
 func (m *Module) RegisterRoutes(mux *http.ServeMux, authenticate func(http.Handler) http.Handler) {
 	mux.Handle("GET /tags", authenticate(http.HandlerFunc(m.handler.List)))
+	// Purging unused tags acts on the collection, not on a /tags/{slug}
+	// path, so it can never collide with a tag (a tag may be named "unused").
+	mux.Handle("DELETE /tags", authenticate(http.HandlerFunc(m.handler.PurgeUnused)))
+	mux.Handle("PUT /tags/{slug}", authenticate(http.HandlerFunc(m.handler.Rename)))
+	mux.Handle("DELETE /tags/{slug}", authenticate(http.HandlerFunc(m.handler.Delete)))
+	mux.Handle("POST /tags/{slug}/merge", authenticate(http.HandlerFunc(m.handler.Merge)))
 }

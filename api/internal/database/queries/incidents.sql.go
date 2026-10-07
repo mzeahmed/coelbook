@@ -404,6 +404,19 @@ func (q *Queries) RefreshIncidentSearchVector(ctx context.Context, id int64) err
 	return err
 }
 
+const refreshIncidentSearchVectors = `-- name: RefreshIncidentSearchVectors :exec
+UPDATE incidents
+SET search_vector = incident_search_vector(id)
+WHERE id = ANY ($1::bigint[])
+`
+
+// Same as RefreshIncidentSearchVector for several incidents, e.g. every
+// incident whose tag was just renamed, merged or deleted.
+func (q *Queries) RefreshIncidentSearchVectors(ctx context.Context, ids []int64) error {
+	_, err := q.db.Exec(ctx, refreshIncidentSearchVectors, ids)
+	return err
+}
+
 const updateIncident = `-- name: UpdateIncident :one
 UPDATE incidents
 SET title       = $1,

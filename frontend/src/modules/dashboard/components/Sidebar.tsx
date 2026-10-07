@@ -13,21 +13,14 @@ interface SidebarProps {
   onClose?: () => void
 }
 
-// Sections that don't exist yet ("Tags", "Paramètres") are rendered as
-// disabled entries so the sidebar shows the product's intended shape
-// without pretending to navigate somewhere.
 export default function Sidebar({ incidentCount, className = '', onClose }: SidebarProps) {
   const user = getUser()
   const { pathname } = useLocation()
 
   // Incident pages belong to the "Coelbooks" entry.
-  const section = pathname.startsWith('/categories')
-    ? 'categories'
-    : pathname.startsWith('/overview')
-      ? 'overview'
-      : pathname.startsWith('/help')
-        ? 'help'
-        : 'incidents'
+  const section =
+    ['/categories', '/tags', '/settings', '/overview', '/help'].find((prefix) => pathname.startsWith(prefix))?.slice(1) ??
+    'incidents'
   const navClass = (active: boolean) =>
     `pb-nav-link ${active ? 'active' : ''} d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none small`
 
@@ -99,10 +92,10 @@ export default function Sidebar({ incidentCount, className = '', onClose }: Side
           <span className="fw-medium">Catégories</span>
         </Link>
 
-        <span className={`${navClass(false)} pb-nav-disabled`} aria-disabled="true" title="Bientôt disponible">
+        <Link to="/tags" className={navClass(section === 'tags')} aria-current={section === 'tags' ? 'page' : undefined}>
           <i className="fa-solid fa-tags text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Tags</span>
-        </span>
+        </Link>
 
         <p
           className="px-2 mb-1 mt-4 text-uppercase fw-semibold"
@@ -116,10 +109,14 @@ export default function Sidebar({ incidentCount, className = '', onClose }: Side
           <span className="fw-medium">Aide</span>
         </Link>
 
-        <span className={`${navClass(false)} pb-nav-disabled`} aria-disabled="true" title="Bientôt disponible">
+        <Link
+          to="/settings"
+          className={navClass(section === 'settings')}
+          aria-current={section === 'settings' ? 'page' : undefined}
+        >
           <i className="fa-solid fa-gear text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Paramètres</span>
-        </span>
+        </Link>
       </nav>
 
       <div className="p-3 border-top flex-shrink-0">

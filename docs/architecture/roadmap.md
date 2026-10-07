@@ -17,8 +17,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
 1. Production deployment: Docker image and compose file — *Production & releases*
-2. Tag management — *Organization*
-3. Incident history — *Authoring*
+2. Incident history — *Authoring*
 
 To decide: whether incidents can be **deleted**, or whether archiving remains the only way to retire one until roles exist (see *Authoring*).
 
@@ -36,6 +35,7 @@ To decide: whether incidents can be **deleted**, or whether archiving remains th
 - [x] Dashboard (key figures, recent activity, categories and tags)
 - [x] Documentation (README, user guide, development guide, in-app help)
 - [x] Shared page layout (sidebar always in view, slide-in menu on mobile)
+- [x] Settings page (profile, password change, instance settings)
 
 ---
 
@@ -74,7 +74,7 @@ Classifying the knowledge base.
 
 - [x] Category management (default categories created at setup)
 - [x] Category and tag endpoints for filter facets
-- [ ] Tag management *(partial: tags are created from the incident form, with suggestions; no rename, merge or delete)*
+- [x] Tag management (rename, merge, delete, clean up unused tags; search reindexed)
 
 ---
 

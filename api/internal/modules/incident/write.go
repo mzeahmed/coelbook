@@ -64,6 +64,14 @@ func (s *Service) Create(ctx context.Context, userID int64, req WriteRequest) (D
 		return Detail{}, err
 	}
 
+	if err := setSnippets(ctx, q, id, req.Snippets); err != nil {
+		return Detail{}, err
+	}
+
+	if err := setLinks(ctx, q, id, req.Links); err != nil {
+		return Detail{}, err
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return Detail{}, err
 	}
@@ -114,6 +122,14 @@ func (s *Service) Update(ctx context.Context, slug string, req WriteRequest) (De
 	}
 
 	if err := setTags(ctx, q, id, req.Tags); err != nil {
+		return Detail{}, err
+	}
+
+	if err := setSnippets(ctx, q, id, req.Snippets); err != nil {
+		return Detail{}, err
+	}
+
+	if err := setLinks(ctx, q, id, req.Links); err != nil {
 		return Detail{}, err
 	}
 
@@ -186,6 +202,59 @@ func setTags(ctx context.Context, q *repo.Queries, incidentID int64, names []str
 		}
 
 		if err := q.AddIncidentTag(ctx, repo.AddIncidentTagParams{IncidentID: incidentID, TagID: tagID}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// setSnippets replaces the incident's snippets with snippets, stored in
+// list order.
+func setSnippets(ctx context.Context, q *repo.Queries, incidentID int64, snippets []SnippetInput) error {
+
+	if err := q.DeleteIncidentSnippets(ctx, incidentID); err != nil {
+		return err
+	}
+
+	for i, sn := range snippets {
+		language := strings.TrimSpace(sn.Language)
+		if language == "" {
+			language = defaultSnippetLanguage
+		}
+
+		if err := q.CreateSnippet(ctx, repo.CreateSnippetParams{
+			IncidentID: incidentID,
+			Title:      strings.TrimSpace(sn.Title),
+			Language:   language,
+			// Content is kept verbatim: leading indentation and trailing
+			// newlines can matter in code.
+			Content:  sn.Content,
+			Position: int32(i),
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// setLinks replaces the incident's links with links, stored in list order.
+func setLinks(ctx context.Context, q *repo.Queries, incidentID int64, links []LinkInput) error {
+
+	if err := q.DeleteIncidentLinks(ctx, incidentID); err != nil {
+		return err
+	}
+
+	for _, l := range links {
+		u := strings.TrimSpace(l.URL)
+
+		title := strings.TrimSpace(l.Title)
+		if title == "" {
+			title = u
+		}
+
+		if err := q.CreateLink(ctx, repo.CreateLinkParams{IncidentID: incidentID, Title: title, Url: u}); err != nil {
 			return err
 		}
 	}

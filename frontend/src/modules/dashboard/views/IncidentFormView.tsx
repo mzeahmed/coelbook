@@ -10,14 +10,23 @@ import {
   listCategories,
   updateIncident,
   type IncidentCategory,
+  type IncidentLinkInput,
+  type IncidentSnippetInput,
   type IncidentStatus,
   type IncidentWriteRequest,
 } from '../api'
+import LinksField from '../components/LinksField'
 import Sidebar from '../components/Sidebar'
+import SnippetsField from '../components/SnippetsField'
 import Topbar from '../components/Topbar'
+import { fieldInputId, messageFor, withKey, withoutKey, type FieldError, type Row } from '../lib/fields'
 import { STATUS_LABEL } from '../lib/format'
 
-const EMPTY_FORM: IncidentWriteRequest = {
+// The scalar fields of the form; tags, snippets and links have their own
+// state since they're edited as free text or as lists of rows.
+type FormFields = Omit<IncidentWriteRequest, 'tags' | 'snippets' | 'links'>
+
+const EMPTY_FORM: FormFields = {
   title: '',
   summary: '',
   problem: '',
@@ -27,7 +36,6 @@ const EMPTY_FORM: IncidentWriteRequest = {
   prevention: '',
   status: 'draft',
   category: '',
-  tags: [],
 }
 
 const SECTIONS: { key: 'problem' | 'diagnosis' | 'root_cause' | 'solution' | 'prevention'; label: string; hint: string }[] = [
@@ -46,6 +54,12 @@ function parseTags(input: string): string[] {
   return input.split(',').map((t) => t.trim()).filter((t) => t !== '')
 }
 
+function InputError({ error, field }: { error: FieldError | null; field: string }) {
+  const message = messageFor(error, field)
+
+  return message ? <div className="invalid-feedback d-block small">{message}</div> : null
+}
+
 // IncidentFormView is both the creation form (/incidents/new) and the edit
 // form (/incidents/:slug/edit), depending on whether a slug is in the URL.
 export default function IncidentFormView() {
@@ -53,17 +67,22 @@ export default function IncidentFormView() {
   const { slug } = useParams()
   const editing = slug !== undefined
 
-  const [form, setForm] = useState<IncidentWriteRequest>(EMPTY_FORM)
+  const [form, setForm] = useState<FormFields>(EMPTY_FORM)
   // Tags are edited as free text and only parsed on submit, so typing a
   // comma or a trailing space isn't fought by re-formatting.
   const [tagsInput, setTagsInput] = useState('')
+  const [snippetRows, setSnippetRows] = useState<Row<IncidentSnippetInput>[]>([])
+  const [linkRows, setLinkRows] = useState<Row<IncidentLinkInput>[]>([])
   const [categories, setCategories] = useState<IncidentCategory[]>([])
 
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState('')
   const [notFound, setNotFound] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  // error is shown above the submit button; fieldError next to the input
+  // the API pointed at. Only one of them is set at a time.
   const [error, setError] = useState('')
+  const [fieldError, setFieldError] = useState<FieldError | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -85,9 +104,10 @@ export default function IncidentFormView() {
             prevention: incident.prevention,
             status: incident.status,
             category: incident.category.slug,
-            tags: incident.tags,
           })
           setTagsInput(incident.tags.join(', '))
+          setSnippetRows(incident.snippets.map(({ title, language, content }) => withKey({ title, language, content })))
+          setLinkRows(incident.links.map(({ title, url }) => withKey({ title, url })))
         }
 
         setLoaded(true)
@@ -116,16 +136,24 @@ export default function IncidentFormView() {
     }
   }, [editing, slug, navigate])
 
-  function update<K extends keyof IncidentWriteRequest>(key: K, value: IncidentWriteRequest[K]) {
+  function update<K extends keyof FormFields>(key: K, value: FormFields[K]) {
     setForm((f) => ({ ...f, [key]: value }))
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
+    setFieldError(null)
     setSubmitting(true)
 
-    const payload = { ...form, tags: parseTags(tagsInput) }
+    // Rows are sent as-is (blank ones included) so the indexes in the API's
+    // field paths match the rows on screen.
+    const payload: IncidentWriteRequest = {
+      ...form,
+      tags: parseTags(tagsInput),
+      snippets: snippetRows.map(withoutKey),
+      links: linkRows.map(withoutKey),
+    }
 
     try {
       const saved = editing ? await updateIncident(slug, payload) : await createIncident(payload)
@@ -138,8 +166,20 @@ export default function IncidentFormView() {
         return
       }
 
-      setError(errorMessage(err))
       setSubmitting(false)
+
+      const field = err instanceof ApiError ? err.field : ''
+      const input = field ? document.getElementById(fieldInputId(field)) : null
+
+      if (field) {
+        setFieldError({ field, message: errorMessage(err) })
+        input?.focus()
+        // List-level errors (e.g. "too many snippets") have no input of
+        // their own; the editor shows them in its header.
+        if (!input) document.getElementById(`${fieldInputId(field)}-section`)?.scrollIntoView({ block: 'center' })
+      } else {
+        setError(errorMessage(err))
+      }
     }
   }
 
@@ -178,7 +218,7 @@ export default function IncidentFormView() {
             )}
 
             {loaded && (
-              <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+              <form onSubmit={handleSubmit} noValidate className="d-flex flex-column gap-3">
                 <section className="pb-card border rounded-4 p-4 d-flex flex-column gap-3">
                   <div>
                     <label className="form-label small fw-medium" htmlFor="incident-title">
@@ -186,13 +226,13 @@ export default function IncidentFormView() {
                     </label>
                     <input
                       id="incident-title"
-                      className="form-control"
+                      className={`form-control ${messageFor(fieldError, 'title') ? 'is-invalid' : ''}`}
                       value={form.title}
                       onChange={(e) => update('title', e.target.value)}
                       maxLength={200}
-                      required
                       autoFocus
                     />
+                    <InputError error={fieldError} field="title" />
                   </div>
 
                   <div>
@@ -215,10 +255,9 @@ export default function IncidentFormView() {
                       </label>
                       <select
                         id="incident-category"
-                        className="form-select"
+                        className={`form-select ${messageFor(fieldError, 'category') ? 'is-invalid' : ''}`}
                         value={form.category}
                         onChange={(e) => update('category', e.target.value)}
-                        required
                       >
                         <option value="" disabled>
                           Choisir une catégorie
@@ -229,6 +268,7 @@ export default function IncidentFormView() {
                           </option>
                         ))}
                       </select>
+                      <InputError error={fieldError} field="category" />
                     </div>
 
                     <div className="col-md-6">
@@ -237,7 +277,7 @@ export default function IncidentFormView() {
                       </label>
                       <select
                         id="incident-status"
-                        className="form-select"
+                        className={`form-select ${messageFor(fieldError, 'status') ? 'is-invalid' : ''}`}
                         value={form.status}
                         onChange={(e) => update('status', e.target.value as IncidentStatus)}
                       >
@@ -247,6 +287,7 @@ export default function IncidentFormView() {
                           </option>
                         ))}
                       </select>
+                      <InputError error={fieldError} field="status" />
                     </div>
                   </div>
 
@@ -256,11 +297,12 @@ export default function IncidentFormView() {
                     </label>
                     <input
                       id="incident-tags"
-                      className="form-control"
+                      className={`form-control ${messageFor(fieldError, 'tags') ? 'is-invalid' : ''}`}
                       value={tagsInput}
                       onChange={(e) => setTagsInput(e.target.value)}
                       placeholder="docker, postgres, ci"
                     />
+                    <InputError error={fieldError} field="tags" />
                     <div className="form-text small">Séparés par des virgules. Les nouveaux tags sont créés automatiquement.</div>
                   </div>
                 </section>
@@ -282,6 +324,9 @@ export default function IncidentFormView() {
                     />
                   </section>
                 ))}
+
+                <SnippetsField rows={snippetRows} onChange={setSnippetRows} error={fieldError} />
+                <LinksField rows={linkRows} onChange={setLinkRows} error={fieldError} />
 
                 {error && (
                   <div className="badge-danger-soft rounded-3 small py-2 px-3" role="alert">

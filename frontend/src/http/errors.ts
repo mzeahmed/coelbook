@@ -47,6 +47,12 @@ const MESSAGES: Record<string, string> = {
   category_required: 'La catégorie est obligatoire.',
   unknown_category: 'Cette catégorie n\'existe pas.',
   too_many_tags: 'Un coelbook ne peut pas avoir plus de 20 tags.',
+  too_many_snippets: 'Un coelbook ne peut pas avoir plus de 20 snippets.',
+  snippet_title_required: 'Le titre du snippet est obligatoire.',
+  snippet_content_required: 'Le contenu du snippet est obligatoire.',
+  too_many_links: 'Un coelbook ne peut pas avoir plus de 20 liens.',
+  link_url_required: 'L\'URL du lien est obligatoire.',
+  invalid_link_url: 'L\'URL doit commencer par http:// ou https://.',
 }
 
 // errorMessage returns the French message to display for err, whatever

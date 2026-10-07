@@ -99,8 +99,21 @@ export function getIncident(slug: string): Promise<IncidentDetail> {
   })
 }
 
+export interface IncidentSnippetInput {
+  title: string
+  // Blank is stored as "text".
+  language: string
+  content: string
+}
+
+export interface IncidentLinkInput {
+  // Blank is replaced by the URL.
+  title: string
+  url: string
+}
+
 // IncidentWriteRequest is the body of a create or update. It replaces
-// every editable field: on update, an empty field or tag list clears it.
+// every editable field: on update, an empty field or list clears it.
 export interface IncidentWriteRequest {
   title: string
   summary: string
@@ -112,6 +125,9 @@ export interface IncidentWriteRequest {
   status: IncidentStatus
   category: string
   tags: string[]
+  // List order is display order.
+  snippets: IncidentSnippetInput[]
+  links: IncidentLinkInput[]
 }
 
 function authHeaders(): Record<string, string> {

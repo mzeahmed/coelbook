@@ -34,6 +34,17 @@ func TestAppErrorUsesWrappedCode(t *testing.T) {
 	}
 }
 
+func TestAppErrorIncludesField(t *testing.T) {
+	rec := httptest.NewRecorder()
+
+	AppError(rec, http.StatusBadRequest, apperr.NewField("invalid_link_url", "links[1].url", "bad url"))
+
+	env := decode(t, rec)
+	if env.Error != "invalid_link_url" || env.Field != "links[1].url" {
+		t.Fatalf("got envelope %+v", env)
+	}
+}
+
 func TestAppErrorHidesUnknownErrors(t *testing.T) {
 	rec := httptest.NewRecorder()
 

@@ -14,11 +14,14 @@ import (
 //
 // Error is a stable, machine-readable code (e.g. "title_required") set on
 // error responses only; clients should branch on it rather than on
-// Message, which is a developer-facing English description.
+// Message, which is a developer-facing English description. Field, set on
+// validation errors only, is the path of the offending request field
+// (see apperr.Error).
 type Envelope struct {
 	Code    int    `json:"code"`
 	Success bool   `json:"success"`
 	Error   string `json:"error,omitempty"`
+	Field   string `json:"field,omitempty"`
 	Message string `json:"message"`
 	Data    any    `json:"data"`
 }
@@ -56,7 +59,13 @@ func AppError(w http.ResponseWriter, status int, err error) {
 
 	var appErr *apperr.Error
 	if errors.As(err, &appErr) {
-		Error(w, status, appErr.Code, appErr.Message)
+		write(w, Envelope{
+			Code:    status,
+			Success: false,
+			Error:   appErr.Code,
+			Field:   appErr.Field,
+			Message: appErr.Message,
+		})
 
 		return
 	}

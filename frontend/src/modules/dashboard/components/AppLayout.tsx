@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import CommandPalette from './CommandPalette'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 
@@ -20,6 +21,8 @@ interface AppLayoutProps {
 // it); the sidebar is a sticky, full-height column so it stays in view.
 // Below the md breakpoint the sidebar is hidden and the top bar's menu
 // button opens it as a slide-in panel instead.
+//
+// Ctrl+K (⌘K on macOS) opens the quick-search palette from any page.
 export default function AppLayout({ section, current, incidentCount, children }: AppLayoutProps) {
   const { pathname } = useLocation()
 
@@ -28,6 +31,38 @@ export default function AppLayout({ section, current, incidentCount, children }:
   const [menuOpenOn, setMenuOpenOn] = useState<string | null>(null)
   const menuOpen = menuOpenOn === pathname
   const closeMenu = () => setMenuOpenOn(null)
+
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  // Focus goes back where it was (e.g. the search button) when the palette
+  // closes.
+  const focusBeforePalette = useRef<HTMLElement | null>(null)
+
+  const openPalette = useCallback(() => {
+    focusBeforePalette.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    setMenuOpenOn(null)
+    setPaletteOpen(true)
+  }, [])
+
+  // Stable, since the palette refetches when its onClose changes.
+  const closePalette = useCallback(() => {
+    setPaletteOpen(false)
+    focusBeforePalette.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        // Ctrl+K is also the browser's "search the web" shortcut.
+        e.preventDefault()
+        if (paletteOpen) closePalette()
+        else openPalette()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [paletteOpen, openPalette, closePalette])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -73,10 +108,13 @@ export default function AppLayout({ section, current, incidentCount, children }:
           current={current}
           onOpenMenu={() => setMenuOpenOn(pathname)}
           menuOpen={menuOpen}
+          onOpenSearch={openPalette}
         />
 
         <div className="flex-grow-1">{children}</div>
       </main>
+
+      {paletteOpen && <CommandPalette onClose={closePalette} />}
     </div>
   )
 }

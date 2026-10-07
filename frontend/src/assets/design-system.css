@@ -335,11 +335,6 @@ body {
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
 }
 
-.pb-section-body {
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
-
 .pb-code {
   background-color: var(--pb-bg);
   border: 1px solid var(--pb-border);
@@ -456,4 +451,84 @@ body {
   color: inherit;
   border-radius: 0.2rem;
   padding: 0 0.1rem;
+}
+
+/* Rendered Markdown in incident sections (Markdown component). Headings
+   are scaled down: the section title is already the page's h2. */
+
+.pb-markdown {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.pb-markdown > :first-child {
+  margin-top: 0;
+}
+
+.pb-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.pb-markdown p,
+.pb-markdown ul,
+.pb-markdown ol,
+.pb-markdown blockquote {
+  margin-bottom: 0.75rem;
+}
+
+.pb-markdown h1,
+.pb-markdown h2,
+.pb-markdown h3,
+.pb-markdown h4,
+.pb-markdown h5,
+.pb-markdown h6 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.pb-markdown h1 {
+  font-size: 1rem;
+}
+
+.pb-markdown ul,
+.pb-markdown ol {
+  padding-left: 1.25rem;
+}
+
+.pb-markdown li + li {
+  margin-top: 0.25rem;
+}
+
+.pb-markdown li.task-list-item {
+  list-style: none;
+  margin-left: -1.25rem;
+}
+
+.pb-markdown li.task-list-item input {
+  margin-right: 0.4rem;
+}
+
+.pb-markdown :not(pre) > code {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85em;
+  color: var(--pb-text);
+  background-color: var(--pb-surface-hover);
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.3rem;
+}
+
+.pb-markdown blockquote {
+  border-left: 3px solid var(--pb-border);
+  padding-left: 0.75rem;
+  color: var(--pb-text-muted);
+}
+
+.pb-markdown table {
+  margin-bottom: 0.75rem;
+}
+
+.pb-markdown hr {
+  border-color: var(--pb-border);
+  opacity: 1;
 }

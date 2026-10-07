@@ -7,8 +7,6 @@ import LoginView from '@/modules/auth/views/LoginView'
 import ForgotPasswordView from '@/modules/auth/views/ForgotPasswordView'
 import ResetPasswordView from '@/modules/auth/views/ResetPasswordView'
 import DashboardView from '@/modules/dashboard/views/DashboardView'
-import IncidentView from '@/modules/dashboard/views/IncidentView'
-import IncidentFormView from '@/modules/dashboard/views/IncidentFormView'
 
 // The API is the single source of truth for initialization state, so
 // every navigation re-checks it instead of trusting anything cached
@@ -41,6 +39,13 @@ async function guard(routeName: 'setup' | 'login' | 'forgot-password' | 'reset-p
 
   return null
 }
+
+// The incident page and form pull in Markdown rendering and syntax
+// highlighting; they're loaded on first visit so the login screen and
+// dashboard don't download them.
+const IncidentView = () => import('@/modules/dashboard/views/IncidentView').then((m) => ({ Component: m.default }))
+const IncidentFormView = () =>
+  import('@/modules/dashboard/views/IncidentFormView').then((m) => ({ Component: m.default }))
 
 const router = createBrowserRouter([
   {
@@ -77,17 +82,17 @@ const router = createBrowserRouter([
     // API never generates the "new" slug, so no incident is shadowed.
     path: '/incidents/new',
     loader: () => (getToken() ? null : redirect('/login')),
-    Component: IncidentFormView,
+    lazy: IncidentFormView,
   },
   {
     path: '/incidents/:slug',
     loader: () => (getToken() ? null : redirect('/login')),
-    Component: IncidentView,
+    lazy: IncidentView,
   },
   {
     path: '/incidents/:slug/edit',
     loader: () => (getToken() ? null : redirect('/login')),
-    Component: IncidentFormView,
+    lazy: IncidentFormView,
   },
 ])
 

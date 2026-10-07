@@ -189,6 +189,9 @@ Coelbook can document incidents related to:
 - Docker
 - Docker Compose
 
+La justification de chaque dépendance npm et Go déclarée est disponible dans
+la [documentation des dépendances](docs/dependencies.md).
+
 ---
 
 # Requirements

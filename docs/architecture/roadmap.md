@@ -16,7 +16,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
-1. Table of contents on incident pages — *Authoring*
+1. Shared page layout: the sidebar stays in view on long pages — *Foundation*
 2. Quick search (command palette) — *Search & discovery*
 3. Production deployment: Docker image and compose file — *Production & releases*
 4. Tag management — *Organization*
@@ -37,6 +37,7 @@ To decide: whether incidents can be **deleted**, or whether archiving remains th
 - [x] Field-level validation feedback in forms
 - [x] Dashboard (key figures, recent activity, categories and tags)
 - [x] Documentation (README, user guide, development guide, in-app help)
+- [ ] Shared page layout *(each page repeats the sidebar + top bar shell; on long pages the window scrolls and the sidebar scrolls away)*
 
 ---
 
@@ -51,7 +52,7 @@ Writing and reading incidents.
 - [x] Code snippets, with syntax highlighting and copy button
 - [x] External links
 - [ ] Delete incidents *(to decide: archiving may stay the only way to retire an incident, with deletion reserved to admins once roles exist)*
-- [ ] Table of contents
+- [x] Table of contents (sections and Markdown headings, shareable anchors, current section highlighted)
 - [ ] Incident history (versions and diff)
 - [ ] Image uploads
 - [ ] File attachments *(partial: `attachments` table exists; no upload or storage)*

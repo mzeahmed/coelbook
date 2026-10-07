@@ -14,6 +14,15 @@ export function saveSession (token: string, user: AuthUser, persist: boolean) {
   storage.setItem(USER_KEY, JSON.stringify(user))
 }
 
+// updateSession replaces the stored token and/or user, in whichever
+// storage the session was saved to, so "remember me" is kept.
+export function updateSession (changes: { token?: string, user?: AuthUser }) {
+  const storage = localStorage.getItem(TOKEN_KEY) !== null ? localStorage : sessionStorage
+
+  if (changes.token !== undefined) storage.setItem(TOKEN_KEY, changes.token)
+  if (changes.user !== undefined) storage.setItem(USER_KEY, JSON.stringify(changes.user))
+}
+
 export function clearSession () {
   for (const storage of [localStorage, sessionStorage]) {
     storage.removeItem(TOKEN_KEY)

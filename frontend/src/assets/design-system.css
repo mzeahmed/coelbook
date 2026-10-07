@@ -588,17 +588,6 @@ body {
   z-index: 5;
 }
 
-/* Sidebar entries for sections that don't exist yet */
-.pb-nav-disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.pb-nav-disabled:hover {
-  background-color: transparent !important;
-  color: inherit !important;
-}
-
 /* Incident table of contents (TableOfContents component) */
 
 .pb-toc-link {
@@ -764,4 +753,11 @@ body {
   border: 1px solid var(--pb-border);
   border-radius: 0.3rem;
   padding: 0.05rem 0.35rem;
+}
+
+/* Tags page: the "merge into the existing tag?" prompt after a rename
+   collides with another tag. */
+.pb-merge-prompt {
+  background-color: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.25);
 }

@@ -15,6 +15,9 @@ type Querier interface {
 	CategoryNameTaken(ctx context.Context, arg CategoryNameTakenParams) (bool, error)
 	CategorySlugExists(ctx context.Context, slug string) (bool, error)
 	ConsumePasswordResetToken(ctx context.Context, id int64) error
+	// Gives every incident tagged from_tag_id the tag to_tag_id too (merge);
+	// incidents that already have both keep a single link.
+	CopyIncidentTags(ctx context.Context, arg CopyIncidentTagsParams) error
 	CountIncidents(ctx context.Context, arg CountIncidentsParams) (int64, error)
 	CountIncidentsByStatus(ctx context.Context) ([]CountIncidentsByStatusRow, error)
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) error
@@ -29,18 +32,25 @@ type Querier interface {
 	DeleteIncidentLinks(ctx context.Context, incidentID int64) error
 	DeleteIncidentSnippets(ctx context.Context, incidentID int64) error
 	DeleteIncidentTags(ctx context.Context, incidentID int64) error
+	// Its incident_tags rows go with it (ON DELETE CASCADE).
+	DeleteTag(ctx context.Context, id int64) error
+	DeleteUnusedTags(ctx context.Context) (int64, error)
 	DeleteWizard(ctx context.Context) error
+	// Case-insensitive, like the address a user would type to sign in.
+	EmailTakenByOtherUser(ctx context.Context, arg EmailTakenByOtherUserParams) (bool, error)
 	FindUserByEmail(ctx context.Context, email string) (User, error)
 	FindUserById(ctx context.Context, id int64) (User, error)
 	GetCategoryBySlug(ctx context.Context, slug string) (GetCategoryBySlugRow, error)
 	GetCategoryIDBySlug(ctx context.Context, slug string) (int64, error)
 	GetIncidentBySlug(ctx context.Context, slug string) (GetIncidentBySlugRow, error)
+	GetTagBySlug(ctx context.Context, slug string) (Tag, error)
 	GetValidPasswordResetTokenForUpdate(ctx context.Context, tokenHash string) (GetValidPasswordResetTokenForUpdateRow, error)
 	GetWizard(ctx context.Context) (Wizard, error)
 	HasUser(ctx context.Context) (bool, error)
 	IncidentSlugExists(ctx context.Context, slug string) (bool, error)
 	InvalidatePasswordResetTokens(ctx context.Context, userID int64) error
 	ListCategories(ctx context.Context) ([]ListCategoriesRow, error)
+	ListIncidentIDsForTag(ctx context.Context, tagID int64) ([]int64, error)
 	ListIncidentLinks(ctx context.Context, incidentID int64) ([]ListIncidentLinksRow, error)
 	ListIncidentSnippets(ctx context.Context, incidentID int64) ([]ListIncidentSnippetsRow, error)
 	// With a query, results are ordered by full-text relevance, and the title
@@ -49,6 +59,8 @@ type Querier interface {
 	// the client renders them as highlights without parsing HTML). Without a
 	// query, results are ordered by date and the highlight columns are empty.
 	ListIncidents(ctx context.Context, arg ListIncidentsParams) ([]ListIncidentsRow, error)
+	// Every tag with the number of incidents using it, unused ones included.
+	ListTagsWithCounts(ctx context.Context) ([]ListTagsWithCountsRow, error)
 	// Tags attached to at least one incident; orphans (left behind when an
 	// incident drops its last use of a tag) are omitted.
 	ListUsedTags(ctx context.Context) ([]Tag, error)
@@ -56,9 +68,14 @@ type Querier interface {
 	// Rebuilds the incident's full-text document; call it after any change to
 	// the incident, its tags or its snippets (see incident_search_vector()).
 	RefreshIncidentSearchVector(ctx context.Context, id int64) error
+	// Same as RefreshIncidentSearchVector for several incidents, e.g. every
+	// incident whose tag was just renamed, merged or deleted.
+	RefreshIncidentSearchVectors(ctx context.Context, ids []int64) error
+	RenameTag(ctx context.Context, arg RenameTagParams) error
 	// Used by the setup wizard; an instance re-initialized after its admin was
 	// removed may already have its categories.
 	SeedCategory(ctx context.Context, arg SeedCategoryParams) error
+	TagSlugExists(ctx context.Context, slug string) (bool, error)
 	TopTags(ctx context.Context, maxTags int32) ([]TopTagsRow, error)
 	// The slug is left unchanged so filters and links keep working.
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (int64, error)
@@ -66,6 +83,8 @@ type Querier interface {
 	// when the title is edited.
 	UpdateIncident(ctx context.Context, arg UpdateIncidentParams) (int64, error)
 	UpdateUserPasswordAndSessionVersion(ctx context.Context, arg UpdateUserPasswordAndSessionVersionParams) error
+	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error)
+	UpdateWizard(ctx context.Context, arg UpdateWizardParams) (Wizard, error)
 	// Returns the id of the tag with this slug, creating it if needed. The
 	// no-op update makes RETURNING yield the existing row on conflict.
 	UpsertTag(ctx context.Context, arg UpsertTagParams) (int64, error)

@@ -61,6 +61,30 @@ const MESSAGES: Record<string, string> = {
   category_name_taken: 'Une catégorie porte déjà ce nom.',
   category_not_found: 'Cette catégorie n\'existe pas ou a été supprimée.',
   category_in_use: 'Cette catégorie est utilisée par des coelbooks : déplacez-les avant de la supprimer.',
+
+  // Tags
+  tag_not_found: 'Ce tag n\'existe pas ou a été supprimé.',
+  tag_name_required: 'Le nom du tag est obligatoire.',
+  tag_name_too_long: 'Le nom du tag ne doit pas dépasser 50 caractères.',
+  tag_name_invalid: 'Le nom du tag doit contenir au moins une lettre ou un chiffre.',
+  tag_exists: 'Un tag porte déjà ce nom.',
+  tag_merge_target_required: 'Choisissez le tag dans lequel fusionner.',
+  tag_merge_into_itself: 'Un tag ne peut pas être fusionné avec lui-même.',
+
+  // Account
+  first_name_required: 'Le prénom est obligatoire.',
+  last_name_required: 'Le nom est obligatoire.',
+  name_too_long: 'Ce champ ne doit pas dépasser 100 caractères.',
+  invalid_email: 'Saisissez une adresse e-mail valide.',
+  email_taken: 'Un autre compte utilise déjà cette adresse e-mail.',
+  current_password_required: 'Saisissez votre mot de passe actuel.',
+  wrong_current_password: 'Le mot de passe actuel est incorrect.',
+
+  // Instance settings
+  instance_name_too_long: 'Le nom de l\'instance ne doit pas dépasser 100 caractères.',
+  invalid_timezone: 'Ce fuseau horaire est inconnu.',
+  invalid_locale: 'Cette langue n\'est pas prise en charge.',
+  not_initialized: 'L\'instance n\'est pas encore configurée.',
 }
 
 // errorMessage returns the French message to display for err, whatever

@@ -1,15 +1,7 @@
 import type {InstanceInput} from "@/modules/wizard/api.ts";
 import type {InstanceErrors} from "@/modules/wizard/validators.ts";
+import {LOCALES, timezoneOptions} from "@/modules/wizard/options.ts";
 
-const timezones: string[] =
-  typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : ['UTC']
-
-const locales = [
-  { value: 'en', label: 'English' },
-  { value: 'fr', label: 'Français' },
-  { value: 'es', label: 'Español' },
-  { value: 'de', label: 'Deutsch' },
-]
 
 interface StepInstanceProps {
   instance: InstanceInput
@@ -51,7 +43,7 @@ export default function StepInstance({ instance, onChange, errors }: StepInstanc
             value={instance.timezone}
             onChange={(e) => onChange({ timezone: e.target.value })}
           >
-            {timezones.map((tz) => (
+            {timezoneOptions(instance.timezone).map((tz) => (
               <option key={tz} value={tz}>
                 {tz}
               </option>
@@ -69,7 +61,7 @@ export default function StepInstance({ instance, onChange, errors }: StepInstanc
             value={instance.locale}
             onChange={(e) => onChange({ locale: e.target.value })}
           >
-            {locales.map((locale) => (
+            {LOCALES.map((locale) => (
               <option key={locale.value} value={locale.value}>
                 {locale.label}
               </option>

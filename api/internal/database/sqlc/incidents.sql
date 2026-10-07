@@ -164,3 +164,10 @@ RETURNING id;
 UPDATE incidents
 SET search_vector = incident_search_vector(id)
 WHERE id = sqlc.arg(id);
+
+-- name: RefreshIncidentSearchVectors :exec
+-- Same as RefreshIncidentSearchVector for several incidents, e.g. every
+-- incident whose tag was just renamed, merged or deleted.
+UPDATE incidents
+SET search_vector = incident_search_vector(id)
+WHERE id = ANY (sqlc.arg(ids)::bigint[]);

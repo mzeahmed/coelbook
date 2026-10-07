@@ -83,6 +83,27 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const emailTakenByOtherUser = `-- name: EmailTakenByOtherUser :one
+SELECT EXISTS (
+    SELECT 1
+    FROM users
+    WHERE lower(email) = lower($1) AND id <> $2
+)
+`
+
+type EmailTakenByOtherUserParams struct {
+	Email  string `json:"email"`
+	UserID int64  `json:"user_id"`
+}
+
+// Case-insensitive, like the address a user would type to sign in.
+func (q *Queries) EmailTakenByOtherUser(ctx context.Context, arg EmailTakenByOtherUserParams) (bool, error) {
+	row := q.db.QueryRow(ctx, emailTakenByOtherUser, arg.Email, arg.UserID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const findUserByEmail = `-- name: FindUserByEmail :one
 SELECT id, email, password_hash, first_name, last_name, created_at, updated_at, session_version
 FROM users
@@ -187,4 +208,42 @@ type UpdateUserPasswordAndSessionVersionParams struct {
 func (q *Queries) UpdateUserPasswordAndSessionVersion(ctx context.Context, arg UpdateUserPasswordAndSessionVersionParams) error {
 	_, err := q.db.Exec(ctx, updateUserPasswordAndSessionVersion, arg.ID, arg.PasswordHash)
 	return err
+}
+
+const updateUserProfile = `-- name: UpdateUserProfile :one
+UPDATE users
+SET first_name = $1,
+    last_name  = $2,
+    email      = $3,
+    updated_at = now()
+WHERE id = $4
+RETURNING id, email, password_hash, first_name, last_name, created_at, updated_at, session_version
+`
+
+type UpdateUserProfileParams struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	ID        int64  `json:"id"`
+}
+
+func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUserProfile,
+		arg.FirstName,
+		arg.LastName,
+		arg.Email,
+		arg.ID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.LastName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SessionVersion,
+	)
+	return i, err
 }

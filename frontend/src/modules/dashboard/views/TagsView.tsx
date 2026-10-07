@@ -314,7 +314,8 @@ function TagRow({ tag, allTags, isLast, onReplaced, onDeleted, onAuthError }: Ta
             <div className="pb-merge-prompt rounded-3 small mt-2 p-2 px-3 d-flex flex-wrap align-items-center gap-2">
               <span className="flex-grow-1">
                 Le tag « {mergeTarget.name} » existe déjà. Fusionner « {tag.name} » dans « {mergeTarget.name} » ?
-                {tag.incident_count > 0 && <> Ses {coelbookCount(tag.incident_count)} prendront le tag « {mergeTarget.name} ».</>}
+                {tag.incident_count === 1 && <> Son coelbook prendra le tag « {mergeTarget.name} ».</>}
+                {tag.incident_count > 1 && <> Ses {tag.incident_count} coelbooks prendront le tag « {mergeTarget.name} ».</>}
               </span>
               <button type="button" className="btn btn-sm btn-primary fw-medium" onClick={handleMerge} disabled={busy}>
                 Fusionner

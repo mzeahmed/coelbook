@@ -11,7 +11,7 @@ endif
 
 COMPOSE := docker compose -f docker-compose.yml --env-file .env
 
-APP_CONTAINER := coelbook_backend
+APP_CONTAINER := coelbook_api
 
 GREEN  := \033[0;32m
 YELLOW := \033[1;33m
@@ -38,26 +38,26 @@ help: ## Show available commands
 # Development
 # ==============================================================================
 
-run: ## Run the server
-	cd backend && go run ./cmd/api
+run: ## Run the API server
+	cd api && go run ./cmd/api
 
 build: ## Build the local binary
-	@mkdir -p backend/bin
-	cd backend && go build -o bin/coelbook ./cmd
-	@echo "$(GREEN)✓ Binary generated in backend/bin/coelbook$(RESET)"
+	@mkdir -p api/bin
+	cd api && go build -o bin/coelbook ./cmd
+	@echo "$(GREEN)✓ Binary generated in api/bin/coelbook$(RESET)"
 
 # ==============================================================================
 # Quality
 # ==============================================================================
 
 fmt: ## Format the source code
-	cd backend && go fmt ./...
+	cd api && go fmt ./...
 
 vet: ## Run go vet
-	cd backend && go vet ./...
+	cd api && go vet ./...
 
 test: ## Run unit tests
-	cd backend && go test ./...
+	cd api && go test ./...
 
 check: fmt vet test ## Run all quality checks
 
@@ -66,17 +66,17 @@ check: fmt vet test ## Run all quality checks
 # ==============================================================================
 
 tidy: ## Clean up go.mod / go.sum
-	cd backend && go mod tidy
+	cd api && go mod tidy
 
 update: ## Update dependencies
-	cd backend && go get -u ./...
-	cd backend && go mod tidy
+	cd api && go get -u ./...
+	cd api && go mod tidy
 
 # ==============================================================================
 # Modules
 # ==============================================================================
 
-module: ## Scaffold a new backend module | make module m="module_name"
+module: ## Scaffold a new API module | make module m="module_name"
 	@if [ $(m) ]; then \
 		./scripts/create-module.sh ${m}; \
 	else \
@@ -101,7 +101,7 @@ commit: ## Commit and push changes | make commit m="message" b="branch"
 migrate-create: ## Create migrations | make migrate-create t="table_name"
 	@if [ $(t) ]; then \
   		echo "$(GREEN)Migrations building ... $(RESET)"; \
-		goose -dir backend/internal/database/migrations -s create ${t} sql; \
+		goose -dir api/internal/database/migrations -s create ${t} sql; \
 		echo "$(GREEN)Migrations built $(RESET)"; \
 	else \
 		echo "$(RED)(t) param is required (make migrations t='table_name') $(RESET)"; \
@@ -109,16 +109,16 @@ migrate-create: ## Create migrations | make migrate-create t="table_name"
 
 migrate-up: ## Apply migrations
 	@echo "$(GREEN)Database migrations up ... $(RESET)";
-	goose -dir backend/internal/database/migrations postgres "user=$(DB_USER) password=$(DB_PASSWORD) host=$(DB_HOST) port=$(DB_PORT) dbname=$(DB_NAME) sslmode=disable" up
+	goose -dir api/internal/database/migrations postgres "user=$(DB_USER) password=$(DB_PASSWORD) host=$(DB_HOST) port=$(DB_PORT) dbname=$(DB_NAME) sslmode=disable" up
 	@echo "$(GREEN)Database migrations finished! $(RESET)";
 
 migrate-down: ## Roll back the last migration
 	@echo "$(GREEN)Rollback last database migration ... $(RESET)";
-	goose -dir backend/internal/database/migrations postgres "user=$(DB_USER) password=$(DB_PASSWORD) host=$(DB_HOST) port=$(DB_PORT) dbname=$(DB_NAME) sslmode=disable" down
+	goose -dir api/internal/database/migrations postgres "user=$(DB_USER) password=$(DB_PASSWORD) host=$(DB_HOST) port=$(DB_PORT) dbname=$(DB_NAME) sslmode=disable" down
 	@echo "$(GREEN)Rollback done! $(RESET)";
 
 sqlc: ## Regenerate Go code from SQL queries
-	cd backend && sqlc generate
+	cd api && sqlc generate
 
 # ==============================================================================
 # Docker
@@ -138,10 +138,10 @@ up: hosts-add ## Build and start the containers
 	@echo "$(YELLOW)Starting containers...$(RESET)"
 	$(COMPOSE) up -d --build
 	@echo "$(GREEN)Containers started$(RESET)"
-	@echo "$(BLUE)Backend URL: http://api.coelbook.local$(RESET)"
+	@echo "$(BLUE)API URL: http://api.coelbook.local$(RESET)"
 	@echo "$(BLUE)Frontend URL: http://coelbook.local$(RESET)"
-	@echo "$(BLUE)Postgres: localhost:5432$(RESET)"
 	@echo "$(BLUE)Adminer URL: http://localhost:8081$(RESET)"
+	@echo "$(BLUE)Mailpit URL: http://localhost:8025$(RESET)"
 
 down: hosts-remove ## Stop the containers
 	@echo "$(YELLOW)Stopping containers...$(RESET)"
@@ -167,7 +167,7 @@ bash: ## Access the app container
 # ==============================================================================
 
 clean: ## Remove generated files
-	rm -rf backend/bin
+	rm -rf api/bin
 
 doctor: ## Show the development environment
 	@echo ""

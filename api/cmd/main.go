@@ -1,0 +1,59 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"time"
+
+	"github.com/mzeahmed/coelbook/internal/config"
+	"github.com/mzeahmed/coelbook/internal/database"
+	"github.com/mzeahmed/coelbook/internal/logger"
+	"github.com/mzeahmed/coelbook/internal/mailer"
+	"github.com/mzeahmed/coelbook/internal/middleware"
+	"github.com/mzeahmed/coelbook/internal/router"
+	"github.com/mzeahmed/coelbook/internal/server"
+)
+
+func main() {
+	if err := runConfig(); err != nil {
+		_, err := fmt.Fprintln(os.Stderr, err)
+		if err != nil {
+			return
+		}
+		os.Exit(1)
+	}
+}
+
+func runConfig() error {
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("load config: %w", err)
+	}
+
+	log := logger.New(cfg.Debug)
+
+	pool, err := database.Open(context.Background(), cfg.Database.DSN)
+	if err != nil {
+		return fmt.Errorf("open database: %w", err)
+	}
+	defer pool.Close()
+
+	handler := router.New(pool, cfg.Auth.JwtSecret, mailer.NewSMTP(cfg.Mail), log)
+	handler = middleware.LoggingWith(log)(middleware.RecoveryWith(log)(handler))
+
+	log.Info("starting coelbook server",
+		"addr", cfg.Server.Addr(),
+	)
+
+	if err := server.Run(server.Config{
+		Addr:         cfg.Server.Addr(),
+		Handler:      handler,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}); err != nil {
+		return fmt.Errorf("start server: %w", err)
+	}
+
+	return nil
+}

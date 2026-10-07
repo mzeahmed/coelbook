@@ -4,13 +4,17 @@ import { getSetupStatus } from '@/modules/wizard/api'
 import { getToken } from '@/modules/auth/session'
 import SetupView from '@/modules/wizard/views/SetupView'
 import LoginView from '@/modules/auth/views/LoginView'
+import ForgotPasswordView from '@/modules/auth/views/ForgotPasswordView'
+import ResetPasswordView from '@/modules/auth/views/ResetPasswordView'
 import DashboardView from '@/modules/dashboard/views/DashboardView'
+import IncidentView from '@/modules/dashboard/views/IncidentView'
+import IncidentFormView from '@/modules/dashboard/views/IncidentFormView'
 
-// The backend is the single source of truth for initialization state, so
+// The API is the single source of truth for initialization state, so
 // every navigation re-checks it instead of trusting anything cached
 // client-side: /setup is unreachable once initialized, and every other
 // route is unreachable until it is.
-async function guard(routeName: 'setup' | 'login') {
+async function guard(routeName: 'setup' | 'login' | 'forgot-password' | 'reset-password') {
   let initialized: boolean
 
   try {
@@ -54,9 +58,36 @@ const router = createBrowserRouter([
     Component: LoginView,
   },
   {
+    path: '/forgot-password',
+    loader: () => guard('forgot-password'),
+    Component: ForgotPasswordView,
+  },
+  {
+    path: '/reset-password',
+    loader: () => guard('reset-password'),
+    Component: ResetPasswordView,
+  },
+  {
     path: '/dashboard',
     loader: () => (getToken() ? null : redirect('/login')),
     Component: DashboardView,
+  },
+  {
+    // Matched before /incidents/:slug (static segments rank higher); the
+    // API never generates the "new" slug, so no incident is shadowed.
+    path: '/incidents/new',
+    loader: () => (getToken() ? null : redirect('/login')),
+    Component: IncidentFormView,
+  },
+  {
+    path: '/incidents/:slug',
+    loader: () => (getToken() ? null : redirect('/login')),
+    Component: IncidentView,
+  },
+  {
+    path: '/incidents/:slug/edit',
+    loader: () => (getToken() ? null : redirect('/login')),
+    Component: IncidentFormView,
   },
 ])
 

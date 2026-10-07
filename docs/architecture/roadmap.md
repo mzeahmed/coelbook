@@ -4,47 +4,58 @@ This roadmap describes the planned evolution of Coelbook.
 
 It is intended as a guideline rather than a strict commitment. Priorities may change as the project evolves.
 
+The vocabulary follows the [domain model](domain.md): the central entity is the **Incident**, classified by **Categories** and **Tags**, and enriched with **Snippets**, **Attachments** and **Links**.
+
+Items marked *(partial)* are started but not complete; the note says what is missing.
+
 ---
 
 ## v0.1.0 — Foundation
 
 - [x] Initial project structure
 - [x] React frontend
-- [x] Go backend
+- [x] Go API
 - [x] PostgreSQL support
+- [x] Database schema (users, categories, tags, incidents, snippets, attachments, links)
 - [x] Installation wizard
 - [x] Authentication
-- [ ] Dashboard
-- [ ] Book management
+- [x] Password reset
+- [ ] Dashboard *(partial: incident list with filters and pagination exists; no stats or overview yet)*
+- [x] Incident detail view
 - [ ] Basic documentation pages
 
 ---
 
 ## v0.2.0 — Knowledge Base
 
-- [ ] Create, edit and delete books
-- [ ] Nested pages
+- [ ] Create, edit and delete incidents *(partial: create and edit done; delete missing)*
+- [x] Structured incident sections (problem, diagnosis, root cause, solution, prevention)
+- [x] Incident lifecycle: draft → published → archived
+- [ ] Category management
 - [ ] Markdown editor
 - [ ] Table of contents
-- [ ] Page history
+- [ ] Incident history
 
 ---
 
 ## v0.3.0 — Search
 
-- [ ] Full-text search
-- [ ] Filters
-- [ ] Tags
+- [ ] Full-text search *(partial: `ILIKE` match on title and summary only)*
+- [ ] Filters *(partial: category, status and tag filters on the incident list)*
+- [ ] Tags *(partial: assigned from the incident form and created on the fly; no tag management)*
+- [ ] Dedicated category and tag endpoints for filter facets *(partial: `GET /categories` exists; no tag endpoint, dashboard filters not switched over yet)*
 - [ ] Quick search (Command Palette)
 
 ---
 
-## v0.4.0 — Attachments
+## v0.4.0 — Snippets & Attachments
 
-- [ ] Image uploads
-- [ ] File attachments
+- [ ] Code snippets *(partial: displayed on the detail view; no create/edit)*
 - [ ] Syntax highlighting
 - [ ] Copy code blocks
+- [ ] Image uploads
+- [ ] File attachments *(partial: `attachments` table exists; no upload or storage)*
+- [ ] External links *(partial: displayed on the detail view; no create/edit)*
 
 ---
 
@@ -52,7 +63,7 @@ It is intended as a guideline rather than a strict commitment. Priorities may ch
 
 - [ ] User management
 - [ ] Roles & permissions
-- [ ] Shared books
+- [ ] Teams and shared incidents
 - [ ] Activity log
 
 ---

@@ -10,7 +10,7 @@
 
 <p align="center">
 
-[![Go Version](https://img.shields.io/badge/Go-1.26.5-00ADD8?logo=go&logoColor=white)](backend/go.mod)
+[![Go Version](https://img.shields.io/badge/Go-1.26.5-00ADD8?logo=go&logoColor=white)](api/go.mod)
 [![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vite.dev)
@@ -173,7 +173,7 @@ Coelbook can document incidents related to:
 
 # Tech stack
 
-## Backend
+## API
 
 - Go
 - Chi
@@ -229,7 +229,7 @@ Coelbook can document incidents related to:
    This command:
    - adds `coelbook.local` and `api.coelbook.local` to `/etc/hosts` (asks for your sudo password)
    - copies `.env.example` to `.env` if it doesn't exist yet
-   - builds and starts the containers: PostgreSQL, backend (hot-reload via [air](https://github.com/air-verse/air)), frontend (Vite dev server), nginx, Adminer
+   - builds and starts the containers: PostgreSQL, API (hot-reload via [air](https://github.com/air-verse/air)), frontend (Vite dev server), nginx, Adminer and Mailpit
 
 ## Available services
 
@@ -238,6 +238,7 @@ Coelbook can document incidents related to:
 | Frontend   | http://coelbook.local      |
 | API        | http://api.coelbook.local  |
 | Adminer    | http://localhost:8081      |
+| Mailpit    | http://localhost:8025      |
 | PostgreSQL | localhost:5432             |
 
 ## Stopping
@@ -254,12 +255,12 @@ Stops the containers and removes `coelbook.local`/`api.coelbook.local` from `/et
 | --- | --- |
 | `make logs` | Follow the containers' logs |
 | `make ps` | List the containers |
-| `make bash` | Open a shell in the backend container |
+| `make bash` | Open a shell in the API container |
 | `make restart` | Restart the environment |
 | `make migrate-up` | Apply migrations |
 | `make migrate-down` | Roll back the last migration |
 | `make sqlc` | Regenerate Go code from SQL queries |
-| `make module m="name"` | Scaffold a new backend module and wire it into the router |
+| `make module m="name"` | Scaffold a new API module and wire it into the router |
 
 The full list of commands is available via:
 

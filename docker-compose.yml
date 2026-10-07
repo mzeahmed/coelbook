@@ -19,15 +19,15 @@ services:
     networks:
       - coelbook
 
-  backend:
+  api:
     build:
-      context: backend
-      dockerfile: ../.docker/backend/Dockerfile
-    container_name: coelbook_backend
+      context: api
+      dockerfile: ../.docker/api/Dockerfile
+    container_name: coelbook_api
     restart: unless-stopped
     working_dir: /app
     volumes:
-      - ./backend:/app
+      - ./api:/app
       - /app/tmp
       - go_mod_cache:/go/pkg/mod
       - go_build_cache:/root/.cache/go-build
@@ -46,9 +46,27 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      APP_BASE_URL: ${APP_BASE_URL:-http://coelbook.local}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@coelbook.local}
+      SMTP_TLS: ${SMTP_TLS:-false}
     depends_on:
       postgres:
         condition: service_healthy
+      mailpit:
+        condition: service_started
+    networks:
+      - coelbook
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: coelbook_mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_PORT:-8025}:8025"
     networks:
       - coelbook
 
@@ -74,7 +92,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      - api
     networks:
       - coelbook
 

@@ -18,7 +18,7 @@ export interface SetupStatus {
 }
 
 // getSetupStatus reports whether the setup wizard has already been
-// completed. The backend is the single source of truth for this: it must
+// completed. The API is the single source of truth for this: it must
 // be checked on every load, never assumed from local/session state.
 //
 // This runs on every route navigation, so it uses a short timeout: a slow
@@ -28,7 +28,7 @@ export function getSetupStatus (): Promise<SetupStatus> {
   return apiFetch<SetupStatus>('/api/setup/status', undefined, 5000)
 }
 
-// completeSetup submits the full wizard payload in one call: the backend
+// completeSetup submits the full wizard payload in one call: the API
 // creates the administrator and stores the instance configuration in a
 // single transaction.
 export function completeSetup (admin: AdminInput, instance: InstanceInput): Promise<null> {

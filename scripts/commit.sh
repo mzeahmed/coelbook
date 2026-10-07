@@ -105,12 +105,12 @@ fi
 require_command make
 require_command go
 require_command npm
-require_file "backend/go.mod"
+require_file "api/go.mod"
 require_file "frontend/package.json"
 
 # Runs Go formatting, static analysis, tests, compilation, and frontend checks.
 run_step "🔧 Go quality checks" make check
-run_step "🏗️  Go build" bash -c 'cd backend && go build ./...'
+run_step "🏗️  Go build" bash -c 'cd api && go build ./...'
 run_step "🔍 Frontend lint" npm --prefix frontend run lint
 run_step "🏗️  Frontend build" npm --prefix frontend run build
 

@@ -18,6 +18,7 @@ import {
   type IncidentWriteRequest,
 } from '../api'
 import LinksField from '../components/LinksField'
+import MarkdownField from '../components/MarkdownField'
 import Sidebar from '../components/Sidebar'
 import SnippetsField from '../components/SnippetsField'
 import Topbar from '../components/Topbar'
@@ -350,12 +351,10 @@ export default function IncidentFormView() {
                     <div className="small mb-2" style={{ color: 'var(--pb-text-muted)' }}>
                       {section.hint}
                     </div>
-                    <textarea
+                    <MarkdownField
                       id={`incident-${section.key}`}
-                      className="form-control"
-                      rows={5}
                       value={form[section.key]}
-                      onChange={(e) => update(section.key, e.target.value)}
+                      onChange={(value) => update(section.key, value)}
                     />
                   </section>
                 ))}

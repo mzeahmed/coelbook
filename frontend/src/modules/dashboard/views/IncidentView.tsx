@@ -6,6 +6,7 @@ import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { getIncident, type IncidentDetail } from '../api'
 import CodeBlock from '../components/CodeBlock'
+import Markdown from '../components/Markdown'
 import Sidebar from '../components/Sidebar'
 import Topbar from '../components/Topbar'
 import { categoryBadgeClass, STATUS_BADGE, STATUS_LABEL, timeAgo } from '../lib/format'
@@ -173,7 +174,9 @@ export default function IncidentView() {
                         <i className={`fa-solid ${section.icon}`} style={{ fontSize: '0.8rem', color: 'var(--pb-text-muted)' }}></i>
                         {section.label}
                       </h2>
-                      <div className="pb-section-body small mb-0">{incident[section.key]}</div>
+                      <div className="small">
+                        <Markdown>{incident[section.key]}</Markdown>
+                      </div>
                     </section>
                   ))}
 

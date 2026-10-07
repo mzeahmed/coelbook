@@ -11,6 +11,9 @@ export interface ApiEnvelope<T> {
   success: boolean
   // Stable machine-readable error code, set on error responses only.
   error?: string
+  // Path of the request field a validation error is about, e.g. "title"
+  // or "snippets[2].content".
+  field?: string
   message: string
   data: T
 }
@@ -30,12 +33,15 @@ export class ApiError extends Error {
   // Stable error code, from the API envelope or CLIENT_ERROR_CODES; empty
   // if the API didn't send one. Use errorMessage() to display it.
   errorCode: string
+  // Request field the error is about (validation errors only), or ''.
+  field: string
 
-  constructor (code: number, errorCode: string, message: string) {
+  constructor (code: number, errorCode: string, message: string, field = '') {
     super(message)
     this.name = 'ApiError'
     this.code = code
     this.errorCode = errorCode
+    this.field = field
   }
 }
 
@@ -89,7 +95,7 @@ export async function apiFetch<T>(
   }
 
   if (!body.success) {
-    throw new ApiError(body.code, body.error ?? '', body.message)
+    throw new ApiError(body.code, body.error ?? '', body.message, body.field ?? '')
   }
 
   return body.data

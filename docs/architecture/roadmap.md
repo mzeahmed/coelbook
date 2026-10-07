@@ -20,6 +20,8 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 - [x] Installation wizard
 - [x] Authentication
 - [x] Password reset
+- [x] French user interface (docs and code stay in English)
+- [x] Stable API error codes, translated by the frontend
 - [ ] Dashboard *(partial: incident list with filters and pagination exists; no stats or overview yet)*
 - [x] Incident detail view
 - [ ] Basic documentation pages
@@ -29,6 +31,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 ## v0.2.0 — Knowledge Base
 
 - [ ] Create, edit and delete incidents *(partial: create and edit done; delete missing)*
+- [x] Field-level validation feedback in forms
 - [x] Structured incident sections (problem, diagnosis, root cause, solution, prevention)
 - [x] Incident lifecycle: draft → published → archived
 - [ ] Category management
@@ -50,12 +53,12 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 ## v0.4.0 — Snippets & Attachments
 
-- [ ] Code snippets *(partial: displayed on the detail view; no create/edit)*
+- [x] Code snippets
 - [ ] Syntax highlighting
 - [ ] Copy code blocks
 - [ ] Image uploads
 - [ ] File attachments *(partial: `attachments` table exists; no upload or storage)*
-- [ ] External links *(partial: displayed on the detail view; no create/edit)*
+- [x] External links
 
 ---
 

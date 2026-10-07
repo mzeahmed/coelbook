@@ -24,7 +24,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 - [x] Stable API error codes, translated by the frontend
 - [x] Dashboard (overview with key figures, recent activity, categories and tags)
 - [x] Incident detail view
-- [ ] Basic documentation pages
+- [x] Basic documentation pages (README, user guide, development guide, in-app help)
 
 ---
 

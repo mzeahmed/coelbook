@@ -3,14 +3,14 @@ import { Link, useLocation } from 'react-router-dom'
 import { clearSession, getUser } from '@/modules/auth/session'
 
 interface SidebarProps {
-  // incidentCount is omitted on pages that don't load the incident list;
-  // the count badge is then hidden.
+  // incidentCount is the total number of incidents, whatever the current
+  // filters; pages that don't know it omit it and the badge is hidden.
   incidentCount?: number
 }
 
-// Nav items other than "Tableau de bord", "Coelbooks" and "Catégories" don't lead anywhere yet — they're
-// rendered as inert buttons (not links) so the sidebar communicates the
-// product's intended shape without pretending to navigate somewhere.
+// Sections that don't exist yet ("Tags", "Paramètres") are rendered as
+// disabled entries so the sidebar shows the product's intended shape
+// without pretending to navigate somewhere.
 export default function Sidebar({ incidentCount }: SidebarProps) {
   const user = getUser()
   const { pathname } = useLocation()
@@ -20,7 +20,9 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
     ? 'categories'
     : pathname.startsWith('/overview')
       ? 'overview'
-      : 'incidents'
+      : pathname.startsWith('/help')
+        ? 'help'
+        : 'incidents'
   const navClass = (active: boolean) =>
     `pb-nav-link ${active ? 'active' : ''} d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-decoration-none small`
 
@@ -92,13 +94,10 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           <span className="fw-medium">Catégories</span>
         </Link>
 
-        <button
-          type="button"
-          className="pb-nav-link btn text-start d-flex align-items-center gap-3 px-3 py-2 rounded-3 small border-0"
-        >
+        <span className={`${navClass(false)} pb-nav-disabled`} aria-disabled="true" title="Bientôt disponible">
           <i className="fa-solid fa-tags text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Tags</span>
-        </button>
+        </span>
 
         <p
           className="px-2 mb-1 mt-4 text-uppercase fw-semibold"
@@ -107,13 +106,15 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           Système
         </p>
 
-        <button
-          type="button"
-          className="pb-nav-link btn text-start d-flex align-items-center gap-3 px-3 py-2 rounded-3 small border-0"
-        >
+        <Link to="/help" className={navClass(section === 'help')} aria-current={section === 'help' ? 'page' : undefined}>
+          <i className="fa-solid fa-circle-question text-center" style={{ width: '1rem' }}></i>
+          <span className="fw-medium">Aide</span>
+        </Link>
+
+        <span className={`${navClass(false)} pb-nav-disabled`} aria-disabled="true" title="Bientôt disponible">
           <i className="fa-solid fa-gear text-center" style={{ width: '1rem' }}></i>
           <span className="fw-medium">Paramètres</span>
-        </button>
+        </span>
       </nav>
 
       <div className="p-3 border-top flex-shrink-0">

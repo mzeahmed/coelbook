@@ -48,12 +48,16 @@ export default function DashboardView() {
   // endpoints rather than from the incident list, so they don't shrink as
   // the user narrows their search.
   const [categoryOptions, setCategoryOptions] = useState<IncidentCategory[]>([])
+  // Every incident has exactly one category, so the per-category counts
+  // add up to the unfiltered total shown in the sidebar.
+  const [allIncidentsTotal, setAllIncidentsTotal] = useState<number | undefined>(undefined)
   const [tagOptions, setTagOptions] = useState<IncidentTag[]>([])
 
   useEffect(() => {
     Promise.all([listCategories(), listTags()])
       .then(([categories, tags]) => {
         setCategoryOptions(categories)
+        setAllIncidentsTotal(categories.reduce((sum, c) => sum + c.incident_count, 0))
         setTagOptions(tags)
       })
       .catch(() => {
@@ -106,7 +110,7 @@ export default function DashboardView() {
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar incidentCount={total} />
+      <Sidebar incidentCount={allIncidentsTotal} />
 
       <main className="flex-grow-1 d-flex flex-column min-w-0" style={{ backgroundColor: 'var(--pb-bg)' }}>
         <Topbar />

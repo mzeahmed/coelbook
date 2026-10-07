@@ -6,12 +6,17 @@ interface SidebarProps {
   // incidentCount is the total number of incidents, whatever the current
   // filters; pages that don't know it omit it and the badge is hidden.
   incidentCount?: number
+  // className positions the sidebar: AppLayout renders it as a sticky
+  // column on desktop and inside the mobile menu panel.
+  className?: string
+  // onClose, when set, adds a close button to the header (mobile menu).
+  onClose?: () => void
 }
 
 // Sections that don't exist yet ("Tags", "Paramètres") are rendered as
 // disabled entries so the sidebar shows the product's intended shape
 // without pretending to navigate somewhere.
-export default function Sidebar({ incidentCount }: SidebarProps) {
+export default function Sidebar({ incidentCount, className = '', onClose }: SidebarProps) {
   const user = getUser()
   const { pathname } = useLocation()
 
@@ -32,12 +37,9 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
   }
 
   return (
-    <aside
-      className="pb-surface border-end flex-shrink-0 d-none d-md-flex flex-column"
-      style={{ width: '15rem', minHeight: '100vh' }}
-    >
+    <aside className={`pb-surface border-end flex-shrink-0 flex-column ${className}`} style={{ width: '15rem' }}>
       <div
-        className="d-flex align-items-center px-3 border-bottom flex-shrink-0"
+        className="d-flex align-items-center justify-content-between px-3 border-bottom flex-shrink-0"
         style={{ height: '3.5rem' }}
       >
         <div className="d-flex align-items-center gap-2 fw-semibold">
@@ -49,6 +51,9 @@ export default function Sidebar({ incidentCount }: SidebarProps) {
           </div>
           Coelbook
         </div>
+        {onClose && (
+          <button type="button" className="btn-close" onClick={onClose} aria-label="Fermer le menu"></button>
+        )}
       </div>
 
       <nav className="flex-grow-1 overflow-y-auto py-3 px-2 d-flex flex-column gap-1">

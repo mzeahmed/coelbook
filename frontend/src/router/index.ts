@@ -7,6 +7,7 @@ import LoginView from '@/modules/auth/views/LoginView'
 import ForgotPasswordView from '@/modules/auth/views/ForgotPasswordView'
 import ResetPasswordView from '@/modules/auth/views/ResetPasswordView'
 import DashboardView from '@/modules/dashboard/views/DashboardView'
+import CategoriesView from '@/modules/dashboard/views/CategoriesView'
 
 // The API is the single source of truth for initialization state, so
 // every navigation re-checks it instead of trusting anything cached
@@ -76,6 +77,11 @@ const router = createBrowserRouter([
     path: '/dashboard',
     loader: () => (getToken() ? null : redirect('/login')),
     Component: DashboardView,
+  },
+  {
+    path: '/categories',
+    loader: () => (getToken() ? null : redirect('/login')),
+    Component: CategoriesView,
   },
   {
     // Matched before /incidents/:slug (static segments rank higher); the

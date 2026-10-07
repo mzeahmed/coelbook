@@ -1,8 +1,8 @@
-package incident
+package slug
 
 import "testing"
 
-func TestSlugify(t *testing.T) {
+func TestMake(t *testing.T) {
 	tests := []struct {
 		in   string
 		want string
@@ -12,14 +12,18 @@ func TestSlugify(t *testing.T) {
 		{"  Docker -- build   fails!  ", "docker-build-fails"},
 		{"CI/CD pipeline v2.1", "ci-cd-pipeline-v2-1"},
 		{"Ça déraille à 100 %", "ca-deraille-a-100"},
+		{"Base de données", "base-de-donnees"},
+		{"Sécurité", "securite"},
+		{"Système", "systeme"},
+		{"Réseau", "reseau"},
 		{"!!!", ""},
 		{"", ""},
 		{"日本語", ""},
 	}
 
 	for _, tt := range tests {
-		if got := slugify(tt.in); got != tt.want {
-			t.Errorf("slugify(%q) = %q, want %q", tt.in, got, tt.want)
+		if got := Make(tt.in); got != tt.want {
+			t.Errorf("Make(%q) = %q, want %q", tt.in, got, tt.want)
 		}
 	}
 }

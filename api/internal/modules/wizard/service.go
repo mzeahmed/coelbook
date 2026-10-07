@@ -10,11 +10,24 @@ import (
 	"github.com/mzeahmed/coelbook/internal/apperr"
 	repo "github.com/mzeahmed/coelbook/internal/database/queries"
 	"github.com/mzeahmed/coelbook/internal/password"
+	"github.com/mzeahmed/coelbook/internal/slug"
 )
 
 // ErrAlreadyInitialized is returned by Setup when the wizard has already
 // been completed.
 var ErrAlreadyInitialized = apperr.New("already_initialized", "application is already initialized")
+
+// defaultCategories are created by Setup so a fresh instance can file its
+// first incidents right away (a category is required). They're named in
+// French like the rest of the UI, and can be renamed or deleted later.
+var defaultCategories = []string{
+	"Base de données",
+	"CI/CD",
+	"Docker",
+	"Réseau",
+	"Sécurité",
+	"Système",
+}
 
 // uniqueViolation is the Postgres error code raised when a unique or
 // primary key constraint is violated.
@@ -40,9 +53,10 @@ func (s *Service) Status(ctx context.Context) (bool, error) {
 	return repo.New(s.pool).HasUser(ctx)
 }
 
-// Setup creates the administrator account and stores the instance
-// configuration in a single transaction: either both are persisted along
-// with the initialization state, or nothing is.
+// Setup creates the administrator account, stores the instance
+// configuration and seeds the default categories in a single
+// transaction: either all of it is persisted along with the
+// initialization state, or nothing is.
 //
 // It fails with ErrAlreadyInitialized if an administrator already exists.
 // If a wizard row is present without one (a previously initialized
@@ -99,6 +113,12 @@ func (s *Service) Setup(ctx context.Context, req SetupRequest) error {
 		}
 
 		return err
+	}
+
+	for _, name := range defaultCategories {
+		if err := q.SeedCategory(ctx, repo.SeedCategoryParams{Name: name, Slug: slug.Make(name)}); err != nil {
+			return err
+		}
 	}
 
 	return tx.Commit(ctx)

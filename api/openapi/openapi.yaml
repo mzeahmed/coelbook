@@ -18,7 +18,7 @@ tags:
   - name: Incidents
     description: Incident knowledge base (requires authentication)
   - name: Categories
-    description: Incident categories (requires authentication)
+    description: Incident categories (requires authentication). Setup creates a default set.
   - name: Tags
     description: Incident tags (requires authentication)
 
@@ -83,6 +83,13 @@ components:
             - too_many_links
             - link_url_required
             - invalid_link_url
+            # Categories
+            - category_name_required
+            - category_name_too_long
+            - category_description_too_long
+            - category_name_taken
+            - category_not_found
+            - category_in_use
         field:
           type: string
           description: >
@@ -403,7 +410,25 @@ components:
           type: string
         slug:
           type: string
-      required: [name, slug]
+        description:
+          type: string
+        incident_count:
+          type: integer
+          format: int64
+          description: Number of incidents in this category (any status).
+      required: [name, slug, description, incident_count]
+
+    CategoryWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Unique, compared case-insensitively.
+        description:
+          type: string
+          maxLength: 500
+      required: [name]
 
     Tag:
       type: object
@@ -803,10 +828,47 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
   /categories:
+    post:
+      operationId: createCategory
+      tags: [Categories]
+      summary: Create a category
+      description: The slug is derived from the name and suffixed (-2, -3, …) if already taken.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryWriteRequest"
+      responses:
+        "201":
+          description: The created category.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Category"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: "`category_name_taken`: another category has this name."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
     get:
       operationId: listCategories
       tags: [Categories]
-      summary: List all categories, sorted by name
+      summary: List all categories with their incident count, sorted by name
       security:
         - BearerAuth: []
       responses:
@@ -825,6 +887,79 @@ paths:
                           $ref: "#/components/schemas/Category"
         "401":
           $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /categories/{slug}:
+    parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Category slug.
+    put:
+      operationId: updateCategory
+      tags: [Categories]
+      summary: Rename a category and replace its description
+      description: The slug never changes, even when the name does.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryWriteRequest"
+      responses:
+        "200":
+          description: The updated category.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Category"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: "`category_name_taken`: another category has this name."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      operationId: deleteCategory
+      tags: [Categories]
+      summary: Delete a category no incident uses
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Category deleted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: "`category_in_use`: incidents still belong to this category."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Envelope"
         "500":
           $ref: "#/components/responses/InternalServerError"
 

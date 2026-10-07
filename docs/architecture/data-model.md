@@ -100,6 +100,10 @@ Examples:
 | slug | String |
 | description | Text |
 
+Names are unique case-insensitively; the slug is derived from the name at creation and never changes. A category can only be deleted once no incident uses it (enforced by the `incidents.category_id` foreign key).
+
+The setup wizard creates a default set so a fresh instance can file its first incident right away: Base de données, CI/CD, Docker, Réseau, Sécurité, Système (French, like the UI). They can be renamed or deleted like any other category.
+
 ---
 
 # Tag

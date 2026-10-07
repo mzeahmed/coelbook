@@ -16,6 +16,7 @@ type Querier interface {
 	CategorySlugExists(ctx context.Context, slug string) (bool, error)
 	ConsumePasswordResetToken(ctx context.Context, id int64) error
 	CountIncidents(ctx context.Context, arg CountIncidentsParams) (int64, error)
+	CountIncidentsByStatus(ctx context.Context) ([]CountIncidentsByStatusRow, error)
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) error
 	CreateIncident(ctx context.Context, arg CreateIncidentParams) (int64, error)
 	CreateLink(ctx context.Context, arg CreateLinkParams) error
@@ -51,12 +52,14 @@ type Querier interface {
 	// Tags attached to at least one incident; orphans (left behind when an
 	// incident drops its last use of a tag) are omitted.
 	ListUsedTags(ctx context.Context) ([]Tag, error)
+	RecentlyUpdatedIncidents(ctx context.Context, maxIncidents int32) ([]RecentlyUpdatedIncidentsRow, error)
 	// Rebuilds the incident's full-text document; call it after any change to
 	// the incident, its tags or its snippets (see incident_search_vector()).
 	RefreshIncidentSearchVector(ctx context.Context, id int64) error
 	// Used by the setup wizard; an instance re-initialized after its admin was
 	// removed may already have its categories.
 	SeedCategory(ctx context.Context, arg SeedCategoryParams) error
+	TopTags(ctx context.Context, maxTags int32) ([]TopTagsRow, error)
 	// The slug is left unchanged so filters and links keep working.
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (int64, error)
 	// The slug is deliberately left unchanged so existing links keep working
@@ -66,6 +69,10 @@ type Querier interface {
 	// Returns the id of the tag with this slug, creating it if needed. The
 	// no-op update makes RETURNING yield the existing row on conflict.
 	UpsertTag(ctx context.Context, arg UpsertTagParams) (int64, error)
+	// One row per week (Monday-based, in the database's time zone) for the
+	// last `weeks` weeks including the current one, oldest first; weeks with
+	// no incident are included with a zero count.
+	WeeklyIncidentCreations(ctx context.Context, weeks int32) ([]WeeklyIncidentCreationsRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

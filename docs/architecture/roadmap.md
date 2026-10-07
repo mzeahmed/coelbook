@@ -22,7 +22,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 - [x] Password reset
 - [x] French user interface (docs and code stay in English)
 - [x] Stable API error codes, translated by the frontend
-- [ ] Dashboard *(partial: incident list with filters and pagination exists; no stats or overview yet)*
+- [x] Dashboard (overview with key figures, recent activity, categories and tags)
 - [x] Incident detail view
 - [ ] Basic documentation pages
 

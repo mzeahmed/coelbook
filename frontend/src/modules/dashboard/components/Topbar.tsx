@@ -10,11 +10,17 @@ interface TopbarProps {
   // sidebar is hidden) and is called when it's pressed.
   onOpenMenu?: () => void
   menuOpen?: boolean
+  // onOpenSearch shows the quick-search button and is called when it's
+  // pressed.
+  onOpenSearch?: () => void
 }
+
+// Shortcut label for the quick search, in the platform's convention.
+const SEARCH_SHORTCUT = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl K'
 
 const INCIDENTS = { label: 'Coelbooks', to: '/dashboard' }
 
-export default function Topbar({ section = INCIDENTS, current, onOpenMenu, menuOpen = false }: TopbarProps) {
+export default function Topbar({ section = INCIDENTS, current, onOpenMenu, menuOpen = false, onOpenSearch }: TopbarProps) {
   return (
     <header
       className="pb-header d-flex align-items-center gap-3 px-3 px-md-4 px-lg-5 border-bottom sticky-top flex-shrink-0"
@@ -48,6 +54,20 @@ export default function Topbar({ section = INCIDENTS, current, onOpenMenu, menuO
           <span className="fw-medium">{section.label}</span>
         )}
       </div>
+
+      {onOpenSearch && (
+        <button
+          type="button"
+          className="pb-search-button btn btn-sm d-flex align-items-center gap-2 ms-auto flex-shrink-0"
+          onClick={onOpenSearch}
+          aria-label="Recherche rapide"
+          aria-keyshortcuts="Control+K Meta+K"
+        >
+          <i className="fa-solid fa-magnifying-glass" style={{ fontSize: '0.75rem' }}></i>
+          <span className="d-none d-sm-inline small">Rechercher…</span>
+          <kbd className="d-none d-lg-inline">{SEARCH_SHORTCUT}</kbd>
+        </button>
+      )}
     </header>
   )
 }

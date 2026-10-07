@@ -684,3 +684,84 @@ body {
   top: 0;
   height: 100vh;
 }
+
+/* Quick-search button (Topbar) and command palette (CommandPalette) */
+
+.pb-search-button {
+  color: var(--pb-text-muted);
+  background-color: var(--pb-surface);
+  border: 1px solid var(--pb-border);
+}
+
+.pb-search-button:hover {
+  color: var(--pb-text);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.pb-search-button kbd,
+.pb-palette-footer kbd {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.65rem;
+  color: var(--pb-text-muted);
+  background-color: var(--pb-bg);
+  border: 1px solid var(--pb-border);
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.35rem;
+}
+
+.pb-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.35);
+  z-index: 1050;
+}
+
+.pb-palette {
+  position: fixed;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(40rem, calc(100vw - 2rem));
+  z-index: 1055;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.pb-palette-list {
+  max-height: min(60vh, 28rem);
+  overflow-y: auto;
+}
+
+.pb-palette-group {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pb-text-muted);
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.pb-palette-item {
+  cursor: pointer;
+}
+
+.pb-palette-item.is-active {
+  background-color: rgba(37, 99, 235, 0.08);
+}
+
+.pb-palette-footer {
+  font-size: 0.7rem;
+  color: var(--pb-text-muted);
+  background-color: var(--pb-bg);
+}
+
+.pb-markdown kbd,
+.pb-card kbd {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: var(--pb-text);
+  background-color: var(--pb-bg);
+  border: 1px solid var(--pb-border);
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.35rem;
+}

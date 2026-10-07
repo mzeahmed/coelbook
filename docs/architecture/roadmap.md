@@ -16,10 +16,9 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
-1. Quick search (command palette) — *Search & discovery*
-2. Production deployment: Docker image and compose file — *Production & releases*
-3. Tag management — *Organization*
-4. Incident history — *Authoring*
+1. Production deployment: Docker image and compose file — *Production & releases*
+2. Tag management — *Organization*
+3. Incident history — *Authoring*
 
 To decide: whether incidents can be **deleted**, or whether archiving remains the only way to retire one until roles exist (see *Authoring*).
 
@@ -64,7 +63,7 @@ Finding a past solution.
 
 - [x] Full-text search (accent-insensitive, ranked, highlighted, web search syntax)
 - [x] Filters by category, status and tag, kept in the URL
-- [ ] Quick search (command palette)
+- [x] Quick search (command palette, Ctrl/⌘K)
 - [ ] Related incidents
 
 ---

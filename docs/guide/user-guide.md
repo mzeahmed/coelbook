@@ -82,6 +82,10 @@ Partial words also match titles and summaries while typing (`postg` finds *Postg
 
 Filters combine with the search and are kept in the page URL, so a filtered search can be bookmarked or shared.
 
+## Quick search
+
+From any page, press **Ctrl+K** (**⌘K** on macOS) or the **Rechercher…** button in the top bar to open the quick-search palette. It searches incidents the same way as the list, and also lists the app's pages (dashboard, categories, help…). Use **↑ / ↓** to choose, **Enter** to open and **Escape** to close. With nothing typed, it shows the most recent incidents.
+
 ---
 
 # Categories and tags

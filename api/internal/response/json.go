@@ -4,13 +4,21 @@ package response
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"github.com/mzeahmed/coelbook/internal/apperr"
 )
 
 // Envelope is the standard JSON shape returned by every API response.
+//
+// Error is a stable, machine-readable code (e.g. "title_required") set on
+// error responses only; clients should branch on it rather than on
+// Message, which is a developer-facing English description.
 type Envelope struct {
 	Code    int    `json:"code"`
 	Success bool   `json:"success"`
+	Error   string `json:"error,omitempty"`
 	Message string `json:"message"`
 	Data    any    `json:"data"`
 }
@@ -22,22 +30,44 @@ type Envelope struct {
 // It sets the Content-Type header, writes the status code, and serializes
 // the envelope using the standard JSON encoder.
 func JSON(w http.ResponseWriter, status int, message string, data any) {
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
-	env := Envelope{
+	write(w, Envelope{
 		Code:    status,
 		Success: status >= 200 && status < 300,
 		Message: message,
 		Data:    data,
-	}
-
-	_ = json.NewEncoder(w).Encode(env)
+	})
 }
 
-// Error is a convenience wrapper around JSON that writes the standard
-// envelope with the given message and no data, with the given status code.
-func Error(w http.ResponseWriter, status int, msg string) {
-	JSON(w, status, msg, nil)
+// Error writes the standard envelope for a failure, with the given HTTP
+// status, error code and message, and no data.
+func Error(w http.ResponseWriter, status int, code, msg string) {
+	write(w, Envelope{
+		Code:    status,
+		Success: false,
+		Error:   code,
+		Message: msg,
+	})
+}
+
+// AppError writes err as a failure with the given HTTP status, taking the
+// code and message from the *apperr.Error it wraps. Any other error is
+// reported as a generic internal error so its details never leak.
+func AppError(w http.ResponseWriter, status int, err error) {
+
+	var appErr *apperr.Error
+	if errors.As(err, &appErr) {
+		Error(w, status, appErr.Code, appErr.Message)
+
+		return
+	}
+
+	Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
+}
+
+func write(w http.ResponseWriter, env Envelope) {
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(env.Code)
+
+	_ = json.NewEncoder(w).Encode(env)
 }

@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"errors"
 	"strings"
+
+	"github.com/mzeahmed/coelbook/internal/apperr"
 )
 
 // LoginRequest is the expected JSON body of a login request.
@@ -19,7 +20,7 @@ type PasswordResetRequest struct {
 // Validate checks that a reset-email request contains an address.
 func (r PasswordResetRequest) Validate() error {
 	if strings.TrimSpace(r.Email) == "" {
-		return errors.New("email is required")
+		return apperr.New("email_required", "email is required")
 	}
 
 	return nil
@@ -35,10 +36,10 @@ type PasswordResetConfirmRequest struct {
 // Validate checks that the reset token and replacement password are usable.
 func (r PasswordResetConfirmRequest) Validate() error {
 	if strings.TrimSpace(r.Token) == "" {
-		return errors.New("reset token is required")
+		return apperr.New("reset_token_required", "reset token is required")
 	}
 	if len(r.Password) < 8 {
-		return errors.New("password must be at least 8 characters")
+		return apperr.New("password_too_short", "password must be at least 8 characters")
 	}
 
 	return nil
@@ -48,7 +49,7 @@ func (r PasswordResetConfirmRequest) Validate() error {
 func (r LoginRequest) Validate() error {
 
 	if strings.TrimSpace(r.Email) == "" || strings.TrimSpace(r.Password) == "" {
-		return errors.New("email and password are required")
+		return apperr.New("credentials_required", "email and password are required")
 	}
 
 	return nil

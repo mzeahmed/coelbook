@@ -3,6 +3,7 @@ package category
 import (
 	"net/http"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	"github.com/mzeahmed/coelbook/internal/response"
 )
 
@@ -21,7 +22,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 	categories, err := h.service.List(r.Context())
 	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "internal server error")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 
 		return
 	}

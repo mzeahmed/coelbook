@@ -1,8 +1,9 @@
 package wizard
 
 import (
-	"errors"
 	"strings"
+
+	"github.com/mzeahmed/coelbook/internal/apperr"
 )
 
 // AdminRequest is the administrator account submitted at setup time.
@@ -30,27 +31,27 @@ type SetupRequest struct {
 func (r SetupRequest) Validate() error {
 
 	if strings.TrimSpace(r.Admin.FirstName) == "" || strings.TrimSpace(r.Admin.LastName) == "" {
-		return errors.New("admin name is required")
+		return apperr.New("admin_name_required", "admin name is required")
 	}
 
 	if strings.TrimSpace(r.Admin.Email) == "" {
-		return errors.New("admin email is required")
+		return apperr.New("admin_email_required", "admin email is required")
 	}
 
 	if len(r.Admin.Password) < 8 {
-		return errors.New("admin password must be at least 8 characters")
+		return apperr.New("admin_password_too_short", "admin password must be at least 8 characters")
 	}
 
 	if strings.TrimSpace(r.Instance.Name) == "" {
-		return errors.New("instance name is required")
+		return apperr.New("instance_name_required", "instance name is required")
 	}
 
 	if strings.TrimSpace(r.Instance.Timezone) == "" {
-		return errors.New("instance timezone is required")
+		return apperr.New("instance_timezone_required", "instance timezone is required")
 	}
 
 	if strings.TrimSpace(r.Instance.Locale) == "" {
-		return errors.New("instance locale is required")
+		return apperr.New("instance_locale_required", "instance locale is required")
 	}
 
 	return nil

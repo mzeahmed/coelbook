@@ -1,5 +1,5 @@
 // Thin fetch wrapper that unwraps the API's standard JSON envelope
-// ({code, success, message, data}), so callers only ever deal with the
+// ({code, success, error, message, data}), so callers only ever deal with the
 // typed payload or a thrown ApiError — network failures, timeouts, and
 // non-JSON responses (e.g. an nginx error page) are all normalized into
 // the same ApiError type instead of leaking a raw fetch/parse exception.
@@ -9,17 +9,33 @@ const DEFAULT_TIMEOUT_MS = 15000
 export interface ApiEnvelope<T> {
   code: number
   success: boolean
+  // Stable machine-readable error code, set on error responses only.
+  error?: string
   message: string
   data: T
 }
 
-export class ApiError extends Error {
-  code: number
+// Error codes for failures detected client-side, before or instead of a
+// usable API envelope. They share the namespace of the API's own codes so
+// errorMessage() can translate both the same way.
+export const CLIENT_ERROR_CODES = {
+  timeout: 'timeout',
+  network: 'network_error',
+  invalidResponse: 'invalid_response',
+} as const
 
-  constructor (code: number, message: string) {
+export class ApiError extends Error {
+  // HTTP status (0 when no response was received).
+  code: number
+  // Stable error code, from the API envelope or CLIENT_ERROR_CODES; empty
+  // if the API didn't send one. Use errorMessage() to display it.
+  errorCode: string
+
+  constructor (code: number, errorCode: string, message: string) {
     super(message)
     this.name = 'ApiError'
     this.code = code
+    this.errorCode = errorCode
   }
 }
 
@@ -56,10 +72,10 @@ export async function apiFetch<T>(
     })
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new ApiError(0, 'La requête a expiré. Veuillez réessayer.')
+      throw new ApiError(0, CLIENT_ERROR_CODES.timeout, 'request timed out')
     }
 
-    throw new ApiError(0, 'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.')
+    throw new ApiError(0, CLIENT_ERROR_CODES.network, 'unable to reach the server')
   } finally {
     if (timeoutId !== null) clearTimeout(timeoutId)
   }
@@ -69,11 +85,11 @@ export async function apiFetch<T>(
   try {
     body = (await res.json()) as ApiEnvelope<T>
   } catch {
-    throw new ApiError(res.status, 'Le serveur a renvoyé une réponse inattendue.')
+    throw new ApiError(res.status, CLIENT_ERROR_CODES.invalidResponse, 'unexpected non-JSON response')
   }
 
   if (!body.success) {
-    throw new ApiError(body.code, body.message)
+    throw new ApiError(body.code, body.error ?? '', body.message)
   }
 
   return body.data

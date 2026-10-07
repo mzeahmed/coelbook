@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { confirmPasswordReset } from '../api'
 import { clearSession } from '../session'
 
@@ -32,7 +32,7 @@ export default function ResetPasswordView() {
       clearSession()
       setCompleted(true)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
+      setError(errorMessage(err))
     } finally {
       setSubmitting(false)
     }

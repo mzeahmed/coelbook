@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from 'react'
 import { Link } from 'react-router-dom'
 
-import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { requestPasswordReset } from '../api'
 
 export default function ForgotPasswordView() {
@@ -19,7 +19,7 @@ export default function ForgotPasswordView() {
       await requestPasswordReset({ email })
       setSubmitted(true)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
+      setError(errorMessage(err))
     } finally {
       setSubmitting(false)
     }

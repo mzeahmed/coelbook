@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { getIncident, type IncidentDetail } from '../api'
 import Sidebar from '../components/Sidebar'
@@ -56,7 +57,7 @@ export default function IncidentView() {
           return
         }
 
-        const error = err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.'
+        const error = errorMessage(err)
         setResult({ slug, incident: null, error, notFound: false })
       })
 

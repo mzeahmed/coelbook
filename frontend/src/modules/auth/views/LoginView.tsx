@@ -1,7 +1,7 @@
 import { useState, type SubmitEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { login } from '../api'
 import { saveSession } from '../session'
 
@@ -25,7 +25,7 @@ export default function LoginView() {
       saveSession(result.token, result.user, rememberMe)
       navigate('/dashboard')
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
+      setError(errorMessage(err))
     } finally {
       setSubmitting(false)
     }

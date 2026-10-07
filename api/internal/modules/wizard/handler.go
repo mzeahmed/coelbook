@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	"github.com/mzeahmed/coelbook/internal/response"
 )
 
@@ -23,7 +24,7 @@ func (h *Handler) Status(w http.ResponseWriter, r *http.Request) {
 
 	initialized, err := h.service.Status(r.Context())
 	if err != nil {
-		response.Error(w, http.StatusInternalServerError, "internal server error")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 
 		return
 	}
@@ -41,25 +42,25 @@ func (h *Handler) Setup(w http.ResponseWriter, r *http.Request) {
 
 	var req SetupRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Error(w, http.StatusBadRequest, "invalid request body")
+		response.Error(w, http.StatusBadRequest, apperr.CodeInvalidRequestBody, "invalid request body")
 
 		return
 	}
 
 	if err := req.Validate(); err != nil {
-		response.Error(w, http.StatusBadRequest, err.Error())
+		response.AppError(w, http.StatusBadRequest, err)
 
 		return
 	}
 
 	if err := h.service.Setup(r.Context(), req); err != nil {
 		if errors.Is(err, ErrAlreadyInitialized) {
-			response.Error(w, http.StatusConflict, "application is already initialized")
+			response.AppError(w, http.StatusConflict, ErrAlreadyInitialized)
 
 			return
 		}
 
-		response.Error(w, http.StatusInternalServerError, "internal server error")
+		response.Error(w, http.StatusInternalServerError, apperr.CodeInternal, "internal server error")
 
 		return
 	}

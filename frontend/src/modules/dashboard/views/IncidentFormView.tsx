@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import {
   createIncident,
@@ -107,7 +108,7 @@ export default function IncidentFormView() {
           return
         }
 
-        setLoadError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
+        setLoadError(errorMessage(err))
       })
 
     return () => {
@@ -137,7 +138,7 @@ export default function IncidentFormView() {
         return
       }
 
-      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
+      setError(errorMessage(err))
       setSubmitting(false)
     }
   }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import { clearSession } from '@/modules/auth/session'
 import { listIncidents, type IncidentCategory, type IncidentSummary } from '../api'
 import Sidebar from '../components/Sidebar'
@@ -66,7 +67,7 @@ export default function DashboardView() {
             return
           }
 
-          setError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
+          setError(errorMessage(err))
         })
         .finally(() => setLoading(false))
     }, 250)

@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 
-import {ApiError} from '@/http/client'
+import { errorMessage } from '@/http/errors'
 import {completeSetup, type AdminInput, type InstanceInput} from '../api'
 import {type AdminErrors, type InstanceErrors, validateAdmin, validateInstance} from "@/modules/wizard/validators.ts";
 import WizardStepper from "@/modules/wizard/components/WizardStepper.tsx";
@@ -73,7 +73,7 @@ export default function SetupView () {
       await completeSetup(admin, instance)
       navigate('/login')
     } catch (err) {
-      setSubmitError(err instanceof ApiError ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
+      setSubmitError(errorMessage(err))
     } finally {
       setSubmitting(false)
     }

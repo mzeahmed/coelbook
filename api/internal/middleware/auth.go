@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mzeahmed/coelbook/internal/apperr"
 	"github.com/mzeahmed/coelbook/internal/reqctx"
 	"github.com/mzeahmed/coelbook/internal/response"
 )
@@ -41,14 +42,14 @@ func Authenticate(validate TokenValidator) func(http.Handler) http.Handler {
 
 			token, ok := bearerToken(r)
 			if !ok {
-				response.Error(w, http.StatusUnauthorized, "missing bearer token")
+				response.Error(w, http.StatusUnauthorized, apperr.CodeMissingToken, "missing bearer token")
 
 				return
 			}
 
 			user, err := validate(r.Context(), token)
 			if err != nil {
-				response.Error(w, http.StatusUnauthorized, "invalid or expired token")
+				response.Error(w, http.StatusUnauthorized, apperr.CodeInvalidToken, "invalid or expired token")
 
 				return
 			}

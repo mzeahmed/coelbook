@@ -67,7 +67,9 @@ Tags are **not** created for every commit.
 
 # Planned Roadmap
 
-What each version contains is tracked in a single place, the [roadmap](../architecture/roadmap.md); released versions are described in the [CHANGELOG](../../CHANGELOG.md).
+Versions are not planned in advance. The [roadmap](../architecture/roadmap.md) groups the work by theme, and a version number is chosen when a coherent set of changes is tagged, based on what was actually shipped. Released versions are described in the [CHANGELOG](../../CHANGELOG.md).
+
+Releases become meaningful for users once Coelbook can be deployed outside the development environment (roadmap theme *Production & releases*); until then, a tag mainly marks a milestone.
 
 Version **1.0.0** will be the first release considered stable for production use. It requires:
 

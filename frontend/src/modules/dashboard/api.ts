@@ -140,6 +140,17 @@ export function listCategories(): Promise<IncidentCategory[]> {
   return apiFetch<IncidentCategory[]>('/api/categories', { headers: authHeaders() })
 }
 
+export interface IncidentTag {
+  name: string
+  // Value to pass as the tag filter of listIncidents.
+  slug: string
+}
+
+// listTags returns the tags used by at least one incident, sorted by name.
+export function listTags(): Promise<IncidentTag[]> {
+  return apiFetch<IncidentTag[]>('/api/tags', { headers: authHeaders() })
+}
+
 // createIncident stores a new incident authored by the signed-in user. The
 // API derives the slug from the title; use the returned incident's slug
 // to navigate to it.

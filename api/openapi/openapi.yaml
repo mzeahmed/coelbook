@@ -19,6 +19,8 @@ tags:
     description: Incident knowledge base (requires authentication)
   - name: Categories
     description: Incident categories (requires authentication)
+  - name: Tags
+    description: Incident tags (requires authentication)
 
 components:
   securitySchemes:
@@ -388,6 +390,16 @@ components:
           type: string
       required: [name, slug]
 
+    Tag:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          description: Value to pass as the `tag` filter of GET /incidents.
+      required: [name, slug]
+
   responses:
     BadRequest:
       description: Invalid request body or parameters.
@@ -629,7 +641,7 @@ paths:
           in: query
           schema:
             type: string
-          description: Filter by tag slug.
+          description: Filter by tag slug (see GET /tags).
         - name: q
           in: query
           schema:
@@ -790,6 +802,32 @@ paths:
                         type: array
                         items:
                           $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tags:
+    get:
+      operationId: listTags
+      tags: [Tags]
+      summary: List tags used by at least one incident, sorted by name
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Tags in use.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tag"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "500":

@@ -44,9 +44,9 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 ## v0.3.0 — Search
 
 - [ ] Full-text search *(partial: `ILIKE` match on title and summary only)*
-- [ ] Filters *(partial: category, status and tag filters on the incident list)*
-- [ ] Tags *(partial: assigned from the incident form and created on the fly; no tag management)*
-- [ ] Dedicated category and tag endpoints for filter facets *(partial: `GET /categories` exists; no tag endpoint, dashboard filters not switched over yet)*
+- [x] Filters (category, status, tag)
+- [ ] Tags *(partial: assigned from the incident form with suggestions, created on the fly; no rename/merge/delete)*
+- [x] Dedicated category and tag endpoints for filter facets
 - [ ] Quick search (Command Palette)
 
 ---

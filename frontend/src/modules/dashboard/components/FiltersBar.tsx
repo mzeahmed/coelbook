@@ -1,4 +1,4 @@
-import type { IncidentCategory } from '../api'
+import type { IncidentCategory, IncidentTag } from '../api'
 
 const STATUS_OPTIONS = [
   { value: 'published', label: 'Publié' },
@@ -14,9 +14,10 @@ interface FiltersBarProps {
   categoryOptions: IncidentCategory[]
   status: string
   onStatusChange: (value: string) => void
+  // tag is a tag slug ('' for no filter).
   tag: string
   onTagChange: (value: string) => void
-  tagOptions: string[]
+  tagOptions: IncidentTag[]
   onClear: () => void
 }
 
@@ -86,15 +87,16 @@ export default function FiltersBar({
         <div className="d-flex align-items-center gap-2 flex-wrap">
           {tagOptions.map((t) => (
             <button
-              key={t}
+              key={t.slug}
               type="button"
               className={`tag-pill d-inline-flex align-items-center gap-1 px-2 py-1 rounded-2 small fw-medium border-0 ${
-                tag === t ? 'filter-active pb-surface' : ''
+                tag === t.slug ? 'filter-active pb-surface' : ''
               }`}
-              onClick={() => onTagChange(tag === t ? '' : t)}
+              onClick={() => onTagChange(tag === t.slug ? '' : t.slug)}
+              aria-pressed={tag === t.slug}
             >
-              <i className="fa-solid fa-tag" style={{ fontSize: '0.55rem' }}></i> {t}
-              {tag === t && <i className="fa-solid fa-xmark ms-1" style={{ fontSize: '0.55rem', opacity: 0.7 }}></i>}
+              <i className="fa-solid fa-tag" style={{ fontSize: '0.55rem' }}></i> {t.name}
+              {tag === t.slug && <i className="fa-solid fa-xmark ms-1" style={{ fontSize: '0.55rem', opacity: 0.7 }}></i>}
             </button>
           ))}
         </div>

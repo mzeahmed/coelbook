@@ -1,0 +1,516 @@
+openapi: 3.0.3
+info:
+  title: Coelbook API
+  description: API for the Coelbook incident knowledge-base platform.
+  version: 0.1.0
+servers:
+- url: http://localhost:8080
+  description: Local development server
+tags:
+- name: Incidents
+  description: Incident knowledge base (requires authentication)
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Envelope:
+      description: Standard JSON response wrapper used by every endpoint.
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code.
+        success:
+          type: boolean
+          description: Whether the request succeeded (true for 2xx).
+        error:
+          type: string
+          description: 'Stable, machine-readable error code, present on error responses only. Clients should branch on (and translate) this code rather than parse `message`, whose wording may change.
+
+            '
+          enum:
+          - invalid_request_body
+          - internal_error
+          - missing_token
+          - invalid_token
+          - route_not_found
+          - method_not_allowed
+          - admin_name_required
+          - admin_email_required
+          - admin_password_too_short
+          - instance_name_required
+          - instance_timezone_required
+          - instance_locale_required
+          - already_initialized
+          - credentials_required
+          - invalid_credentials
+          - email_required
+          - reset_token_required
+          - password_too_short
+          - invalid_reset_token
+          - incident_not_found
+          - title_required
+          - title_too_long
+          - invalid_status
+          - category_required
+          - unknown_category
+          - too_many_tags
+          - too_many_snippets
+          - snippet_title_required
+          - snippet_content_required
+          - too_many_links
+          - link_url_required
+          - invalid_link_url
+          - category_name_required
+          - category_name_too_long
+          - category_description_too_long
+          - category_name_taken
+          - category_not_found
+          - category_in_use
+        field:
+          type: string
+          description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.
+
+            '
+          example: snippets[2].content
+        message:
+          type: string
+          description: Human-readable (English) status message, for developers and logs.
+        data:
+          description: Payload (varies per endpoint).
+      required:
+      - code
+      - success
+      - message
+    IncidentCategory:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+    IncidentAuthor:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+    IncidentSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        slug:
+          type: string
+        summary:
+          type: string
+        status:
+          type: string
+        category:
+          $ref: '#/components/schemas/IncidentCategory'
+        author:
+          $ref: '#/components/schemas/IncidentAuthor'
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        highlight:
+          $ref: '#/components/schemas/IncidentHighlight'
+    IncidentHighlight:
+      type: object
+      description: 'Present only in a listing filtered by `q`. Title and summary with each matched term wrapped in U+E000 (start) and U+E001 (end), two private-use characters that never occur in real content.
+
+        '
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+      required:
+      - title
+      - summary
+    IncidentListData:
+      type: object
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncidentSummary'
+        total:
+          type: integer
+          format: int64
+        page:
+          type: integer
+        per_page:
+          type: integer
+      required:
+      - incidents
+      - total
+      - page
+      - per_page
+    IncidentSnippet:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        language:
+          type: string
+        content:
+          type: string
+      required:
+      - id
+      - title
+      - language
+      - content
+    IncidentLink:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+      required:
+      - id
+      - title
+      - url
+    IncidentDetail:
+      allOf:
+      - $ref: '#/components/schemas/IncidentSummary'
+      - type: object
+        properties:
+          problem:
+            type: string
+          diagnosis:
+            type: string
+          root_cause:
+            type: string
+          solution:
+            type: string
+          prevention:
+            type: string
+          snippets:
+            type: array
+            items:
+              $ref: '#/components/schemas/IncidentSnippet'
+          links:
+            type: array
+            items:
+              $ref: '#/components/schemas/IncidentLink'
+        required:
+        - problem
+        - diagnosis
+        - root_cause
+        - solution
+        - prevention
+        - snippets
+        - links
+    IncidentWriteRequest:
+      type: object
+      description: 'Full replacement of an incident''s editable fields. On update, omitted text fields, tags, snippets and links are cleared. Blank text fields are stored as null and returned as empty strings.
+
+        '
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        summary:
+          type: string
+        problem:
+          type: string
+        diagnosis:
+          type: string
+        root_cause:
+          type: string
+        solution:
+          type: string
+        prevention:
+          type: string
+        status:
+          type: string
+          enum:
+          - draft
+          - published
+          - archived
+        category:
+          type: string
+          description: Category slug.
+        tags:
+          type: array
+          maxItems: 20
+          description: Tag names; unknown tags are created.
+          items:
+            type: string
+        snippets:
+          type: array
+          maxItems: 20
+          description: Replaces the incident's snippets; list order is display order.
+          items:
+            $ref: '#/components/schemas/IncidentSnippetInput'
+        links:
+          type: array
+          maxItems: 20
+          description: Replaces the incident's links; list order is display order.
+          items:
+            $ref: '#/components/schemas/IncidentLinkInput'
+      required:
+      - title
+      - status
+      - category
+    IncidentSnippetInput:
+      type: object
+      properties:
+        title:
+          type: string
+        language:
+          type: string
+          description: Defaults to `text` when blank.
+        content:
+          type: string
+          description: Stored verbatim (not trimmed).
+      required:
+      - title
+      - content
+    IncidentLinkInput:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Defaults to the URL when blank.
+        url:
+          type: string
+          format: uri
+          description: Absolute http or https URL.
+      required:
+      - url
+  responses:
+    BadRequest:
+      description: Invalid request body or parameters.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 400
+            success: false
+            error: invalid_request_body
+            message: invalid request body
+            data: null
+    Unauthorized:
+      description: Missing or invalid Bearer token / invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 401
+            success: false
+            error: invalid_credentials
+            message: invalid email or password
+            data: null
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 404
+            success: false
+            error: incident_not_found
+            message: incident not found
+            data: null
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Envelope'
+          example:
+            code: 500
+            success: false
+            error: internal_error
+            message: internal server error
+            data: null
+paths:
+  /incidents:
+    get:
+      operationId: listIncidents
+      tags:
+      - Incidents
+      summary: List incidents with optional filters and pagination
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: category
+        in: query
+        schema:
+          type: string
+        description: Filter by category slug.
+      - name: status
+        in: query
+        schema:
+          type: string
+        description: Filter by incident status.
+      - name: tag
+        in: query
+        schema:
+          type: string
+        description: Filter by tag slug (see GET /tags).
+      - name: q
+        in: query
+        schema:
+          type: string
+        description: 'Full-text search over the title, summary, problem, diagnosis, root cause, solution, prevention, tag names and snippet titles (accent-insensitive, no stemming), plus a substring match on the title, summary and snippet content. Supports web search syntax: `"exact phrase"`, `-excluded`, `or`. When set, results are sorted by relevance and carry a `highlight`.
+
+          '
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+        description: Page number (1-based).
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          default: 9
+        description: Number of results per page.
+      responses:
+        '200':
+          description: Paginated list of incidents.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/IncidentListData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createIncident
+      tags:
+      - Incidents
+      summary: Create an incident authored by the caller
+      description: The slug is derived from the title and suffixed (-2, -3, …) if already taken.
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentWriteRequest'
+      responses:
+        '201':
+          description: The created incident.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/IncidentDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /incidents/{slug}:
+    get:
+      operationId: getIncident
+      tags:
+      - Incidents
+      summary: Get an incident with its sections, snippets and links
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Incident slug.
+      responses:
+        '200':
+          description: The incident.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/IncidentDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: updateIncident
+      tags:
+      - Incidents
+      summary: Replace an incident's editable fields
+      description: The slug never changes, even when the title does.
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Incident slug.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentWriteRequest'
+      responses:
+        '200':
+          description: The updated incident.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/IncidentDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

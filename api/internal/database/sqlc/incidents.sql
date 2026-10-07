@@ -87,3 +87,35 @@ SELECT id, title, url
 FROM links
 WHERE incident_id = sqlc.arg(incident_id)
 ORDER BY id;
+
+-- name: IncidentSlugExists :one
+SELECT EXISTS (SELECT 1 FROM incidents WHERE slug = sqlc.arg(slug));
+
+-- name: CreateIncident :one
+INSERT INTO incidents (
+    title, slug, summary, problem, diagnosis, root_cause, solution, prevention,
+    status, category_id, created_by
+)
+VALUES (
+    sqlc.arg(title), sqlc.arg(slug), sqlc.arg(summary), sqlc.arg(problem),
+    sqlc.arg(diagnosis), sqlc.arg(root_cause), sqlc.arg(solution), sqlc.arg(prevention),
+    sqlc.arg(status), sqlc.arg(category_id), sqlc.arg(created_by)
+)
+RETURNING id;
+
+-- name: UpdateIncident :one
+-- The slug is deliberately left unchanged so existing links keep working
+-- when the title is edited.
+UPDATE incidents
+SET title       = sqlc.arg(title),
+    summary     = sqlc.arg(summary),
+    problem     = sqlc.arg(problem),
+    diagnosis   = sqlc.arg(diagnosis),
+    root_cause  = sqlc.arg(root_cause),
+    solution    = sqlc.arg(solution),
+    prevention  = sqlc.arg(prevention),
+    status      = sqlc.arg(status),
+    category_id = sqlc.arg(category_id),
+    updated_at  = now()
+WHERE slug = sqlc.arg(slug)
+RETURNING id;

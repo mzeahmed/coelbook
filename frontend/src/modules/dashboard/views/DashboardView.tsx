@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { ApiError } from '@/http/client'
 import { clearSession } from '@/modules/auth/session'
@@ -105,6 +105,9 @@ export default function DashboardView() {
                   {total} documented solution{total === 1 ? '' : 's'} · Browse, search, and learn.
                 </p>
               </div>
+              <Link to="/incidents/new" className="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2 align-self-start align-self-sm-center">
+                <i className="fa-solid fa-plus" style={{ fontSize: '0.7rem' }}></i> New coelbook
+              </Link>
             </div>
 
             <FiltersBar

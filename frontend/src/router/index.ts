@@ -8,6 +8,7 @@ import ForgotPasswordView from '@/modules/auth/views/ForgotPasswordView'
 import ResetPasswordView from '@/modules/auth/views/ResetPasswordView'
 import DashboardView from '@/modules/dashboard/views/DashboardView'
 import IncidentView from '@/modules/dashboard/views/IncidentView'
+import IncidentFormView from '@/modules/dashboard/views/IncidentFormView'
 
 // The API is the single source of truth for initialization state, so
 // every navigation re-checks it instead of trusting anything cached
@@ -72,9 +73,21 @@ const router = createBrowserRouter([
     Component: DashboardView,
   },
   {
+    // Matched before /incidents/:slug (static segments rank higher); the
+    // API never generates the "new" slug, so no incident is shadowed.
+    path: '/incidents/new',
+    loader: () => (getToken() ? null : redirect('/login')),
+    Component: IncidentFormView,
+  },
+  {
     path: '/incidents/:slug',
     loader: () => (getToken() ? null : redirect('/login')),
     Component: IncidentView,
+  },
+  {
+    path: '/incidents/:slug/edit',
+    loader: () => (getToken() ? null : redirect('/login')),
+    Component: IncidentFormView,
   },
 ])
 

@@ -1,4 +1,4 @@
-// Package incident exposes read access to the knowledge base's incidents
+// Package incident exposes read and write access to the knowledge base's incidents
 // (documented technical problems and their resolutions).
 package incident
 
@@ -26,5 +26,7 @@ func New(pool *pgxpool.Pool) *Module {
 // Every route requires a valid access token, applied via authenticate.
 func (m *Module) RegisterRoutes(mux *http.ServeMux, authenticate func(http.Handler) http.Handler) {
 	mux.Handle("GET /incidents", authenticate(http.HandlerFunc(m.handler.List)))
+	mux.Handle("POST /incidents", authenticate(http.HandlerFunc(m.handler.Create)))
 	mux.Handle("GET /incidents/{slug}", authenticate(http.HandlerFunc(m.handler.Get)))
+	mux.Handle("PUT /incidents/{slug}", authenticate(http.HandlerFunc(m.handler.Update)))
 }

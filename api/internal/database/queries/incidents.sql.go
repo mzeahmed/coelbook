@@ -45,6 +45,52 @@ func (q *Queries) CountIncidents(ctx context.Context, arg CountIncidentsParams) 
 	return count, err
 }
 
+const createIncident = `-- name: CreateIncident :one
+INSERT INTO incidents (
+    title, slug, summary, problem, diagnosis, root_cause, solution, prevention,
+    status, category_id, created_by
+)
+VALUES (
+    $1, $2, $3, $4,
+    $5, $6, $7, $8,
+    $9, $10, $11
+)
+RETURNING id
+`
+
+type CreateIncidentParams struct {
+	Title      string         `json:"title"`
+	Slug       string         `json:"slug"`
+	Summary    pgtype.Text    `json:"summary"`
+	Problem    pgtype.Text    `json:"problem"`
+	Diagnosis  pgtype.Text    `json:"diagnosis"`
+	RootCause  pgtype.Text    `json:"root_cause"`
+	Solution   pgtype.Text    `json:"solution"`
+	Prevention pgtype.Text    `json:"prevention"`
+	Status     IncidentStatus `json:"status"`
+	CategoryID int64          `json:"category_id"`
+	CreatedBy  int64          `json:"created_by"`
+}
+
+func (q *Queries) CreateIncident(ctx context.Context, arg CreateIncidentParams) (int64, error) {
+	row := q.db.QueryRow(ctx, createIncident,
+		arg.Title,
+		arg.Slug,
+		arg.Summary,
+		arg.Problem,
+		arg.Diagnosis,
+		arg.RootCause,
+		arg.Solution,
+		arg.Prevention,
+		arg.Status,
+		arg.CategoryID,
+		arg.CreatedBy,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getIncidentBySlug = `-- name: GetIncidentBySlug :one
 SELECT
     i.id,
@@ -119,6 +165,17 @@ func (q *Queries) GetIncidentBySlug(ctx context.Context, slug string) (GetIncide
 		&i.Tags,
 	)
 	return i, err
+}
+
+const incidentSlugExists = `-- name: IncidentSlugExists :one
+SELECT EXISTS (SELECT 1 FROM incidents WHERE slug = $1)
+`
+
+func (q *Queries) IncidentSlugExists(ctx context.Context, slug string) (bool, error) {
+	row := q.db.QueryRow(ctx, incidentSlugExists, slug)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }
 
 const listIncidentLinks = `-- name: ListIncidentLinks :many
@@ -291,4 +348,53 @@ func (q *Queries) ListIncidents(ctx context.Context, arg ListIncidentsParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateIncident = `-- name: UpdateIncident :one
+UPDATE incidents
+SET title       = $1,
+    summary     = $2,
+    problem     = $3,
+    diagnosis   = $4,
+    root_cause  = $5,
+    solution    = $6,
+    prevention  = $7,
+    status      = $8,
+    category_id = $9,
+    updated_at  = now()
+WHERE slug = $10
+RETURNING id
+`
+
+type UpdateIncidentParams struct {
+	Title      string         `json:"title"`
+	Summary    pgtype.Text    `json:"summary"`
+	Problem    pgtype.Text    `json:"problem"`
+	Diagnosis  pgtype.Text    `json:"diagnosis"`
+	RootCause  pgtype.Text    `json:"root_cause"`
+	Solution   pgtype.Text    `json:"solution"`
+	Prevention pgtype.Text    `json:"prevention"`
+	Status     IncidentStatus `json:"status"`
+	CategoryID int64          `json:"category_id"`
+	Slug       string         `json:"slug"`
+}
+
+// The slug is deliberately left unchanged so existing links keep working
+// when the title is edited.
+func (q *Queries) UpdateIncident(ctx context.Context, arg UpdateIncidentParams) (int64, error) {
+	row := q.db.QueryRow(ctx, updateIncident,
+		arg.Title,
+		arg.Summary,
+		arg.Problem,
+		arg.Diagnosis,
+		arg.RootCause,
+		arg.Solution,
+		arg.Prevention,
+		arg.Status,
+		arg.CategoryID,
+		arg.Slug,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }

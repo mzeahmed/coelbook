@@ -98,3 +98,45 @@ export function getIncident(slug: string): Promise<IncidentDetail> {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
 }
+
+// IncidentWriteRequest is the body of a create or update. It replaces
+// every editable field: on update, an empty field or tag list clears it.
+export interface IncidentWriteRequest {
+  title: string
+  summary: string
+  problem: string
+  diagnosis: string
+  root_cause: string
+  solution: string
+  prevention: string
+  status: IncidentStatus
+  category: string
+  tags: string[]
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getToken()
+
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+export function listCategories(): Promise<IncidentCategory[]> {
+  return apiFetch<IncidentCategory[]>('/api/categories', { headers: authHeaders() })
+}
+
+// createIncident stores a new incident authored by the signed-in user. The
+// API derives the slug from the title; use the returned incident's slug
+// to navigate to it.
+export function createIncident(payload: IncidentWriteRequest): Promise<IncidentDetail> {
+  return apiFetch<IncidentDetail>('/api/incidents', { method: 'POST', payload, headers: authHeaders() })
+}
+
+// updateIncident replaces the editable fields of the incident identified
+// by slug. The slug itself never changes.
+export function updateIncident(slug: string, payload: IncidentWriteRequest): Promise<IncidentDetail> {
+  return apiFetch<IncidentDetail>(`/api/incidents/${encodeURIComponent(slug)}`, {
+    method: 'PUT',
+    payload,
+    headers: authHeaders(),
+  })
+}

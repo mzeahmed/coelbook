@@ -121,7 +121,15 @@ export default function IncidentView() {
                     </span>
                   </div>
 
-                  <h1 className="h3 fw-bold mb-2">{incident.title}</h1>
+                  <div className="d-flex align-items-start justify-content-between gap-3 mb-2">
+                    <h1 className="h3 fw-bold mb-0">{incident.title}</h1>
+                    <Link
+                      to={`/incidents/${incident.slug}/edit`}
+                      className="btn btn-sm btn-outline-secondary fw-medium flex-shrink-0 d-flex align-items-center gap-2"
+                    >
+                      <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i> Edit
+                    </Link>
+                  </div>
 
                   {incident.summary && (
                     <p className="mb-3" style={{ color: 'var(--pb-text-muted)', lineHeight: 1.6 }}>

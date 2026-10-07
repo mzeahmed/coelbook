@@ -9,23 +9,35 @@ import (
 )
 
 type Querier interface {
+	AddIncidentTag(ctx context.Context, arg AddIncidentTagParams) error
 	ConsumePasswordResetToken(ctx context.Context, id int64) error
 	CountIncidents(ctx context.Context, arg CountIncidentsParams) (int64, error)
+	CreateIncident(ctx context.Context, arg CreateIncidentParams) (int64, error)
 	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (PasswordResetToken, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWizard(ctx context.Context, arg CreateWizardParams) (Wizard, error)
+	DeleteIncidentTags(ctx context.Context, incidentID int64) error
 	DeleteWizard(ctx context.Context) error
 	FindUserByEmail(ctx context.Context, email string) (User, error)
 	FindUserById(ctx context.Context, id int64) (User, error)
+	GetCategoryIDBySlug(ctx context.Context, slug string) (int64, error)
 	GetIncidentBySlug(ctx context.Context, slug string) (GetIncidentBySlugRow, error)
 	GetValidPasswordResetTokenForUpdate(ctx context.Context, tokenHash string) (GetValidPasswordResetTokenForUpdateRow, error)
 	GetWizard(ctx context.Context) (Wizard, error)
 	HasUser(ctx context.Context) (bool, error)
+	IncidentSlugExists(ctx context.Context, slug string) (bool, error)
 	InvalidatePasswordResetTokens(ctx context.Context, userID int64) error
+	ListCategories(ctx context.Context) ([]ListCategoriesRow, error)
 	ListIncidentLinks(ctx context.Context, incidentID int64) ([]ListIncidentLinksRow, error)
 	ListIncidentSnippets(ctx context.Context, incidentID int64) ([]ListIncidentSnippetsRow, error)
 	ListIncidents(ctx context.Context, arg ListIncidentsParams) ([]ListIncidentsRow, error)
+	// The slug is deliberately left unchanged so existing links keep working
+	// when the title is edited.
+	UpdateIncident(ctx context.Context, arg UpdateIncidentParams) (int64, error)
 	UpdateUserPasswordAndSessionVersion(ctx context.Context, arg UpdateUserPasswordAndSessionVersionParams) error
+	// Returns the id of the tag with this slug, creating it if needed. The
+	// no-op update makes RETURNING yield the existing row on conflict.
+	UpsertTag(ctx context.Context, arg UpsertTagParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)

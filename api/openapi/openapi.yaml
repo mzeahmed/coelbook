@@ -17,6 +17,8 @@ tags:
     description: First-time instance setup wizard
   - name: Incidents
     description: Incident knowledge base (requires authentication)
+  - name: Categories
+    description: Incident categories (requires authentication)
 
 components:
   securitySchemes:
@@ -253,6 +255,51 @@ components:
               items:
                 $ref: "#/components/schemas/IncidentLink"
           required: [problem, diagnosis, root_cause, solution, prevention, snippets, links]
+
+    IncidentWriteRequest:
+      type: object
+      description: >
+        Full replacement of an incident's editable fields. On update,
+        omitted text fields and tags are cleared. Blank text fields are
+        stored as null and returned as empty strings.
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        summary:
+          type: string
+        problem:
+          type: string
+        diagnosis:
+          type: string
+        root_cause:
+          type: string
+        solution:
+          type: string
+        prevention:
+          type: string
+        status:
+          type: string
+          enum: [draft, published, archived]
+        category:
+          type: string
+          description: Category slug.
+        tags:
+          type: array
+          maxItems: 20
+          description: Tag names; unknown tags are created.
+          items:
+            type: string
+      required: [title, status, category]
+
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+      required: [name, slug]
 
   responses:
     BadRequest:
@@ -526,6 +573,38 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
+    post:
+      operationId: createIncident
+      tags: [Incidents]
+      summary: Create an incident authored by the caller
+      description: The slug is derived from the title and suffixed (-2, -3, …) if already taken.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IncidentWriteRequest"
+      responses:
+        "201":
+          description: The created incident.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/IncidentDetail"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
   /incidents/{slug}:
     get:
       operationId: getIncident
@@ -556,5 +635,71 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      operationId: updateIncident
+      tags: [Incidents]
+      summary: Replace an incident's editable fields
+      description: The slug never changes, even when the title does.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Incident slug.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IncidentWriteRequest"
+      responses:
+        "200":
+          description: The updated incident.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/IncidentDetail"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [Categories]
+      summary: List all categories, sorted by name
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: All categories.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "500":
           $ref: "#/components/responses/InternalServerError"

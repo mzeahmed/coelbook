@@ -1,5 +1,12 @@
 package incident
 
+import (
+	"errors"
+	"fmt"
+	"strings"
+	"unicode/utf8"
+)
+
 // Category is the public representation of the category an incident
 // belongs to.
 type Category struct {
@@ -73,4 +80,54 @@ type Detail struct {
 	Prevention string    `json:"prevention"`
 	Snippets   []Snippet `json:"snippets"`
 	Links      []Link    `json:"links"`
+}
+
+const (
+	maxTitleLength = 200
+	maxTags        = 20
+)
+
+// WriteRequest is the expected JSON body of POST /incidents and
+// PUT /incidents/{slug}. Category is a category slug; Tags are tag names,
+// created on the fly if they don't exist yet.
+type WriteRequest struct {
+	Title      string   `json:"title"`
+	Summary    string   `json:"summary"`
+	Problem    string   `json:"problem"`
+	Diagnosis  string   `json:"diagnosis"`
+	RootCause  string   `json:"root_cause"`
+	Solution   string   `json:"solution"`
+	Prevention string   `json:"prevention"`
+	Status     string   `json:"status"`
+	Category   string   `json:"category"`
+	Tags       []string `json:"tags"`
+}
+
+// Validate checks that the request contains usable data.
+func (r WriteRequest) Validate() error {
+
+	title := strings.TrimSpace(r.Title)
+	if title == "" {
+		return errors.New("title is required")
+	}
+
+	if utf8.RuneCountInString(title) > maxTitleLength {
+		return fmt.Errorf("title must be at most %d characters", maxTitleLength)
+	}
+
+	switch r.Status {
+	case "draft", "published", "archived":
+	default:
+		return errors.New("status must be one of draft, published or archived")
+	}
+
+	if strings.TrimSpace(r.Category) == "" {
+		return errors.New("category is required")
+	}
+
+	if len(r.Tags) > maxTags {
+		return fmt.Errorf("at most %d tags are allowed", maxTags)
+	}
+
+	return nil
 }

@@ -21,16 +21,16 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 - [x] Authentication
 - [x] Password reset
 - [ ] Dashboard *(partial: incident list with filters and pagination exists; no stats or overview yet)*
-- [ ] Incident detail view
+- [x] Incident detail view
 - [ ] Basic documentation pages
 
 ---
 
 ## v0.2.0 — Knowledge Base
 
-- [ ] Create, edit and delete incidents *(partial: read-only `GET /incidents` endpoint exists)*
-- [ ] Structured incident sections (problem, diagnosis, root cause, solution, prevention)
-- [ ] Incident lifecycle: draft → published → archived *(partial: `status` column and filter exist; no transitions)*
+- [ ] Create, edit and delete incidents *(partial: create and edit done; delete missing)*
+- [x] Structured incident sections (problem, diagnosis, root cause, solution, prevention)
+- [x] Incident lifecycle: draft → published → archived
 - [ ] Category management
 - [ ] Markdown editor
 - [ ] Table of contents
@@ -42,20 +42,20 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 - [ ] Full-text search *(partial: `ILIKE` match on title and summary only)*
 - [ ] Filters *(partial: category, status and tag filters on the incident list)*
-- [ ] Tags *(partial: schema and filter exist; no tag management)*
-- [ ] Dedicated category and tag endpoints for filter facets
+- [ ] Tags *(partial: assigned from the incident form and created on the fly; no tag management)*
+- [ ] Dedicated category and tag endpoints for filter facets *(partial: `GET /categories` exists; no tag endpoint, dashboard filters not switched over yet)*
 - [ ] Quick search (Command Palette)
 
 ---
 
 ## v0.4.0 — Snippets & Attachments
 
-- [ ] Code snippets *(partial: `snippets` table exists; no API or UI)*
+- [ ] Code snippets *(partial: displayed on the detail view; no create/edit)*
 - [ ] Syntax highlighting
 - [ ] Copy code blocks
 - [ ] Image uploads
 - [ ] File attachments *(partial: `attachments` table exists; no upload or storage)*
-- [ ] External links *(partial: `links` table exists; no API or UI)*
+- [ ] External links *(partial: displayed on the detail view; no create/edit)*
 
 ---
 

@@ -1,6 +1,6 @@
 # Development Guide
 
-How the code is organized and the conventions to follow when changing it. For running the environment, see the [README](../README.md#getting-started).
+How the code is organized and the conventions to follow when changing it. For running the environment, see the [README](../README.md#getting-started-development).
 
 ---
 
@@ -48,7 +48,7 @@ Within a module, the **handler** decodes and validates the request (`dto.go`'s `
 
 ## Database
 
-- Schema changes are **goose migrations** in `api/internal/database/migrations`. Create one with `make migrate-create t="name"`, apply with `make migrate-up`, roll back with `make migrate-down`. Every migration has a working `Down`.
+- Schema changes are **goose migrations** in `api/internal/database/migrations`. Create one with `make migrate-create t="name"`. They are embedded in the binary and applied when the API starts (`AUTO_MIGRATE`, on by default), in development as in production; `make migrate-up` / `make migrate-down` apply or roll back by hand. Every migration has a working `Down`.
 - Queries are plain SQL in `api/internal/database/sqlc/*.sql`. After changing a query or a migration, run `make sqlc` and commit the generated `queries/` code.
 - `incidents.search_vector` is not maintained by the database: the incident service refreshes it after every write (see [data-model.md](architecture/data-model.md)). Code that writes incidents, their tags or their snippets must do the same.
 

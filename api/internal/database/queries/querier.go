@@ -38,6 +38,8 @@ type Querier interface {
 	DeleteWizard(ctx context.Context) error
 	// Case-insensitive, like the address a user would type to sign in.
 	EmailTakenByOtherUser(ctx context.Context, arg EmailTakenByOtherUserParams) (bool, error)
+	// Case-insensitive: an address is the same whatever case it is typed in
+	// (see the users_email_lower_key index).
 	FindUserByEmail(ctx context.Context, email string) (User, error)
 	FindUserById(ctx context.Context, id int64) (User, error)
 	GetCategoryBySlug(ctx context.Context, slug string) (GetCategoryBySlugRow, error)

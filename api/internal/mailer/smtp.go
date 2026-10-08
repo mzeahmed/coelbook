@@ -4,6 +4,7 @@ package mailer
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/smtp"
@@ -33,6 +34,12 @@ func NewSMTP(cfg config.MailConfig) *SMTP {
 // password-reset token. Tokens are URL-escaped before being included.
 func (s *SMTP) SendPasswordReset(ctx context.Context, recipient, token string) error {
 	_ = ctx
+
+	// An instance may run without outgoing email; the caller logs this and
+	// the user still gets the usual "if the account exists…" answer.
+	if s.config.Host == "" {
+		return errors.New("email is disabled: SMTP_HOST is not set")
+	}
 
 	resetURL, err := url.Parse(s.config.AppBaseURL)
 	if err != nil {

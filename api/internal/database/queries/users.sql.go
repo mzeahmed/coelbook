@@ -107,9 +107,11 @@ func (q *Queries) EmailTakenByOtherUser(ctx context.Context, arg EmailTakenByOth
 const findUserByEmail = `-- name: FindUserByEmail :one
 SELECT id, email, password_hash, first_name, last_name, created_at, updated_at, session_version
 FROM users
-WHERE email = $1
+WHERE lower(email) = lower($1)
 `
 
+// Case-insensitive: an address is the same whatever case it is typed in
+// (see the users_email_lower_key index).
 func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, error) {
 	row := q.db.QueryRow(ctx, findUserByEmail, email)
 	var i User

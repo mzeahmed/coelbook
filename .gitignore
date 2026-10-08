@@ -8,3 +8,6 @@ frontend/.vscode
 docs/*html
 
 frontend_back
+
+# Production secrets (docker-compose.prod.yml); .env.prod.example is the template.
+.env.prod

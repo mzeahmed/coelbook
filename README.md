@@ -234,7 +234,23 @@ la [documentation des dépendances](docs/dependencies.md).
 
 ---
 
-# Requirements
+# Installation
+
+To run Coelbook on a server, everything is in one image and one compose file:
+
+```bash
+git clone https://github.com/mzeahmed/coelbook.git && cd coelbook
+cp .env.prod.example .env.prod   # set APP_BASE_URL, JWT_SECRET, POSTGRES_PASSWORD
+make prod-up
+```
+
+The app listens on `127.0.0.1:8080`; put a reverse proxy with HTTPS in front of it, open the public URL and follow the setup wizard. Database migrations run on startup.
+
+The [deployment guide](docs/deployment.md) covers the configuration, HTTPS, updates, and backup and restore.
+
+---
+
+# Development requirements
 
 - Docker
 - Docker Compose
@@ -243,7 +259,7 @@ la [documentation des dépendances](docs/dependencies.md).
 
 ---
 
-# Getting started
+# Getting started (development)
 
 ## Setup
 
@@ -264,13 +280,7 @@ la [documentation des dépendances](docs/dependencies.md).
    - copies `.env.example` to `.env` if it doesn't exist yet
    - builds and starts the containers: PostgreSQL, API (hot-reload via [air](https://github.com/air-verse/air)), frontend (Vite dev server), nginx, Adminer and Mailpit
 
-3. Create the database schema:
-
-   ```bash
-   make migrate-up
-   ```
-
-   Run it again after pulling changes that add migrations.
+3. The database schema is created automatically: the API applies pending migrations each time it starts, including after pulling changes that add some. (`make migrate-up` / `make migrate-down` still work, e.g. to roll one back; set `AUTO_MIGRATE=false` in `.env` to manage them by hand only.)
 
 4. Open http://coelbook.local and follow the setup wizard to create the administrator account. Default categories and tags are already there (created by the migrations). The [user guide](docs/guide/user-guide.md) takes it from there.
 
@@ -340,6 +350,7 @@ make help
 | Document | Description |
 | --- | --- |
 | [docs/guide/user-guide.md](docs/guide/user-guide.md) | User guide: writing, searching and organizing incidents |
+| [docs/deployment.md](docs/deployment.md) | Deployment: production install, HTTPS, updates, backup and restore |
 | [docs/development.md](docs/development.md) | Development guide: layout, conventions, error codes, workflow |
 | [docs/architecture/domain.md](docs/architecture/domain.md) | Domain model: core concepts, entities, terminology |
 | [docs/architecture/data-model.md](docs/architecture/data-model.md) | Data model: entities, fields, relationships |

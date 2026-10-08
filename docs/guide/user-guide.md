@@ -1,6 +1,6 @@
 # User Guide
 
-How to use Coelbook once it is running. For installing and running it, see the [README](../../README.md#getting-started).
+How to use Coelbook once it is running. For installing it, see the [deployment guide](../deployment.md).
 
 The application itself is in French; the labels below are quoted as they appear on screen. The same content, in French, is available in the app under **Aide** in the sidebar.
 

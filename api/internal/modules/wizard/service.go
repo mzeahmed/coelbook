@@ -3,6 +3,7 @@ package wizard
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -78,7 +79,7 @@ func (s *Service) Setup(ctx context.Context, req SetupRequest) error {
 	}
 
 	if _, err := q.CreateUser(ctx, repo.CreateUserParams{
-		Email:        req.Admin.Email,
+		Email:        strings.TrimSpace(req.Admin.Email),
 		PasswordHash: hash,
 		FirstName:    req.Admin.FirstName,
 		LastName:     req.Admin.LastName,

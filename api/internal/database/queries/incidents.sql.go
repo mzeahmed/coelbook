@@ -177,6 +177,43 @@ func (q *Queries) GetIncidentBySlug(ctx context.Context, slug string) (GetIncide
 	return i, err
 }
 
+const getIncidentVersion = `-- name: GetIncidentVersion :one
+SELECT v.version, v.snapshot, v.changed_fields, v.created_at,
+       u.first_name AS author_first_name, u.last_name AS author_last_name
+FROM incident_versions v
+JOIN incidents i ON i.id = v.incident_id
+LEFT JOIN users u ON u.id = v.author_id
+WHERE i.slug = $1 AND v.version = $2
+`
+
+type GetIncidentVersionParams struct {
+	Slug    string `json:"slug"`
+	Version int32  `json:"version"`
+}
+
+type GetIncidentVersionRow struct {
+	Version         int32              `json:"version"`
+	Snapshot        []byte             `json:"snapshot"`
+	ChangedFields   []string           `json:"changed_fields"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	AuthorFirstName pgtype.Text        `json:"author_first_name"`
+	AuthorLastName  pgtype.Text        `json:"author_last_name"`
+}
+
+func (q *Queries) GetIncidentVersion(ctx context.Context, arg GetIncidentVersionParams) (GetIncidentVersionRow, error) {
+	row := q.db.QueryRow(ctx, getIncidentVersion, arg.Slug, arg.Version)
+	var i GetIncidentVersionRow
+	err := row.Scan(
+		&i.Version,
+		&i.Snapshot,
+		&i.ChangedFields,
+		&i.CreatedAt,
+		&i.AuthorFirstName,
+		&i.AuthorLastName,
+	)
+	return i, err
+}
+
 const incidentSlugExists = `-- name: IncidentSlugExists :one
 SELECT EXISTS (SELECT 1 FROM incidents WHERE slug = $1)
 `
@@ -249,6 +286,50 @@ func (q *Queries) ListIncidentSnippets(ctx context.Context, incidentID int64) ([
 			&i.Title,
 			&i.Language,
 			&i.Content,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listIncidentVersions = `-- name: ListIncidentVersions :many
+SELECT v.version, v.changed_fields, v.created_at,
+       u.first_name AS author_first_name, u.last_name AS author_last_name
+FROM incident_versions v
+JOIN incidents i ON i.id = v.incident_id
+LEFT JOIN users u ON u.id = v.author_id
+WHERE i.slug = $1
+ORDER BY v.version DESC
+`
+
+type ListIncidentVersionsRow struct {
+	Version         int32              `json:"version"`
+	ChangedFields   []string           `json:"changed_fields"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	AuthorFirstName pgtype.Text        `json:"author_first_name"`
+	AuthorLastName  pgtype.Text        `json:"author_last_name"`
+}
+
+func (q *Queries) ListIncidentVersions(ctx context.Context, slug string) ([]ListIncidentVersionsRow, error) {
+	rows, err := q.db.Query(ctx, listIncidentVersions, slug)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListIncidentVersionsRow
+	for rows.Next() {
+		var i ListIncidentVersionsRow
+		if err := rows.Scan(
+			&i.Version,
+			&i.ChangedFields,
+			&i.CreatedAt,
+			&i.AuthorFirstName,
+			&i.AuthorLastName,
 		); err != nil {
 			return nil, err
 		}
@@ -389,6 +470,49 @@ func (q *Queries) ListIncidents(ctx context.Context, arg ListIncidentsParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const recordIncidentVersion = `-- name: RecordIncidentVersion :execrows
+WITH prev AS (
+    SELECT v.version, v.snapshot
+    FROM incident_versions v
+    WHERE v.incident_id = $1
+    ORDER BY v.version DESC
+    LIMIT 1
+), cur AS (
+    SELECT incident_snapshot($1) AS snapshot
+)
+INSERT INTO incident_versions (incident_id, version, snapshot, changed_fields, author_id)
+SELECT
+    $1,
+    coalesce((SELECT version FROM prev), 0) + 1,
+    cur.snapshot,
+    coalesce(
+        (SELECT array_agg(k.key ORDER BY k.key)
+         FROM jsonb_each(cur.snapshot) k, prev
+         WHERE k.value IS DISTINCT FROM prev.snapshot -> k.key),
+        '{}'::text[]),
+    $2
+FROM cur
+WHERE NOT EXISTS (SELECT 1 FROM prev WHERE prev.snapshot = cur.snapshot)
+`
+
+type RecordIncidentVersionParams struct {
+	IncidentID int64       `json:"incident_id"`
+	AuthorID   pgtype.Int8 `json:"author_id"`
+}
+
+// Appends a version with the incident's current snapshot, listing the keys
+// that differ from the previous version. A save that changed nothing adds
+// no version (0 rows). Call it last in the write transaction, after tags,
+// snippets and links; the incident row lock taken by that transaction keeps
+// version numbers sequential.
+func (q *Queries) RecordIncidentVersion(ctx context.Context, arg RecordIncidentVersionParams) (int64, error) {
+	result, err := q.db.Exec(ctx, recordIncidentVersion, arg.IncidentID, arg.AuthorID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const refreshIncidentSearchVector = `-- name: RefreshIncidentSearchVector :exec

@@ -755,3 +755,82 @@ body {
   background-color: rgba(37, 99, 235, 0.06);
   border: 1px solid rgba(37, 99, 235, 0.25);
 }
+
+/* Incident history (HistoryView) */
+
+.pb-version-item {
+  background: transparent;
+  color: inherit;
+}
+
+.pb-version-item:hover {
+  background-color: var(--pb-surface-hover);
+}
+
+.pb-version-item.is-active {
+  background-color: rgba(37, 99, 235, 0.08);
+  box-shadow: inset 2px 0 0 var(--pb-primary);
+}
+
+.pb-diff {
+  border: 1px solid var(--pb-border);
+  background-color: var(--pb-bg);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 0.25rem 0;
+}
+
+.pb-diff-line {
+  padding: 0 0.75rem 0 0;
+}
+
+.pb-diff-sign {
+  display: inline-block;
+  width: 1.5rem;
+  text-align: center;
+  user-select: none;
+  color: var(--pb-text-muted);
+}
+
+/* Removed and added lines carry a sign as well as a color, so the change
+   reads without relying on color alone. */
+.pb-diff-line.is-del {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #991b1b;
+  text-decoration: line-through;
+  text-decoration-color: rgba(153, 27, 27, 0.4);
+}
+
+.pb-diff-line.is-del .pb-diff-sign {
+  color: #b91c1c;
+}
+
+.pb-diff-line.is-add {
+  background-color: rgba(34, 197, 94, 0.12);
+  color: #166534;
+}
+
+.pb-diff-line.is-add .pb-diff-sign {
+  color: #15803d;
+}
+
+.pb-diff-chip {
+  font-size: 0.75rem;
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid;
+}
+
+.pb-diff-chip.is-del {
+  color: #991b1b;
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  text-decoration: line-through;
+}
+
+.pb-diff-chip.is-add {
+  color: #166534;
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.35);
+}

@@ -41,6 +41,7 @@ const MESSAGES: Record<string, string> = {
 
   // Incidents
   incident_not_found: 'Ce coelbook n\'existe pas ou a été supprimé.',
+  version_not_found: 'Cette version n\'existe pas.',
   title_required: 'Le titre est obligatoire.',
   title_too_long: 'Le titre ne doit pas dépasser 200 caractères.',
   invalid_status: 'Le statut choisi est invalide.',

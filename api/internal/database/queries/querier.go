@@ -45,6 +45,7 @@ type Querier interface {
 	GetCategoryBySlug(ctx context.Context, slug string) (GetCategoryBySlugRow, error)
 	GetCategoryIDBySlug(ctx context.Context, slug string) (int64, error)
 	GetIncidentBySlug(ctx context.Context, slug string) (GetIncidentBySlugRow, error)
+	GetIncidentVersion(ctx context.Context, arg GetIncidentVersionParams) (GetIncidentVersionRow, error)
 	GetTagBySlug(ctx context.Context, slug string) (Tag, error)
 	GetValidPasswordResetTokenForUpdate(ctx context.Context, tokenHash string) (GetValidPasswordResetTokenForUpdateRow, error)
 	GetWizard(ctx context.Context) (Wizard, error)
@@ -55,6 +56,7 @@ type Querier interface {
 	ListIncidentIDsForTag(ctx context.Context, tagID int64) ([]int64, error)
 	ListIncidentLinks(ctx context.Context, incidentID int64) ([]ListIncidentLinksRow, error)
 	ListIncidentSnippets(ctx context.Context, incidentID int64) ([]ListIncidentSnippetsRow, error)
+	ListIncidentVersions(ctx context.Context, slug string) ([]ListIncidentVersionsRow, error)
 	// With a query, results are ordered by full-text relevance, and the title
 	// and summary come back with matched terms wrapped in U+E000 / U+E001
 	// (private-use characters, so they can't clash with real content and
@@ -67,6 +69,12 @@ type Querier interface {
 	// incident drops its last use of a tag) are omitted.
 	ListUsedTags(ctx context.Context) ([]Tag, error)
 	RecentlyUpdatedIncidents(ctx context.Context, maxIncidents int32) ([]RecentlyUpdatedIncidentsRow, error)
+	// Appends a version with the incident's current snapshot, listing the keys
+	// that differ from the previous version. A save that changed nothing adds
+	// no version (0 rows). Call it last in the write transaction, after tags,
+	// snippets and links; the incident row lock taken by that transaction keeps
+	// version numbers sequential.
+	RecordIncidentVersion(ctx context.Context, arg RecordIncidentVersionParams) (int64, error)
 	// Rebuilds the incident's full-text document; call it after any change to
 	// the incident, its tags or its snippets (see incident_search_vector()).
 	RefreshIncidentSearchVector(ctx context.Context, id int64) error

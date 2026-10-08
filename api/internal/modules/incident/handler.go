@@ -71,17 +71,8 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // incident's author.
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
-	user, ok := reqctx.AuthUserFromContext(r.Context())
+	userID, ok := currentUserID(w, r)
 	if !ok {
-		response.Error(w, http.StatusUnauthorized, apperr.CodeMissingToken, "missing bearer token")
-
-		return
-	}
-
-	userID, err := strconv.ParseInt(user.ID, 10, 64)
-	if err != nil {
-		response.Error(w, http.StatusUnauthorized, apperr.CodeInvalidToken, "invalid token subject")
-
 		return
 	}
 
@@ -100,15 +91,21 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusCreated, "incident created", res)
 }
 
-// Update handles PUT /incidents/{slug}.
+// Update handles PUT /incidents/{slug}. The authenticated caller is
+// recorded as the author of the new version.
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := currentUserID(w, r)
+	if !ok {
+		return
+	}
 
 	req, ok := decodeWriteRequest(w, r)
 	if !ok {
 		return
 	}
 
-	res, err := h.service.Update(r.Context(), r.PathValue("slug"), req)
+	res, err := h.service.Update(r.Context(), userID, r.PathValue("slug"), req)
 	if err != nil {
 		writeServiceError(w, err)
 
@@ -116,6 +113,27 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, "incident updated", res)
+}
+
+// currentUserID reads the signed-in user's id from the request context (set
+// by the authenticate middleware), writing a 401 if it's missing.
+func currentUserID(w http.ResponseWriter, r *http.Request) (int64, bool) {
+
+	user, ok := reqctx.AuthUserFromContext(r.Context())
+	if !ok {
+		response.Error(w, http.StatusUnauthorized, apperr.CodeMissingToken, "missing bearer token")
+
+		return 0, false
+	}
+
+	id, err := strconv.ParseInt(user.ID, 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, apperr.CodeInvalidToken, "invalid token subject")
+
+		return 0, false
+	}
+
+	return id, true
 }
 
 // decodeWriteRequest decodes and validates the body of a create or update

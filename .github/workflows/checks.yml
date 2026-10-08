@@ -1,5 +1,6 @@
-# Continuous integration: verifies every push and pull request builds,
-# is formatted, passes go vet, and passes the test suite.
+# Continuous integration: verifies every push and pull request. The API
+# must be formatted, pass go vet and the tests, and build; the frontend must
+# pass ESLint, type-check and build.
 name: Checks
 
 # Run on pushes to any branch but main, and on every pull request. main
@@ -33,9 +34,7 @@ jobs:
           # Reads the Go version from go.mod instead of hardcoding one here,
           # so this workflow can never drift out of sync with the module.
           go-version-file: api/go.mod
-          # No go.sum yet (no external dependencies), so module caching has
-          # nothing to key off — re-enable once one exists.
-          cache: false
+          cache-dependency-path: api/go.sum
 
       - name: Format
         run: go fmt ./...
@@ -55,3 +54,31 @@ jobs:
 
       - name: Build
         run: go build ./...
+
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Same major version as the production image (Dockerfile).
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      # Type-checks (tsc -b) then builds, exactly like the production image.
+      - name: Type-check and build
+        run: npm run build

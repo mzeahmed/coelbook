@@ -99,7 +99,7 @@ cd frontend && npm run lint     # ESLint
 cd frontend && npm run build    # type-check and production build
 ```
 
-CI (`.github/workflows/checks.yml`) runs the Go checks on every pull request and on pushes to any branch but `main`.
+CI (`.github/workflows/checks.yml`) runs the Go checks and the frontend checks (ESLint, type-check, build) on every pull request and on pushes to any branch but `main`. Pushing a version tag runs `.github/workflows/release.yml`, which publishes the image and the GitHub release (see [versioning.md](releases/versioning.md#creating-a-release)).
 
 ---
 

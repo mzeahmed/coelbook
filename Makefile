@@ -24,7 +24,7 @@ RESET  := \033[0m
         tidy update \
         clean doctor \
         hosts-add hosts-remove up down restart logs ps bash \
-        prod-up prod-down prod-logs \
+        prod-up prod-build prod-down prod-logs \
         module commit clean-branches \
         migrate-up migrate-down sqlc
 
@@ -202,12 +202,20 @@ bash: ## Access the app container
 
 PROD_COMPOSE := docker compose -f docker-compose.prod.yml --env-file .env.prod
 
-prod-up: ## Build and start the production stack (needs .env.prod)
+prod-up: ## Pull the released image and start the production stack (needs .env.prod)
 	@if [ ! -f .env.prod ]; then \
 		echo "$(RED).env.prod not found: cp .env.prod.example .env.prod and fill it in$(RESET)"; \
 		exit 1; \
 	fi
-	$(PROD_COMPOSE) up -d --build
+	$(PROD_COMPOSE) pull app
+	$(PROD_COMPOSE) up -d
+
+prod-build: ## Build the image from this checkout and start the production stack
+	@if [ ! -f .env.prod ]; then \
+		echo "$(RED).env.prod not found: cp .env.prod.example .env.prod and fill it in$(RESET)"; \
+		exit 1; \
+	fi
+	docker compose -f docker-compose.prod.yml -f docker-compose.build.yml --env-file .env.prod up -d --build
 
 prod-down: ## Stop the production stack (data is kept)
 	$(PROD_COMPOSE) down

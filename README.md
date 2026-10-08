@@ -236,12 +236,13 @@ la [documentation des dépendances](docs/dependencies.md).
 
 # Installation
 
-To run Coelbook on a server, everything is in one image and one compose file:
+To run Coelbook on a server, all you need is Docker and two files — the image is published for each release (amd64 and arm64):
 
 ```bash
-git clone https://github.com/mzeahmed/coelbook.git && cd coelbook
-cp .env.prod.example .env.prod   # set APP_BASE_URL, JWT_SECRET, POSTGRES_PASSWORD
-make prod-up
+mkdir coelbook && cd coelbook
+curl -fsSLO https://raw.githubusercontent.com/mzeahmed/coelbook/main/docker-compose.prod.yml
+curl -fsSL https://raw.githubusercontent.com/mzeahmed/coelbook/main/.env.prod.example -o .env.prod   # set APP_BASE_URL, JWT_SECRET, POSTGRES_PASSWORD
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 ```
 
 The app listens on `127.0.0.1:8080`; put a reverse proxy with HTTPS in front of it, open the public URL and follow the setup wizard. Database migrations run on startup.

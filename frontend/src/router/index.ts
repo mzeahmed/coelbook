@@ -49,6 +49,7 @@ async function guard(routeName: 'setup' | 'login' | 'forgot-password' | 'reset-p
 // loaded on first visit so the login screen and dashboard don't download
 // them.
 const IncidentView = () => import('@/modules/dashboard/views/IncidentView').then((m) => ({ Component: m.default }))
+const HistoryView = () => import('@/modules/dashboard/views/HistoryView').then((m) => ({ Component: m.default }))
 const HelpView = () => import('@/modules/dashboard/views/HelpView').then((m) => ({ Component: m.default }))
 const IncidentFormView = () =>
   import('@/modules/dashboard/views/IncidentFormView').then((m) => ({ Component: m.default }))
@@ -124,6 +125,11 @@ const router = createBrowserRouter([
     path: '/incidents/:slug/edit',
     loader: () => (getToken() ? null : redirect('/login')),
     lazy: IncidentFormView,
+  },
+  {
+    path: '/incidents/:slug/history',
+    loader: () => (getToken() ? null : redirect('/login')),
+    lazy: HistoryView,
   },
 ])
 

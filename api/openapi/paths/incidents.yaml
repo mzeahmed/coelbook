@@ -88,6 +88,7 @@ components:
           - invalid_timezone
           - invalid_locale
           - not_initialized
+          - version_not_found
         field:
           type: string
           description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.
@@ -317,6 +318,53 @@ components:
           description: Absolute http or https URL.
       required:
       - url
+    IncidentVersionSummary:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: Version number, from 1.
+        created_at:
+          type: string
+          format: date-time
+        author:
+          allOf:
+          - $ref: '#/components/schemas/IncidentAuthor'
+          nullable: true
+          description: Null when the user who made the change was deleted.
+        changed_fields:
+          type: array
+          items:
+            type: string
+            enum:
+            - title
+            - summary
+            - problem
+            - diagnosis
+            - root_cause
+            - solution
+            - prevention
+            - status
+            - category
+            - tags
+            - snippets
+            - links
+          description: Fields that differ from the previous version; empty for version 1.
+      required:
+      - version
+      - created_at
+      - author
+      - changed_fields
+    IncidentVersion:
+      allOf:
+      - $ref: '#/components/schemas/IncidentVersionSummary'
+      - type: object
+        properties:
+          snapshot:
+            type: object
+            description: 'The incident at that version: title, summary, problem, diagnosis, root_cause, solution, prevention, status, category {name, slug}, tags (names), snippets {title, language, content}, links {title, url}.'
+        required:
+        - snapshot
   responses:
     BadRequest:
       description: Invalid request body or parameters.
@@ -526,6 +574,77 @@ paths:
                       $ref: '#/components/schemas/IncidentDetail'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /incidents/{slug}/versions:
+    get:
+      operationId: listIncidentVersions
+      tags:
+      - Incidents
+      summary: List an incident's versions, newest first
+      description: A version is recorded on creation and on every update that changes something (saving unchanged content adds none).
+      security: &id001
+      - BearerAuth: []
+      parameters:
+      - &id002
+        name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Incident slug.
+      responses:
+        '200':
+          description: The versions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - &id003
+                  $ref: '#/components/schemas/Envelope'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/IncidentVersionSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /incidents/{slug}/versions/{version}:
+    get:
+      operationId: getIncidentVersion
+      tags:
+      - Incidents
+      summary: Get one version of an incident, with its full content
+      security: *id001
+      parameters:
+      - *id002
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: The version.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - *id003
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/IncidentVersion'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':

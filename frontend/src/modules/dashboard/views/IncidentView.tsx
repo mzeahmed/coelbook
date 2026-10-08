@@ -210,12 +210,20 @@ export default function IncidentView() {
 
                   <div className="d-flex align-items-start justify-content-between gap-3 mb-2">
                     <h1 className="h3 fw-bold mb-0">{incident.title}</h1>
-                    <Link
-                      to={`/incidents/${incident.slug}/edit`}
-                      className="btn btn-sm btn-outline-secondary fw-medium flex-shrink-0 d-flex align-items-center gap-2"
-                    >
-                      <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i> Modifier
-                    </Link>
+                    <div className="d-flex gap-2 flex-shrink-0">
+                      <Link
+                        to={`/incidents/${incident.slug}/history`}
+                        className="btn btn-sm btn-outline-secondary fw-medium d-flex align-items-center gap-2"
+                      >
+                        <i className="fa-solid fa-clock-rotate-left" style={{ fontSize: '0.7rem' }}></i> Historique
+                      </Link>
+                      <Link
+                        to={`/incidents/${incident.slug}/edit`}
+                        className="btn btn-sm btn-outline-secondary fw-medium d-flex align-items-center gap-2"
+                      >
+                        <i className="fa-solid fa-pen" style={{ fontSize: '0.7rem' }}></i> Modifier
+                      </Link>
+                    </div>
                   </div>
 
                   {incident.summary && (

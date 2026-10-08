@@ -29,4 +29,6 @@ func (m *Module) RegisterRoutes(mux *http.ServeMux, authenticate func(http.Handl
 	mux.Handle("POST /incidents", authenticate(http.HandlerFunc(m.handler.Create)))
 	mux.Handle("GET /incidents/{slug}", authenticate(http.HandlerFunc(m.handler.Get)))
 	mux.Handle("PUT /incidents/{slug}", authenticate(http.HandlerFunc(m.handler.Update)))
+	mux.Handle("GET /incidents/{slug}/versions", authenticate(http.HandlerFunc(m.handler.ListVersions)))
+	mux.Handle("GET /incidents/{slug}/versions/{version}", authenticate(http.HandlerFunc(m.handler.GetVersion)))
 }

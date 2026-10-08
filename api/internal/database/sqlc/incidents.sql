@@ -171,3 +171,49 @@ WHERE id = sqlc.arg(id);
 UPDATE incidents
 SET search_vector = incident_search_vector(id)
 WHERE id = ANY (sqlc.arg(ids)::bigint[]);
+
+-- name: RecordIncidentVersion :execrows
+-- Appends a version with the incident's current snapshot, listing the keys
+-- that differ from the previous version. A save that changed nothing adds
+-- no version (0 rows). Call it last in the write transaction, after tags,
+-- snippets and links; the incident row lock taken by that transaction keeps
+-- version numbers sequential.
+WITH prev AS (
+    SELECT v.version, v.snapshot
+    FROM incident_versions v
+    WHERE v.incident_id = sqlc.arg(incident_id)
+    ORDER BY v.version DESC
+    LIMIT 1
+), cur AS (
+    SELECT incident_snapshot(sqlc.arg(incident_id)) AS snapshot
+)
+INSERT INTO incident_versions (incident_id, version, snapshot, changed_fields, author_id)
+SELECT
+    sqlc.arg(incident_id),
+    coalesce((SELECT version FROM prev), 0) + 1,
+    cur.snapshot,
+    coalesce(
+        (SELECT array_agg(k.key ORDER BY k.key)
+         FROM jsonb_each(cur.snapshot) k, prev
+         WHERE k.value IS DISTINCT FROM prev.snapshot -> k.key),
+        '{}'::text[]),
+    sqlc.arg(author_id)
+FROM cur
+WHERE NOT EXISTS (SELECT 1 FROM prev WHERE prev.snapshot = cur.snapshot);
+
+-- name: ListIncidentVersions :many
+SELECT v.version, v.changed_fields, v.created_at,
+       u.first_name AS author_first_name, u.last_name AS author_last_name
+FROM incident_versions v
+JOIN incidents i ON i.id = v.incident_id
+LEFT JOIN users u ON u.id = v.author_id
+WHERE i.slug = sqlc.arg(slug)
+ORDER BY v.version DESC;
+
+-- name: GetIncidentVersion :one
+SELECT v.version, v.snapshot, v.changed_fields, v.created_at,
+       u.first_name AS author_first_name, u.last_name AS author_last_name
+FROM incident_versions v
+JOIN incidents i ON i.id = v.incident_id
+LEFT JOIN users u ON u.id = v.author_id
+WHERE i.slug = sqlc.arg(slug) AND v.version = sqlc.arg(version);

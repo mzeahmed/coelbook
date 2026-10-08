@@ -289,3 +289,47 @@ export interface Stats {
 export function getStats(): Promise<Stats> {
   return apiFetch<Stats>('/api/stats', { headers: authHeaders() })
 }
+
+// An incident's content at one version (see the API's incident_snapshot).
+export interface IncidentSnapshot {
+  title: string
+  summary: string
+  problem: string
+  diagnosis: string
+  root_cause: string
+  solution: string
+  prevention: string
+  status: IncidentStatus
+  category: IncidentCategory
+  tags: string[]
+  snippets: IncidentSnippetInput[]
+  links: IncidentLinkInput[]
+}
+
+export type SnapshotField = keyof IncidentSnapshot
+
+export interface IncidentVersionSummary {
+  version: number
+  created_at: string
+  // null when the user who made the change was deleted.
+  author: IncidentAuthor | null
+  // Fields that differ from the previous version; empty for version 1.
+  changed_fields: SnapshotField[]
+}
+
+export interface IncidentVersion extends IncidentVersionSummary {
+  snapshot: IncidentSnapshot
+}
+
+// listIncidentVersions returns an incident's history, newest first.
+export function listIncidentVersions(slug: string): Promise<IncidentVersionSummary[]> {
+  return apiFetch<IncidentVersionSummary[]>(`/api/incidents/${encodeURIComponent(slug)}/versions`, {
+    headers: authHeaders(),
+  })
+}
+
+export function getIncidentVersion(slug: string, version: number): Promise<IncidentVersion> {
+  return apiFetch<IncidentVersion>(`/api/incidents/${encodeURIComponent(slug)}/versions/${version}`, {
+    headers: authHeaders(),
+  })
+}

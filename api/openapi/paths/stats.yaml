@@ -88,6 +88,7 @@ components:
           - invalid_timezone
           - invalid_locale
           - not_initialized
+          - version_not_found
         field:
           type: string
           description: 'Path of the request field a validation error is about, present on such errors only. Dots separate nested fields and brackets hold list indexes, e.g. `title` or `snippets[2].content`.

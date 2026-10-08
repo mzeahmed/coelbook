@@ -77,6 +77,15 @@ export default function HelpView() {
             </ul>
           </Card>
 
+          <Card id="historique" title="Historique">
+            <p className="mb-0">
+              Chaque enregistrement qui modifie un coelbook crée une nouvelle version. Le bouton <strong>Historique</strong>{' '}
+              d&apos;un coelbook liste ses versions (date, auteur, champs modifiés) et compare deux versions section par
+              section : les lignes supprimées en rouge, les lignes ajoutées en vert. Enregistrer sans rien changer ne crée
+              pas de version.
+            </p>
+          </Card>
+
           <Card id="recherche" title="Recherche">
             <p>
               La recherche porte sur le titre, le résumé, toutes les sections, les tags, les titres et le contenu des

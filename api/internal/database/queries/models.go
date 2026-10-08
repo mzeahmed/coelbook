@@ -126,6 +126,21 @@ type IncidentTag struct {
 	TagID int64 `json:"tag_id"`
 }
 
+// Snapshots of an incident after each change, for its history.
+type IncidentVersion struct {
+	ID         int64 `json:"id"`
+	IncidentID int64 `json:"incident_id"`
+	// Version number within the incident, from 1.
+	Version int32 `json:"version"`
+	// Full content at that version (see incident_snapshot()).
+	Snapshot []byte `json:"snapshot"`
+	// Snapshot keys that differ from the previous version; empty for version 1.
+	ChangedFields []string `json:"changed_fields"`
+	// User who made the change; NULL if they were deleted.
+	AuthorID  pgtype.Int8        `json:"author_id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
 // External resources referenced by an incident.
 type Link struct {
 	// Primary key.

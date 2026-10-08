@@ -6,6 +6,8 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"mime"
+	"mime/quotedprintable"
 	"net"
 	"net/smtp"
 	"net/url"
@@ -50,20 +52,10 @@ func (s *SMTP) SendPasswordReset(ctx context.Context, recipient, token string) e
 	query.Set("token", token)
 	resetURL.RawQuery = query.Encode()
 
-	body := strings.Join([]string{
-		"To: " + recipient,
-		"From: " + s.config.From,
-		"Subject: Reset your Coelbook password",
-		"MIME-Version: 1.0",
-		"Content-Type: text/plain; charset=UTF-8",
-		"",
-		"A password reset was requested for your Coelbook account.",
-		"",
-		"Open this link to choose a new password:",
-		resetURL.String(),
-		"",
-		"This link expires in one hour. If you did not request this, you can ignore this email.",
-	}, "\r\n")
+	body, err := passwordResetMessage(s.config.From, recipient, resetURL.String())
+	if err != nil {
+		return fmt.Errorf("build password reset email: %w", err)
+	}
 
 	address := net.JoinHostPort(s.config.Host, s.config.Port)
 	conn, err := net.DialTimeout("tcp", address, 10*time.Second)
@@ -110,4 +102,41 @@ func (s *SMTP) SendPasswordReset(ctx context.Context, recipient, token string) e
 	}
 
 	return nil
+}
+
+// passwordResetMessage builds the password reset email, in French like the
+// rest of the interface. Headers must be ASCII, so the subject is RFC 2047
+// encoded; the body is quoted-printable so its accents survive any relay.
+func passwordResetMessage(from, recipient, link string) (string, error) {
+
+	text := strings.Join([]string{
+		"Bonjour,",
+		"",
+		"Une réinitialisation du mot de passe de votre compte Coelbook a été demandée.",
+		"",
+		"Ouvrez ce lien pour choisir un nouveau mot de passe :",
+		link,
+		"",
+		"Ce lien expire dans une heure. Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail : votre mot de passe reste inchangé.",
+	}, "\r\n")
+
+	var encoded strings.Builder
+	qp := quotedprintable.NewWriter(&encoded)
+	if _, err := qp.Write([]byte(text)); err != nil {
+		return "", err
+	}
+	if err := qp.Close(); err != nil {
+		return "", err
+	}
+
+	return strings.Join([]string{
+		"To: " + recipient,
+		"From: " + from,
+		"Subject: " + mime.QEncoding.Encode("utf-8", "Réinitialisez votre mot de passe Coelbook"),
+		"MIME-Version: 1.0",
+		"Content-Type: text/plain; charset=UTF-8",
+		"Content-Transfer-Encoding: quoted-printable",
+		"",
+		encoded.String(),
+	}, "\r\n"), nil
 }

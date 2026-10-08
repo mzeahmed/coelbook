@@ -78,6 +78,12 @@ An Incident documents a technical problem and its resolution.
 
 `search_vector` is built by the SQL function `incident_search_vector(id)` with the `coelbook` text search configuration (`simple` dictionary + `unaccent`: accent-insensitive, no stemming). Weights: **A** title; **B** summary, problem, tag names; **C** diagnosis, root cause, solution, snippet titles; **D** prevention. It is not kept up to date by the database: the API refreshes it after every write, so rows edited directly in SQL need `UPDATE incidents SET search_vector = incident_search_vector(id)`.
 
+## Incident versions
+
+Table `incident_versions` keeps the history of each incident: one row per version, with a full `snapshot` (JSON: title, summary, the five sections, status, category, tag names, snippets and links), the `changed_fields` compared with the previous version, the `author_id` (set to NULL if the user is deleted) and the `created_at` date.
+
+The snapshot is built by the SQL function `incident_snapshot(id)`, its single definition. The API records a version at the end of every incident write transaction (query `RecordIncidentVersion`) and skips it when the snapshot equals the previous one. Every version is kept. Incidents that existed before the table were given a version 1 with their state at the time.
+
 ---
 
 # Category

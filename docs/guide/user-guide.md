@@ -57,6 +57,10 @@ Snippets and fenced code blocks are syntax-highlighted and have a **Copier** but
 
 The slug (the incident's URL) is derived from the title on creation and never changes, so links to an incident keep working when its title is edited.
 
+## History
+
+Every save that changes an incident records a new **version**; saving without changes records none. The **Historique** button of an incident lists its versions — date, author, and which fields changed — and compares any two of them field by field: removed lines in red, added lines in green, tags as removed/added. The comparison is kept in the page URL (`?v=3&compare=1`), so it can be shared.
+
 ## Statuses
 
 - **Brouillon** (draft): being written, not yet considered reliable.

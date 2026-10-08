@@ -78,6 +78,14 @@ func (s *Service) Create(ctx context.Context, userID int64, req WriteRequest) (D
 		return Detail{}, err
 	}
 
+	// After every other write, so the snapshot holds the final state.
+	if _, err := q.RecordIncidentVersion(ctx, repo.RecordIncidentVersionParams{
+		IncidentID: id,
+		AuthorID:   pgtype.Int8{Int64: userID, Valid: true},
+	}); err != nil {
+		return Detail{}, err
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return Detail{}, err
 	}
@@ -85,10 +93,11 @@ func (s *Service) Create(ctx context.Context, userID int64, req WriteRequest) (D
 	return s.Get(ctx, slug)
 }
 
-// Update replaces the editable fields of the incident identified by slug
-// and returns it. The slug itself never changes. It returns ErrNotFound if
-// no incident has that slug.
-func (s *Service) Update(ctx context.Context, slug string, req WriteRequest) (Detail, error) {
+// Update replaces the editable fields of the incident identified by slug,
+// on behalf of userID (recorded as the author of the new version), and
+// returns it. The slug itself never changes. It returns ErrNotFound if no
+// incident has that slug.
+func (s *Service) Update(ctx context.Context, userID int64, slug string, req WriteRequest) (Detail, error) {
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
@@ -141,6 +150,14 @@ func (s *Service) Update(ctx context.Context, slug string, req WriteRequest) (De
 
 	// Last, so the full-text document sees the new tags and snippets.
 	if err := q.RefreshIncidentSearchVector(ctx, id); err != nil {
+		return Detail{}, err
+	}
+
+	// After every other write, so the snapshot holds the final state.
+	if _, err := q.RecordIncidentVersion(ctx, repo.RecordIncidentVersionParams{
+		IncidentID: id,
+		AuthorID:   pgtype.Int8{Int64: userID, Valid: true},
+	}); err != nil {
 		return Detail{}, err
 	}
 

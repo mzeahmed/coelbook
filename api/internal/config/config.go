@@ -26,8 +26,13 @@ type Config struct {
 
 	Server   ServerConfig
 	Database DatabaseConfig
-	Auth     AuthConfig
-	Mail     MailConfig
+	// AutoMigrate applies pending database migrations on startup.
+	AutoMigrate bool
+	// StaticDir, when set, is the built frontend the server also serves
+	// (see internal/web); empty in development, where Vite serves it.
+	StaticDir string
+	Auth      AuthConfig
+	Mail      MailConfig
 }
 
 // ServerConfig configures the HTTP server.
@@ -73,10 +78,14 @@ type MailConfig struct {
 // Load builds the Config from environment variables, falling back to
 // sensible development defaults for anything that isn't set.
 //
-// If a .env file exists, it is loaded automatically.
+// Outside production, the repo root's .env file is loaded if it exists.
 func Load() (*Config, error) {
-	if err := godotenv.Load(envPath()); err != nil {
-		log.Println(".env file not found, using system environment variables")
+	// In production the environment is the only source (e.g. a compose
+	// env_file): there is no repo checkout to find a .env in.
+	if os.Getenv("APP_ENV") != "production" {
+		if err := godotenv.Load(envPath()); err != nil {
+			log.Println(".env file not found, using system environment variables")
+		}
 	}
 
 	env := envString("APP_ENV", "development")
@@ -103,7 +112,9 @@ func Load() (*Config, error) {
 			Host: envString("APP_HOST", "0.0.0.0"),
 			Port: envString("APP_PORT", "8080"),
 		},
-		Database: db,
+		Database:    db,
+		AutoMigrate: envBool("AUTO_MIGRATE", true),
+		StaticDir:   envString("STATIC_DIR", ""),
 		Auth: AuthConfig{
 			JwtSecret: envString("JWT_SECRET", "change-me"),
 		},

@@ -16,8 +16,8 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
-1. Production deployment: Docker image and compose file — *Production & releases*
-2. Incident history — *Authoring*
+1. Incident history — *Authoring*
+2. Release automation: a tag publishes the image — *Production & releases*
 
 To decide: whether incidents can be **deleted**, or whether archiving remains the only way to retire one until roles exist (see *Authoring*).
 
@@ -28,7 +28,7 @@ To decide: whether incidents can be **deleted**, or whether archiving remains th
 - [x] Project structure: Go API, React frontend, PostgreSQL
 - [x] Database schema (users, categories, tags, incidents, snippets, attachments, links)
 - [x] Installation wizard
-- [x] Authentication and password reset
+- [x] Authentication and password reset (emails compared case-insensitively)
 - [x] French user interface (docs and code stay in English)
 - [x] Stable API error codes, translated by the frontend
 - [x] Field-level validation feedback in forms
@@ -72,7 +72,7 @@ Finding a past solution.
 
 Classifying the knowledge base.
 
-- [x] Category management (default categories created at setup)
+- [x] Category management (default categories and tags created by a migration)
 - [x] Category and tag endpoints for filter facets
 - [x] Tag management (rename, merge, delete, clean up unused tags; search reindexed)
 
@@ -93,12 +93,12 @@ Working on the knowledge base as a team.
 
 Running Coelbook outside the development environment, and shipping versions others can install. Releases become meaningful once this theme is done.
 
-- [ ] Production Docker image (API + built frontend)
-- [ ] Production compose file (no dev tools, HTTPS-ready reverse proxy)
-- [ ] Migrations applied automatically on startup
+- [x] Production Docker image (API + built frontend, single non-root process, ~28 MB)
+- [x] Production compose file (no dev tools, listens on localhost behind an HTTPS reverse proxy)
+- [x] Migrations applied automatically on startup
 - [ ] Release automation: a tag builds and publishes the image, the release notes come from the CHANGELOG
 - [ ] Upgrade notes between versions
-- [ ] Backup and restore guide
+- [x] Backup and restore guide (docs/deployment.md)
 
 ---
 

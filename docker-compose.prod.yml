@@ -1,0 +1,50 @@
+# Production deployment: PostgreSQL and Coelbook, nothing else.
+#
+#   cp .env.prod.example .env.prod   # then edit it
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# Coelbook listens on 127.0.0.1 only: put a reverse proxy with HTTPS in
+# front of it (see docs/deployment.md). Migrations run on startup.
+
+name: coelbook
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-coelbook}
+      POSTGRES_USER: ${POSTGRES_USER:-coelbook}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.prod}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: coelbook:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-coelbook}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-coelbook}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env.prod}
+      APP_BASE_URL: ${APP_BASE_URL:?set APP_BASE_URL in .env.prod}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_TLS: ${SMTP_TLS:-true}
+    ports:
+      - "127.0.0.1:${COELBOOK_PORT:-8080}:8080"
+
+volumes:
+  db-data:

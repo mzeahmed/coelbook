@@ -1,7 +1,9 @@
 -- name: FindUserByEmail :one
+-- Case-insensitive: an address is the same whatever case it is typed in
+-- (see the users_email_lower_key index).
 SELECT *
 FROM users
-WHERE email = $1;
+WHERE lower(email) = lower(sqlc.arg(email));
 
 -- name: FindUserById :one
 SELECT *

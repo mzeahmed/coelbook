@@ -24,6 +24,7 @@ RESET  := \033[0m
         tidy update \
         clean doctor \
         hosts-add hosts-remove up down restart logs ps bash \
+        prod-up prod-down prod-logs \
         module commit clean-branches \
         migrate-up migrate-down sqlc
 
@@ -194,6 +195,25 @@ ps: ## List containers
 bash: ## Access the app container
 	@echo "$(YELLOW)Accessing the app container...$(RESET)"
 	docker exec -it $(APP_CONTAINER) sh
+
+# ==============================================================================
+# Production (see docs/deployment.md)
+# ==============================================================================
+
+PROD_COMPOSE := docker compose -f docker-compose.prod.yml --env-file .env.prod
+
+prod-up: ## Build and start the production stack (needs .env.prod)
+	@if [ ! -f .env.prod ]; then \
+		echo "$(RED).env.prod not found: cp .env.prod.example .env.prod and fill it in$(RESET)"; \
+		exit 1; \
+	fi
+	$(PROD_COMPOSE) up -d --build
+
+prod-down: ## Stop the production stack (data is kept)
+	$(PROD_COMPOSE) down
+
+prod-logs: ## Follow the production logs
+	$(PROD_COMPOSE) logs -f app
 
 # ==============================================================================
 # Utilities

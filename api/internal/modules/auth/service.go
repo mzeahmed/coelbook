@@ -161,7 +161,7 @@ func hashPasswordResetToken(token string) string {
 // success.
 func (s *Service) Login(ctx context.Context, req LoginRequest) (Response, error) {
 
-	u, err := repo.New(s.pool).FindUserByEmail(ctx, req.Email)
+	u, err := repo.New(s.pool).FindUserByEmail(ctx, strings.TrimSpace(req.Email))
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return Response{}, ErrInvalidCredentials

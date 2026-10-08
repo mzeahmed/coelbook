@@ -1,0 +1,21 @@
+# Keep the production build context small and free of local state.
+.git
+.github
+.idea
+.docker
+docs
+assets
+scripts
+.env
+.env.*
+!.env.prod.example
+docker-compose*.yml
+Makefile
+
+api/tmp
+api/bin
+
+frontend/node_modules
+frontend/dist
+frontend/.vscode
+frontend_back

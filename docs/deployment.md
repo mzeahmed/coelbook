@@ -5,7 +5,7 @@ How to run Coelbook on a server. For the development environment, see the [READM
 A production instance is two containers, defined in [`docker-compose.prod.yml`](../docker-compose.prod.yml):
 
 - **db** — PostgreSQL 17, data in the `db-data` volume;
-- **app** — Coelbook: a single binary serving the web interface and the API (under `/api`), built from the [`Dockerfile`](../Dockerfile). It applies pending database migrations on every start.
+- **app** — Coelbook: a single binary serving the web interface and the API (under `/api`). It runs the image published for each release, `ghcr.io/mzeahmed/coelbook` (amd64 and arm64), and applies pending database migrations on every start.
 
 The app listens on `127.0.0.1` only: a reverse proxy in front of it provides HTTPS.
 
@@ -22,23 +22,19 @@ The app listens on `127.0.0.1` only: a reverse proxy in front of it provides HTT
 
 # Installation
 
-1. Get the code:
+1. Get the two files a deployment needs — no checkout or build required:
 
    ```bash
-   git clone https://github.com/mzeahmed/coelbook.git
-   cd coelbook
+   mkdir coelbook && cd coelbook
+   curl -fsSLO https://raw.githubusercontent.com/mzeahmed/coelbook/main/docker-compose.prod.yml
+   curl -fsSL https://raw.githubusercontent.com/mzeahmed/coelbook/main/.env.prod.example -o .env.prod
    ```
 
-2. Create the configuration:
-
-   ```bash
-   cp .env.prod.example .env.prod
-   ```
-
-   Edit `.env.prod`:
+2. Edit `.env.prod`:
 
    | Variable | Required | Description |
    | --- | --- | --- |
+   | `COELBOOK_VERSION` | no | Image to run: a release (`0.2.0`), a minor line that follows its patch releases (`0.2`, the default in the example), or `latest` |
    | `APP_BASE_URL` | yes | Public URL of the instance, e.g. `https://coelbook.example.com` (used in password reset emails) |
    | `JWT_SECRET` | yes | Signs session tokens — `openssl rand -hex 32` |
    | `POSTGRES_PASSWORD` | yes | Database password — `openssl rand -hex 24` |
@@ -48,22 +44,32 @@ The app listens on `127.0.0.1` only: a reverse proxy in front of it provides HTT
 
    Keep `.env.prod` private: it holds the secrets.
 
-3. Build and start:
+3. Start:
 
    ```bash
-   make prod-up
+   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
    ```
-
-   (`docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build`)
 
 4. Check it is running:
 
    ```bash
-   make prod-logs                       # migrations, then "starting coelbook server"
-   curl -s http://127.0.0.1:8080/health # {"code":200,...}
+   docker compose -f docker-compose.prod.yml --env-file .env.prod logs app   # migrations, then "starting coelbook server"
+   curl -s http://127.0.0.1:8080/health                                      # {"code":200,...}
    ```
 
 5. Put the reverse proxy in front (below), open the public URL and follow the setup wizard to create the administrator account. Default categories and tags are already there.
+
+## From a checkout
+
+To run unreleased code or your own changes, build the image from a clone instead of pulling it:
+
+```bash
+git clone https://github.com/mzeahmed/coelbook.git && cd coelbook
+cp .env.prod.example .env.prod   # then edit it
+make prod-build                  # docker-compose.prod.yml + docker-compose.build.yml, --build
+```
+
+`make prod-up`, `make prod-down` and `make prod-logs` run the published image from a checkout.
 
 ---
 
@@ -83,12 +89,16 @@ coelbook.example.com {
 
 # Updating
 
+Back up the database first (below), and read the [CHANGELOG](../CHANGELOG.md) for anything that needs attention.
+
+With `COELBOOK_VERSION` set to a minor line (`0.2`), pull its latest patch release:
+
 ```bash
-git pull
-make prod-up
+docker compose -f docker-compose.prod.yml --env-file .env.prod pull app
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 ```
 
-The image is rebuilt and the app restarted; new database migrations are applied on startup. Read the [CHANGELOG](../CHANGELOG.md) first for anything that needs attention. Back up the database before updating (below).
+To move to a new minor version, set it in `.env.prod` (e.g. `COELBOOK_VERSION=0.3`) and run the same two commands. New database migrations are applied when the app starts. From a checkout: `git pull && make prod-build`.
 
 ---
 

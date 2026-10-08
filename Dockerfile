@@ -1,12 +1,18 @@
 # Production image: one process serving the API and the built frontend.
 #
 #   docker build -t coelbook .
+#   docker buildx build --platform linux/amd64,linux/arm64 .   # both, as released
+#
+# Multi-platform builds need no emulation: the frontend (static files) and
+# the Go binary (cross-compiled for TARGETARCH) are built on the build
+# machine's own platform; only the final stage is per platform, and it runs
+# no command.
 #
 # The development environment (docker-compose.yml, .docker/) is separate:
 # it runs the API with hot reload and the frontend on the Vite dev server.
 
 # --- Frontend: static build ---------------------------------------------------
-FROM node:24-alpine AS frontend
+FROM --platform=$BUILDPLATFORM node:24-alpine AS frontend
 
 WORKDIR /src/frontend
 
@@ -17,7 +23,10 @@ COPY frontend/ ./
 RUN npm run build
 
 # --- API: static binary -------------------------------------------------------
-FROM golang:1.26-alpine AS api
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS api
+
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /src/api
 
@@ -28,7 +37,8 @@ COPY api/ ./
 # Static binary (no libc needed at runtime); -trimpath and stripped symbols
 # keep it reproducible and small. Migrations and time zone data are
 # embedded in it.
-RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/coelbook ./cmd
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -trimpath -ldflags="-s -w" -o /out/coelbook ./cmd
 
 # --- Runtime ------------------------------------------------------------------
 # distroless/static: CA certificates (for SMTP over TLS) and nothing else —

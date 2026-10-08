@@ -1,0 +1,14 @@
+# Builds the production image from this checkout instead of pulling the
+# published one. Used on top of docker-compose.prod.yml:
+#
+#   docker compose -f docker-compose.prod.yml -f docker-compose.build.yml \
+#     --env-file .env.prod up -d --build
+#
+# (`make prod-build`)
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: coelbook:local

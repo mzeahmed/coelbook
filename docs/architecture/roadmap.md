@@ -16,8 +16,8 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
-1. Release automation: a tag publishes the image — *Production & releases*
-2. Restore an earlier version of an incident — *Authoring*
+1. Restore an earlier version of an incident — *Authoring*
+2. API integration tests against a real database — *Quality*
 
 To decide: whether incidents can be **deleted**, or whether archiving remains the only way to retire one until roles exist (see *Authoring*).
 
@@ -97,7 +97,7 @@ Running Coelbook outside the development environment, and shipping versions othe
 - [x] Production Docker image (API + built frontend, single non-root process, ~28 MB)
 - [x] Production compose file (no dev tools, listens on localhost behind an HTTPS reverse proxy)
 - [x] Migrations applied automatically on startup
-- [ ] Release automation: a tag builds and publishes the image, the release notes come from the CHANGELOG
+- [x] Release automation: a tag builds and publishes the image (amd64 and arm64), the release notes come from the CHANGELOG
 - [ ] Upgrade notes between versions
 - [x] Backup and restore guide (docs/deployment.md)
 
@@ -106,7 +106,7 @@ Running Coelbook outside the development environment, and shipping versions othe
 ## Quality
 
 - [x] CI: Go formatting, vet, tests and build
-- [ ] Frontend checks in CI (lint, type-check, build)
+- [x] Frontend checks in CI (lint, type-check, build)
 - [ ] API integration tests against a real database
 - [ ] End-to-end tests of the main user flows
 

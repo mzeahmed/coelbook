@@ -111,20 +111,36 @@ Before creating a release:
 - Documentation is updated
 - Tests pass
 - Docker environment works correctly
-- CHANGELOG has a dated section for the version, and the roadmap is up to date
+- CHANGELOG has a dated section for the version (`./scripts/changelog-section.sh x.y.z` prints it), and the roadmap is up to date
 
 ---
 
 # Creating a Release
 
-Example:
+Releases are published by the `release.yml` workflow when a version tag is pushed.
 
-```bash
-git tag -a v0.1.0 -m "Initial MVP"
-git push origin v0.1.0
-```
+1. In `CHANGELOG.md`, turn the `[Unreleased]` content into a `## [x.y.z] - YYYY-MM-DD` section, leave an empty `[Unreleased]` above it, and update the comparison links at the bottom.
+2. Check the release notes the workflow will publish:
 
-GitHub Releases should then be created from the corresponding tag.
+   ```bash
+   ./scripts/changelog-section.sh 0.2.0
+   ```
+
+3. Merge that change into `main`, then tag the merge commit and push the tag:
+
+   ```bash
+   git switch main && git pull
+   git tag -a v0.2.0 -m "Coelbook v0.2.0"
+   git push origin v0.2.0
+   ```
+
+The workflow then:
+
+- fails right away if `CHANGELOG.md` has no section for the version — nothing is published;
+- builds the production image for linux/amd64 and linux/arm64 and pushes it to `ghcr.io/mzeahmed/coelbook` with the tags `0.2.0`, `0.2` and `latest`;
+- creates the GitHub release `v0.2.0`, with the changelog section as its notes.
+
+The first time an image is published, check that the package is public (repository → *Packages* → `coelbook` → *Package settings* → *Change visibility*), or installations won't be able to pull it.
 
 ---
 

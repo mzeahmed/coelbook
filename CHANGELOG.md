@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Restore an earlier version** of an incident from its history. The restored content is saved as a new version, so history is never rewritten (`POST /incidents/{slug}/versions/{version}/restore`).
+
 ## [0.2.0] - 2026-10-08
 
 First version installable from a published image.

@@ -16,8 +16,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
-1. Restore an earlier version of an incident — *Authoring*
-2. API integration tests against a real database — *Quality*
+1. API integration tests against a real database — *Quality*
 
 To decide: whether incidents can be **deleted**, or whether archiving remains the only way to retire one until roles exist (see *Authoring*).
 
@@ -52,7 +51,7 @@ Writing and reading incidents.
 - [ ] Delete incidents *(to decide: archiving may stay the only way to retire an incident, with deletion reserved to admins once roles exist)*
 - [x] Table of contents (sections and Markdown headings, shareable anchors, current section highlighted)
 - [x] Incident history (a version per change, compare any two versions)
-- [ ] Restore an earlier version
+- [x] Restore an earlier version
 - [ ] Image uploads
 - [ ] File attachments *(partial: `attachments` table exists; no upload or storage)*
 

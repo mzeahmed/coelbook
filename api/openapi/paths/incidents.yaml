@@ -651,3 +651,39 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /incidents/{slug}/versions/{version}/restore:
+    post:
+      operationId: restoreIncidentVersion
+      tags:
+      - Incidents
+      summary: Restore an incident to an earlier version
+      description: The content of that version (fields, status, category, tags, snippets and links) is saved as a new version at the top of the history, so nothing is lost and the restoration can itself be undone. Restoring content identical to the current one adds no version. Fails with 400 if the version's category no longer exists.
+      security: *id001
+      parameters:
+      - *id002
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: The incident after the restoration.
+          content:
+            application/json:
+              schema:
+                allOf:
+                - *id003
+                - type: object
+                  properties:
+                    data:
+                      $ref: '#/components/schemas/IncidentDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

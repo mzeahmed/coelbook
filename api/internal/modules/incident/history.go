@@ -82,6 +82,63 @@ func (s *Service) Version(ctx context.Context, slug string, version int32) (Vers
 	}, nil
 }
 
+// Restore makes the incident identified by slug match the content it had at
+// version, on behalf of userID. History is never rewritten: the restored
+// content is saved as a new version at the top, so the restoration itself
+// can be undone. Restoring content identical to the current one adds no
+// version. It returns ErrNotFound or ErrVersionNotFound if the incident or
+// the version doesn't exist, and ErrUnknownCategory if the version's
+// category no longer exists.
+func (s *Service) Restore(ctx context.Context, userID int64, slug string, version int32) (Detail, error) {
+
+	v, err := s.Version(ctx, slug, version)
+	if err != nil {
+		if errors.Is(err, ErrVersionNotFound) {
+			// Tell a missing incident apart from a missing version.
+			if _, getErr := s.Get(ctx, slug); getErr != nil {
+				return Detail{}, getErr
+			}
+		}
+
+		return Detail{}, err
+	}
+
+	var snap struct {
+		Title      string `json:"title"`
+		Summary    string `json:"summary"`
+		Problem    string `json:"problem"`
+		Diagnosis  string `json:"diagnosis"`
+		RootCause  string `json:"root_cause"`
+		Solution   string `json:"solution"`
+		Prevention string `json:"prevention"`
+		Status     string `json:"status"`
+		Category   struct {
+			Slug string `json:"slug"`
+		} `json:"category"`
+		Tags     []string       `json:"tags"`
+		Snippets []SnippetInput `json:"snippets"`
+		Links    []LinkInput    `json:"links"`
+	}
+	if err := json.Unmarshal(v.Snapshot, &snap); err != nil {
+		return Detail{}, err
+	}
+
+	return s.Update(ctx, userID, slug, WriteRequest{
+		Title:      snap.Title,
+		Summary:    snap.Summary,
+		Problem:    snap.Problem,
+		Diagnosis:  snap.Diagnosis,
+		RootCause:  snap.RootCause,
+		Solution:   snap.Solution,
+		Prevention: snap.Prevention,
+		Status:     snap.Status,
+		Category:   snap.Category.Slug,
+		Tags:       snap.Tags,
+		Snippets:   snap.Snippets,
+		Links:      snap.Links,
+	})
+}
+
 func versionSummary(version int32, createdAt pgtype.Timestamptz, first, last pgtype.Text, changed []string) VersionSummary {
 
 	var author *Author
@@ -132,6 +189,38 @@ func (h *Handler) GetVersion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, "", res)
+}
+
+// RestoreVersion handles POST /incidents/{slug}/versions/{version}/restore.
+// The authenticated caller is recorded as the author of the new version.
+func (h *Handler) RestoreVersion(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := currentUserID(w, r)
+	if !ok {
+		return
+	}
+
+	n, err := strconv.ParseInt(r.PathValue("version"), 10, 32)
+	if err != nil || n < 1 {
+		response.AppError(w, http.StatusNotFound, ErrVersionNotFound)
+
+		return
+	}
+
+	res, err := h.service.Restore(r.Context(), userID, r.PathValue("slug"), int32(n))
+	if err != nil {
+		if errors.Is(err, ErrUnknownCategory) {
+			response.AppError(w, http.StatusBadRequest, err)
+
+			return
+		}
+
+		writeHistoryError(w, err)
+
+		return
+	}
+
+	response.JSON(w, http.StatusOK, "version restored", res)
 }
 
 func writeHistoryError(w http.ResponseWriter, err error) {

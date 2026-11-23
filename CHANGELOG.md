@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **Integration test infrastructure** — API tests can run against a real PostgreSQL with the real migrations, each test on its own throwaway database (`make test-integration`, and in CI).
 - **Restore an earlier version** of an incident from its history. The restored content is saved as a new version, so history is never rewritten (`POST /incidents/{slug}/versions/{version}/restore`).
 
 ## [0.2.0] - 2026-10-08

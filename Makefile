@@ -69,6 +69,12 @@ vet: ## Run go vet
 test: ## Run unit tests
 	cd api && go test ./...
 
+# Integration tests run against the development PostgreSQL (`make up` first):
+# each test creates its own throwaway database on that server, so your
+# development data is never touched.
+test-integration: ## Run unit and integration tests (needs the database from `make up`)
+	cd api && TEST_DATABASE_URL="postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=disable" go test -count=1 ./...
+
 check: fmt vet test ## Run all quality checks
 
 # ==============================================================================

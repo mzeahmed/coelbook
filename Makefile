@@ -13,6 +13,15 @@ COMPOSE := docker compose -f docker-compose.yml --env-file .env
 
 APP_CONTAINER := coelbook_api
 
+# URLs shown after `make up`, with the host ports configured in .env (the
+# defaults are those of .env.example). The port is left out when it is 80.
+NGINX_PORT_OR_DEFAULT   := $(or $(NGINX_PORT),80)
+URL_PORT                := $(if $(filter 80,$(NGINX_PORT_OR_DEFAULT)),,:$(NGINX_PORT_OR_DEFAULT))
+FRONTEND_URL            := http://coelbook.local$(URL_PORT)
+API_URL                 := http://api.coelbook.local$(URL_PORT)
+ADMINER_URL             := http://localhost:$(or $(ADMINER_PORT),8081)
+MAILPIT_URL             := http://localhost:$(or $(MAILPIT_PORT),8025)
+
 GREEN  := \033[0;32m
 YELLOW := \033[1;33m
 BLUE   := \033[0;34m
@@ -172,10 +181,10 @@ up: hosts-add ## Build and start the containers
 	@echo "$(YELLOW)Starting containers...$(RESET)"
 	$(COMPOSE) up -d --build
 	@echo "$(GREEN)Containers started$(RESET)"
-	@echo "$(BLUE)API URL: http://api.coelbook.local$(RESET)"
-	@echo "$(BLUE)Frontend URL: http://coelbook.local$(RESET)"
-	@echo "$(BLUE)Adminer URL: http://localhost:8081$(RESET)"
-	@echo "$(BLUE)Mailpit URL: http://localhost:8025$(RESET)"
+	@echo "$(BLUE)API URL: $(API_URL)$(RESET)"
+	@echo "$(BLUE)Frontend URL: $(FRONTEND_URL)$(RESET)"
+	@echo "$(BLUE)Adminer URL: $(ADMINER_URL)$(RESET)"
+	@echo "$(BLUE)Mailpit URL: $(MAILPIT_URL)$(RESET)"
 
 down: hosts-remove ## Stop the containers
 	@echo "$(YELLOW)Stopping containers...$(RESET)"

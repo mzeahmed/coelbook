@@ -333,3 +333,12 @@ export function getIncidentVersion(slug: string, version: number): Promise<Incid
     headers: authHeaders(),
   })
 }
+
+// restoreIncidentVersion makes the incident match an earlier version. The
+// restored content is saved as a new version, so history is preserved.
+export function restoreIncidentVersion(slug: string, version: number): Promise<IncidentDetail> {
+  return apiFetch<IncidentDetail>(`/api/incidents/${encodeURIComponent(slug)}/versions/${version}/restore`, {
+    method: 'POST',
+    headers: authHeaders(),
+  })
+}

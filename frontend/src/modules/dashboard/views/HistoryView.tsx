@@ -7,6 +7,7 @@ import { clearSession } from '@/modules/auth/session'
 import {
   getIncidentVersion,
   listIncidentVersions,
+  restoreIncidentVersion,
   type IncidentSnapshot,
   type IncidentVersion,
   type IncidentVersionSummary,
@@ -73,6 +74,7 @@ export default function HistoryView() {
   const [versions, setVersions] = useState<IncidentVersionSummary[] | null>(null)
   const [loaded, setLoaded] = useState<Record<number, IncidentVersion>>({})
   const [error, setError] = useState('')
+  const [restoring, setRestoring] = useState(false)
 
   const fail = useCallback(
     (err: unknown) => {
@@ -140,6 +142,24 @@ export default function HistoryView() {
 
   function setCompare(version: number) {
     setParams({ v: String(selected), compare: String(version) }, { replace: true })
+  }
+
+  // Restoring saves the chosen version's content as a new version, so
+  // nothing is lost; the history is then reloaded to show it.
+  function restore() {
+    if (!window.confirm(`Restaurer la version ${selected} ? Son contenu deviendra une nouvelle version, l'historique est conservé.`)) {
+      return
+    }
+
+    setRestoring(true)
+    setError('')
+
+    restoreIncidentVersion(slug, selected)
+      .then(() => navigate(`/incidents/${slug}`))
+      .catch((err: unknown) => {
+        setRestoring(false)
+        fail(err)
+      })
   }
 
   const after = loaded[selected]
@@ -215,6 +235,17 @@ export default function HistoryView() {
                       </span>
                     )}
                   </h2>
+
+                  {selected !== latest && (
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary fw-medium d-flex align-items-center gap-2"
+                      onClick={restore}
+                      disabled={restoring}
+                    >
+                      <i className="fa-solid fa-rotate-left" style={{ fontSize: '0.7rem' }}></i> Restaurer cette version
+                    </button>
+                  )}
 
                   {selected > 1 && (
                     <label className="small d-flex align-items-center gap-2">

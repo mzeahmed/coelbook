@@ -61,6 +61,8 @@ The slug (the incident's URL) is derived from the title on creation and never ch
 
 Every save that changes an incident records a new **version**; saving without changes records none. The **Historique** button of an incident lists its versions — date, author, and which fields changed — and compares any two of them field by field: removed lines in red, added lines in green, tags as removed/added. The comparison is kept in the page URL (`?v=3&compare=1`), so it can be shared.
 
+Select an earlier version and click **Restaurer cette version** to put the incident back in that state (content, status, category, tags, snippets and links). The restored content is saved as a **new version** on top of the history, so nothing is lost and a restoration can itself be undone.
+
 ## Statuses
 
 - **Brouillon** (draft): being written, not yet considered reliable.

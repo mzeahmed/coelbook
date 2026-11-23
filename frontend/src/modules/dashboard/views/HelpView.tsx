@@ -84,6 +84,11 @@ export default function HelpView() {
               section : les lignes supprimées en rouge, les lignes ajoutées en vert. Enregistrer sans rien changer ne crée
               pas de version.
             </p>
+            <p className="mt-3 mb-0">
+              <strong>Restaurer cette version</strong> remet le coelbook dans l&apos;état d&apos;une version antérieure
+              (contenu, statut, catégorie, tags, snippets et liens). Le résultat est enregistré comme une nouvelle
+              version : rien n&apos;est perdu et la restauration peut elle-même être annulée.
+            </p>
           </Card>
 
           <Card id="recherche" title="Recherche">

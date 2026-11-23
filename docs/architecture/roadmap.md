@@ -16,7 +16,7 @@ Items marked *(partial)* are started but not complete; the note says what is mis
 
 The items most likely to be worked on next, in order. Each one is also listed under its theme below.
 
-1. API integration tests against a real database — *Quality*
+1. API integration tests against a real database: cover the main flows — *Quality*
 
 To decide: whether incidents can be **deleted**, or whether archiving remains the only way to retire one until roles exist (see *Authoring*).
 
@@ -106,7 +106,7 @@ Running Coelbook outside the development environment, and shipping versions othe
 
 - [x] CI: Go formatting, vet, tests and build
 - [x] Frontend checks in CI (lint, type-check, build)
-- [ ] API integration tests against a real database
+- [ ] API integration tests against a real database *(partial: infrastructure and CI in place, with installation and sign-in covered; the other flows remain)*
 - [ ] End-to-end tests of the main user flows
 
 ---

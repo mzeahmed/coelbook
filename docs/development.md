@@ -99,6 +99,17 @@ cd frontend && npm run lint     # ESLint
 cd frontend && npm run build    # type-check and production build
 ```
 
+## Integration tests
+
+Integration tests run the real router against a real PostgreSQL with the real migrations. Each test creates its own throwaway database on the server given by `TEST_DATABASE_URL` and drops it when it ends, so tests are isolated and your development data is never touched. Without that variable they are skipped, so `go test ./...` works anywhere.
+
+```bash
+make up                         # the development PostgreSQL must be running
+make test-integration           # unit and integration tests
+```
+
+The helpers are in `api/internal/testutil`: `testutil.NewApp(t)` starts the API on its own database, `app.Setup(t)` completes the installation wizard and returns an administrator's token, and `app.Do(t, method, path, token, body)` sends a JSON request and returns the status and the decoded response envelope. `app.Mail` holds the emails the application would have sent (such as password-reset tokens) and `app.Pool` gives direct access to the database. See `internal/router/integration_test.go` for an example.
+
 CI (`.github/workflows/checks.yml`) runs the Go checks and the frontend checks (ESLint, type-check, build) on every pull request and on pushes to any branch but `main`. Pushing a version tag runs `.github/workflows/release.yml`, which publishes the image and the GitHub release (see [versioning.md](releases/versioning.md#creating-a-release)).
 
 ---
